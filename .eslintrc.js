@@ -15,10 +15,10 @@ module.exports = {
   ignorePatterns: ['.eslintrc.js'],
   rules: {
     'prettier/prettier': ['error', { printWidth: 120 }],
-    '@typescript-eslint/interface-name-prefix': 'on',
-    '@typescript-eslint/explicit-function-return-type': 'on',
-    '@typescript-eslint/explicit-module-boundary-types': 'on',
-    '@typescript-eslint/no-explicit-any': 'on',
+    '@typescript-eslint/interface-name-prefix': 'off',
+    '@typescript-eslint/explicit-function-return-type': 'error',
+    '@typescript-eslint/explicit-module-boundary-types': 'error',
+    '@typescript-eslint/no-explicit-any': 'error',
     'prettier/prettier': [
       'error',
       {
