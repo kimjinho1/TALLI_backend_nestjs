@@ -1,6 +1,32 @@
 import { NestFactory } from '@nestjs/core'
 import { AppModule } from './app.module'
 
+/*
+TODO
+[] 전체 채용 공고 보기
+[] 개별 채용 공고 보기
+[] 채용 공고 북마크 증감
+[] 북마크한 채용 공고 보기
+[] 채용 공고 추가
+[] 채용 공고 수정
+[] 채용 공고 삭제
+[] 전체 회사 정보 보기
+[] 개별 회사 정보 보기
+[] 회사 정보 추가
+[] 회사 정보 수정
+[] 회사 정보 삭제
+[] 이미지 업로드
+[] 채용 공고 검색
+[] 검색 자동 완성 목록
+[] 회원 정보 수정
+[] 회원 정보 추가
+[] 회원 정보 삭제
+[] FCM 푸시 알림 추가
+[] FCM 푸시 알림 수정
+[] FCM 푸시 알림 삭제
+[] 전체 FCM 푸시 알림 보기
+*/
+
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule)
   console.log('http://localhost:3000')
