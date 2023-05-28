@@ -1,0 +1,105 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  userId     String  @id @default(uuid()) @map("user_id") @db.Uuid
+  name       String?
+  nickname   String  @unique
+  sex        String?
+  age        String?
+  email      String  @unique
+  imageUrl   String? @map("image_url")
+  currentJob String  @map("current_job")
+
+  // User와 CurrentJobDetail one-to-one 연결
+  currentJobDetail CurrentJobDetail?
+
+  // User와 JobOfInterestList one-to-many 연결
+  jobOfInterest JobOfInterest[]
+
+  // User와 BookmarkedJobNotice one-to-many 연결
+  bookmarkedJobNotices BookmarkedJobNotice[]
+}
+
+model CurrentJobDetail {
+  currentJobDetailId String @id @default(uuid()) @map("current_job_detail_id") @db.Uuid
+  userId             String @unique @map("user_id") @db.Uuid // one-to-one
+  grade              String
+  activePeriod       String @map("active_period")
+  escapedJob         String @map("escaped_job")
+  escapedPeriod      String @map("escaped_period")
+  inactivePeriod     String @map("inactive_period")
+  otherJob           String @map("other_job")
+
+  // User와 CurrentJobDetail one-to-one 연결
+  user User @relation(fields: [userId], references: [userId], onDelete: Cascade)
+}
+
+model JobOfInterest {
+  jobOfInterestId String @id @default(uuid()) @map("job_of_interest_id") @db.Uuid
+  userId          String @unique @map("user_id") @db.Uuid // one-to-many
+  jobOfInterest   String @map("job_of_interest")
+
+  // User와 CurrentJobDetail one-to-many 연결
+  user User @relation(fields: [userId], references: [userId], onDelete: Cascade)
+}
+
+model Company {
+  companyId       String   @id @default(uuid()) @map("company_id") @db.Uuid
+  companyName     String   @unique @map("company_name") @db.VarChar
+  logoUrl         String?  @map("logo_url") @db.VarChar
+  companyType     String   @map("company_type") @db.VarChar
+  employee        Int
+  incorporation   DateTime @db.Date
+  companyLocation String   @map("company_location") @db.VarChar
+  companyWebsite  String   @map("company_website") @db.VarChar
+
+  // Company와 Position one-to-many 연결
+  positions Position[]
+}
+
+model Position {
+  jobId           String    @id @default(uuid()) @map("job_id") @db.Uuid
+  companyId       String    @map("company_id") @db.Uuid // one-to-many
+  title           String?   @db.VarChar
+  category        String    @db.VarChar
+  deadline        DateTime  @db.Date
+  experience      String?   @db.VarChar
+  education       String?   @db.VarChar
+  requirements    String?   @db.VarChar
+  preferences     String?   @db.VarChar
+  salary          String?   @db.VarChar
+  jobType         String?   @map("job_type") @db.VarChar
+  jobLocation     String    @map("job_location") @db.VarChar
+  details         String?   @db.VarChar
+  jobWebsite      String?   @map("job_website") @db.VarChar
+  hits            Int
+  titleImageUrl   String?   @map("title_image_url") @db.VarChar
+  detailsImageUrl String?   @map("details_image_url") @db.VarChar
+  bookmarks       Int
+  createdAt       DateTime  @map("created_at") @db.Timestamp(6)
+  modifiedAt      DateTime? @map("modified_at") @db.Timestamp(6)
+
+  // Position과 BookmarkedJobNotice one-to-many 연결
+  bookmarkedJobNotices BookmarkedJobNotice[]
+
+  // Company와 Position one-to-many 연결
+  company Company @relation(fields: [companyId], references: [companyId], onDelete: Cascade)
+}
+
+model BookmarkedJobNotice {
+  bookmarkedJobNoticeId String @id @default(uuid()) @map("bookmarked_job_notice_id") @db.Uuid
+  userId                String @map("user_id") @db.Uuid // one-to-many
+  jobId                 String @map("job_id") @db.Uuid // one-to-many
+
+  // User와 BookmarkedJobNotice one-to-many 연결
+  user     User     @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  // Position과 BookmarkedJobNotice one-to-many 연결
+  position Position @relation(fields: [jobId], references: [jobId], onDelete: Cascade)
+}
