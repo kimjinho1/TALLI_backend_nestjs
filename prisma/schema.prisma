@@ -51,7 +51,7 @@ model JobOfInterest {
 }
 
 model Company {
-  companyId       String   @id @default(uuid()) @map("company_id") @db.Uuid
+  companyId       Int      @id @default(autoincrement()) @map("company_id")
   companyName     String   @unique @map("company_name") @db.VarChar
   logoUrl         String?  @map("logo_url") @db.VarChar
   companyType     String   @map("company_type") @db.VarChar
@@ -65,8 +65,8 @@ model Company {
 }
 
 model Position {
-  jobId           String    @id @default(uuid()) @map("job_id") @db.Uuid
-  companyId       String    @map("company_id") @db.Uuid // one-to-many
+  jobId           Int    @id @default(autoincrement()) @map("job_id")
+  companyId       Int    @map("company_id") // one-to-many
   title           String?   @db.VarChar
   category        String    @db.VarChar
   deadline        DateTime  @db.Date
@@ -96,7 +96,7 @@ model Position {
 model BookmarkedJobNotice {
   bookmarkedJobNoticeId String @id @default(uuid()) @map("bookmarked_job_notice_id") @db.Uuid
   userId                String @map("user_id") @db.Uuid // one-to-many
-  jobId                 String @map("job_id") @db.Uuid // one-to-many
+  jobId                 Int @map("job_id") // one-to-many
 
   // User와 BookmarkedJobNotice one-to-many 연결
   user     User     @relation(fields: [userId], references: [userId], onDelete: Cascade)

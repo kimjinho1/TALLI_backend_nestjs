@@ -37,7 +37,7 @@ CREATE TABLE "JobOfInterest" (
 
 -- CreateTable
 CREATE TABLE "Company" (
-    "company_id" UUID NOT NULL,
+    "company_id" SERIAL NOT NULL,
     "company_name" VARCHAR NOT NULL,
     "logo_url" VARCHAR,
     "company_type" VARCHAR NOT NULL,
@@ -51,8 +51,8 @@ CREATE TABLE "Company" (
 
 -- CreateTable
 CREATE TABLE "Position" (
-    "job_id" UUID NOT NULL,
-    "company_id" UUID NOT NULL,
+    "job_id" SERIAL NOT NULL,
+    "company_id" INTEGER NOT NULL,
     "title" VARCHAR,
     "category" VARCHAR NOT NULL,
     "deadline" DATE NOT NULL,
@@ -79,7 +79,7 @@ CREATE TABLE "Position" (
 CREATE TABLE "BookmarkedJobNotice" (
     "bookmarked_job_notice_id" UUID NOT NULL,
     "user_id" UUID NOT NULL,
-    "job_id" UUID NOT NULL,
+    "job_id" INTEGER NOT NULL,
 
     CONSTRAINT "BookmarkedJobNotice_pkey" PRIMARY KEY ("bookmarked_job_notice_id")
 );
