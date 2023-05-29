@@ -83,8 +83,8 @@ model Position {
   titleImageUrl   String?   @map("title_image_url") @db.VarChar
   detailsImageUrl String?   @map("details_image_url") @db.VarChar
   bookmarks       Int
-  createdAt       DateTime  @map("created_at") @db.Timestamp(6)
-  modifiedAt      DateTime? @map("modified_at") @db.Timestamp(6)
+  createdAt       DateTime  @map("created_at") @db.Timestamp(6) @default(now())
+  modifiedAt      DateTime? @map("modified_at") @db.Timestamp(6) @updatedAt
 
   // Position과 BookmarkedJobNotice one-to-many 연결
   bookmarkedJobNotices BookmarkedJobNotice[]
