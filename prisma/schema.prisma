@@ -50,6 +50,14 @@ model JobOfInterest {
   user User @relation(fields: [userId], references: [userId], onDelete: Cascade)
 }
 
+model BookmarkedJobNotice {
+  bookmarkedJobNoticeId String @id @default(uuid()) @map("bookmarked_job_notice_id") @db.Uuid
+  userId                String @map("user_id") @db.Uuid // one-to-many
+
+  // User와 BookmarkedJobNotice one-to-many 연결
+  user     User     @relation(fields: [userId], references: [userId], onDelete: Cascade)
+}
+
 model Company {
   companyId       Int      @id @default(autoincrement()) @map("company_id")
   companyName     String   @unique @map("company_name") @db.VarChar
@@ -86,20 +94,7 @@ model Position {
   createdAt       DateTime  @map("created_at") @db.Timestamp(6) @default(now())
   modifiedAt      DateTime? @map("modified_at") @db.Timestamp(6) @updatedAt
 
-  // Position과 BookmarkedJobNotice one-to-many 연결
-  bookmarkedJobNotices BookmarkedJobNotice[]
-
   // Company와 Position one-to-many 연결
   company Company @relation(fields: [companyId], references: [companyId], onDelete: Cascade)
 }
 
-model BookmarkedJobNotice {
-  bookmarkedJobNoticeId String @id @default(uuid()) @map("bookmarked_job_notice_id") @db.Uuid
-  userId                String @map("user_id") @db.Uuid // one-to-many
-  jobId                 Int @map("job_id") // one-to-many
-
-  // User와 BookmarkedJobNotice one-to-many 연결
-  user     User     @relation(fields: [userId], references: [userId], onDelete: Cascade)
-  // Position과 BookmarkedJobNotice one-to-many 연결
-  position Position @relation(fields: [jobId], references: [jobId], onDelete: Cascade)
-}
