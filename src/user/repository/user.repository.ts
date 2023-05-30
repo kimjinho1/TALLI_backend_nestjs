@@ -1,33 +1,34 @@
 import { Injectable } from '@nestjs/common'
 import { CurrentJobDetail, User } from '@prisma/client'
 import { PrismaService } from 'prisma/prisma.service'
-import { UserDto } from '../dto/CreateUser.dto'
+import { CurrentJobDetailDto, UserDto } from '../dto/CreateUser.dto'
 
 @Injectable()
 export class UserRepository {
   constructor(private prisma: PrismaService) {}
 
-  async createUser(userData: UserDto): Promise<User> {
-    return await this.prisma.user.create({
-      data: {
-        ...userData
-      },
-      include: {
-        currentJobDetail: true
+  async getUserByNickname(nickname: string): Promise<User | null> {
+    return await this.prisma.user.findUnique({
+      where: {
+        nickname: nickname
       }
     })
   }
 
-  async createUserWithCurrentJobDetail(userData: UserDto, currentJobDetail: CurrentJobDetail): Promise<User> {
+  // 유저 생성
+  async createUser(userData: UserDto): Promise<User> {
     return await this.prisma.user.create({
       data: {
-        ...userData,
-        currentJobDetail: {
-          create: currentJobDetail
-        }
-      },
-      include: {
-        currentJobDetail: true
+        ...userData
+      }
+    })
+  }
+
+  async createCurrentJobDetail(userId: string, currentJobDetail: CurrentJobDetailDto): Promise<CurrentJobDetail> {
+    return await this.prisma.currentJobDetail.create({
+      data: {
+        userId,
+        ...currentJobDetail
       }
     })
   }
