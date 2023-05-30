@@ -1,36 +1,48 @@
+import { Type } from 'class-transformer'
 import {
   IsString,
   IsOptional,
   IsEmail,
   IsUrl,
-  IsEnum,
   IsDateString,
   IsArray,
-  IsInt,
   ValidateNested,
-  IsUUID
+  IsUUID,
+  IsIn,
+  IsNotEmpty
 } from 'class-validator'
 
-enum Sex {
-  Male = 'male',
-  Female = 'female'
-}
+const sex = ['male', 'female']
+const jobList = [
+  '보건관리자',
+  '임상연구',
+  '보험심사',
+  '기획 / 마케팅',
+  '공공기관',
+  '공무원',
+  '메디컬라이터',
+  '영업직',
+  '정신건강간호사',
+  '손해사정사'
+]
 
+// 기본 타입들
 export class UserDto {
   @IsOptional()
   @IsString()
-  name?: string | null
+  name: string | null
 
   @IsString()
+  @IsNotEmpty()
   nickname: string
 
   @IsOptional()
-  @IsEnum(Sex)
-  sex?: string | null
+  @IsIn(sex)
+  sex: string | null
 
   @IsOptional()
   @IsDateString()
-  age?: string | null
+  age: string | null
 
   @IsString()
   @IsEmail()
@@ -38,17 +50,10 @@ export class UserDto {
 
   @IsOptional()
   @IsUrl()
-  imageUrl?: string | null
+  imageUrl: string | null
 
   @IsString()
   currentJob: string
-
-  @IsArray()
-  jobOfInterestList: string[]
-
-  @IsArray()
-  @IsInt({ each: true })
-  bookmarkedJobNotice: number[]
 }
 
 export class CurrentJobDetailDto {
@@ -71,17 +76,25 @@ export class CurrentJobDetailDto {
   otherJob: string
 }
 
+export class JobOfInterest {}
+
+// request 타입들
 export class CreateUserDto extends UserDto {
-  @IsOptional()
-  @ValidateNested()
-  currentJobDetail: CurrentJobDetailDto | null
+  @ValidateNested({ each: true })
+  @Type(() => CurrentJobDetailDto)
+  currentJobDetail: CurrentJobDetailDto
+
+  @IsArray()
+  @IsIn(jobList, { each: true })
+  jobOfInterestList: string[]
 }
 
-export class CreateCurrentJobDetailDto extends CurrentJobDetailDto {
+export class CreateJobHistoryDto extends CurrentJobDetailDto {
   @IsUUID()
   userId: string
 }
 
+// response 타입들
 export class CreateUserResponseDTO extends CreateUserDto {
   @IsUUID()
   userId: string
