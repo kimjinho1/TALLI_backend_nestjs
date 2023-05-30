@@ -13,8 +13,8 @@ CREATE TABLE "User" (
 );
 
 -- CreateTable
-CREATE TABLE "CurrentJobDetail" (
-    "current_job_detail_id" UUID NOT NULL,
+CREATE TABLE "JobHistory" (
+    "id" UUID NOT NULL,
     "user_id" UUID NOT NULL,
     "grade" TEXT NOT NULL,
     "active_period" TEXT NOT NULL,
@@ -23,16 +23,24 @@ CREATE TABLE "CurrentJobDetail" (
     "inactive_period" TEXT NOT NULL,
     "other_job" TEXT NOT NULL,
 
-    CONSTRAINT "CurrentJobDetail_pkey" PRIMARY KEY ("current_job_detail_id")
+    CONSTRAINT "JobHistory_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "JobOfInterest" (
-    "job_of_interest_id" UUID NOT NULL,
+    "id" UUID NOT NULL,
     "user_id" UUID NOT NULL,
     "job_of_interest" TEXT NOT NULL,
 
-    CONSTRAINT "JobOfInterest_pkey" PRIMARY KEY ("job_of_interest_id")
+    CONSTRAINT "JobOfInterest_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "BookmarkedJobNotice" (
+    "id" UUID NOT NULL,
+    "user_id" UUID NOT NULL,
+
+    CONSTRAINT "BookmarkedJobNotice_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -50,7 +58,7 @@ CREATE TABLE "Company" (
 );
 
 -- CreateTable
-CREATE TABLE "Position" (
+CREATE TABLE "JobNotice" (
     "job_id" SERIAL NOT NULL,
     "company_id" INTEGER NOT NULL,
     "title" VARCHAR,
@@ -69,19 +77,10 @@ CREATE TABLE "Position" (
     "title_image_url" VARCHAR,
     "details_image_url" VARCHAR,
     "bookmarks" INTEGER NOT NULL,
-    "created_at" TIMESTAMP(6) NOT NULL,
+    "created_at" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "modified_at" TIMESTAMP(6),
 
-    CONSTRAINT "Position_pkey" PRIMARY KEY ("job_id")
-);
-
--- CreateTable
-CREATE TABLE "BookmarkedJobNotice" (
-    "bookmarked_job_notice_id" UUID NOT NULL,
-    "user_id" UUID NOT NULL,
-    "job_id" INTEGER NOT NULL,
-
-    CONSTRAINT "BookmarkedJobNotice_pkey" PRIMARY KEY ("bookmarked_job_notice_id")
+    CONSTRAINT "JobNotice_pkey" PRIMARY KEY ("job_id")
 );
 
 -- CreateIndex
@@ -91,7 +90,7 @@ CREATE UNIQUE INDEX "User_nickname_key" ON "User"("nickname");
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "CurrentJobDetail_user_id_key" ON "CurrentJobDetail"("user_id");
+CREATE UNIQUE INDEX "JobHistory_user_id_key" ON "JobHistory"("user_id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "JobOfInterest_user_id_key" ON "JobOfInterest"("user_id");
@@ -100,16 +99,13 @@ CREATE UNIQUE INDEX "JobOfInterest_user_id_key" ON "JobOfInterest"("user_id");
 CREATE UNIQUE INDEX "Company_company_name_key" ON "Company"("company_name");
 
 -- AddForeignKey
-ALTER TABLE "CurrentJobDetail" ADD CONSTRAINT "CurrentJobDetail_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "User"("user_id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "JobHistory" ADD CONSTRAINT "JobHistory_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "User"("user_id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "JobOfInterest" ADD CONSTRAINT "JobOfInterest_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "User"("user_id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Position" ADD CONSTRAINT "Position_company_id_fkey" FOREIGN KEY ("company_id") REFERENCES "Company"("company_id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
 ALTER TABLE "BookmarkedJobNotice" ADD CONSTRAINT "BookmarkedJobNotice_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "User"("user_id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "BookmarkedJobNotice" ADD CONSTRAINT "BookmarkedJobNotice_job_id_fkey" FOREIGN KEY ("job_id") REFERENCES "Position"("job_id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "JobNotice" ADD CONSTRAINT "JobNotice_company_id_fkey" FOREIGN KEY ("company_id") REFERENCES "Company"("company_id") ON DELETE CASCADE ON UPDATE CASCADE;
