@@ -47,10 +47,10 @@ CREATE TABLE "BookmarkedJobNotice" (
 CREATE TABLE "Company" (
     "company_id" SERIAL NOT NULL,
     "company_name" VARCHAR NOT NULL,
-    "logo_url" VARCHAR,
+    "logo_url" VARCHAR NOT NULL,
     "company_type" VARCHAR NOT NULL,
     "employee" INTEGER NOT NULL,
-    "incorporation" DATE NOT NULL,
+    "incorporation" TEXT NOT NULL,
     "company_location" VARCHAR NOT NULL,
     "company_website" VARCHAR NOT NULL,
 

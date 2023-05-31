@@ -59,14 +59,14 @@ model BookmarkedJobNotice {
 }
 
 model Company {
-  companyId       Int      @id @default(autoincrement()) @map("company_id")
-  companyName     String   @unique @map("company_name") @db.VarChar
-  logoUrl         String?  @map("logo_url") @db.VarChar
-  companyType     String   @map("company_type") @db.VarChar
+  companyId       Int    @id @default(autoincrement()) @map("company_id")
+  companyName     String @unique @map("company_name") @db.VarChar
+  logoUrl         String @map("logo_url") @db.VarChar
+  companyType     String @map("company_type") @db.VarChar
   employee        Int
-  incorporation   DateTime @db.Date
-  companyLocation String   @map("company_location") @db.VarChar
-  companyWebsite  String   @map("company_website") @db.VarChar
+  incorporation   String
+  companyLocation String @map("company_location") @db.VarChar
+  companyWebsite  String @map("company_website") @db.VarChar
 
   // Company와 Position one-to-many 연결
   jobNotice JobNotice[]
