@@ -7,7 +7,7 @@ import { UserRepository } from './repository/user.repository'
 export class UserService {
   constructor(private readonly repository: UserRepository) {}
 
-  // 유저 추가
+  // 회원 정보 추가
   async addUser(createUserDto: AddUserDto): Promise<IAddUserResponse> {
     // request body에서 현재 직업, 관심 직군, 유저 정보를 분리
     const { currentJobDetail, jobOfInterestList, ...userData } = createUserDto
