@@ -13,7 +13,7 @@ CREATE TABLE "User" (
 );
 
 -- CreateTable
-CREATE TABLE "JobHistory" (
+CREATE TABLE "CurrentJobDetail" (
     "id" UUID NOT NULL,
     "user_id" UUID NOT NULL,
     "grade" TEXT NOT NULL,
@@ -23,7 +23,7 @@ CREATE TABLE "JobHistory" (
     "inactive_period" TEXT NOT NULL,
     "other_job" TEXT NOT NULL,
 
-    CONSTRAINT "JobHistory_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "CurrentJobDetail_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -90,16 +90,13 @@ CREATE UNIQUE INDEX "User_nickname_key" ON "User"("nickname");
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "JobHistory_user_id_key" ON "JobHistory"("user_id");
-
--- CreateIndex
-CREATE UNIQUE INDEX "JobOfInterest_user_id_key" ON "JobOfInterest"("user_id");
+CREATE UNIQUE INDEX "CurrentJobDetail_user_id_key" ON "CurrentJobDetail"("user_id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Company_company_name_key" ON "Company"("company_name");
 
 -- AddForeignKey
-ALTER TABLE "JobHistory" ADD CONSTRAINT "JobHistory_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "User"("user_id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "CurrentJobDetail" ADD CONSTRAINT "CurrentJobDetail_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "User"("user_id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "JobOfInterest" ADD CONSTRAINT "JobOfInterest_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "User"("user_id") ON DELETE CASCADE ON UPDATE CASCADE;

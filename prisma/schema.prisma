@@ -43,7 +43,7 @@ model CurrentJobDetail {
 
 model JobOfInterest {
   id            String @id @default(uuid()) @db.Uuid
-  userId        String @unique @map("user_id") @db.Uuid // one-to-many
+  userId        String @map("user_id") @db.Uuid // one-to-many
   jobOfInterest String @map("job_of_interest")
 
   // User와 CurrentJobDetail one-to-many 연결
