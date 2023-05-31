@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
 import { CurrentJobDetail, JobOfInterest, User } from '@prisma/client'
-import { AddUserDto, AddUserResponseType } from './dto/CreateUser.dto'
+import { AddUserDto, AddUserResponseType } from './dto/AddUser.dto'
 import { UserRepository } from './repository/user.repository'
 
 @Injectable()
@@ -21,10 +21,13 @@ export class UserService {
     // User 생성
     const createdUser: User = await this.repository.createUser(userData)
     // CurrentJobDetail 생성
-    const createdCurrentJobDetail: CurrentJobDetail = await this.repository.createCurrentJobDetail(createdUser.userId, currentJobDetail)
+    const createdCurrentJobDetail: CurrentJobDetail = await this.repository.createCurrentJobDetail(
+      createdUser.userId,
+      currentJobDetail
+    )
     // JobOfInterest 생성
     await this.repository.createJobOfInterestList(createdUser.userId, jobOfInterestList)
-    const createdJobOfInterestList: JobOfInterest[] = await this.repository.getJobOfInterest(createdUser.userId) 
+    const createdJobOfInterestList: JobOfInterest[] = await this.repository.getJobOfInterest(createdUser.userId)
 
     // post 결과 반환
     return {
