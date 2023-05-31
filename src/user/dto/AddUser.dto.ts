@@ -100,7 +100,7 @@ export class CreateJobHistoryDto extends CurrentJobDetailDto {
 /*
  ** response 타입들
  */
-export type AddUserResponseType = {
+export interface IAddUserResponse {
   user: User
   currentJobDetail: CurrentJobDetail
   jobOfInterest: JobOfInterest[]
