@@ -1,6 +1,6 @@
 import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common'
 import { ApiTags, ApiOperation } from '@nestjs/swagger'
-import { CreateUserDto } from './dto/CreateUser.dto'
+import { AddUserDto, AddUserResponseType } from './dto/CreateUser.dto'
 import { UserService } from './user.service'
 
 @Controller('user')
@@ -10,8 +10,8 @@ export class UserController {
 
   @Post()
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: '유저 생성' })
-  async createUser(@Body() createUserDto: CreateUserDto): Promise<void> {
-    await this.userService.createUser(createUserDto)
+  @ApiOperation({ summary: '유저 추가' })
+  async addUser(@Body() addUserDto: AddUserDto): Promise<AddUserResponseType> {
+    return await this.userService.addUser(addUserDto)
   }
 }
