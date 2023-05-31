@@ -1,3 +1,4 @@
+import { CurrentJobDetail, JobOfInterest, User } from '@prisma/client'
 import { Type } from 'class-transformer'
 import {
   IsString,
@@ -5,11 +6,11 @@ import {
   IsEmail,
   IsUrl,
   IsDateString,
-  IsArray,
   ValidateNested,
   IsUUID,
   IsIn,
-  IsNotEmpty
+  IsNotEmpty,
+  ArrayNotEmpty
 } from 'class-validator'
 
 const sex = ['male', 'female']
@@ -26,7 +27,9 @@ const jobList = [
   '손해사정사'
 ]
 
-// 기본 타입들
+/*
+ ** 기본 타입들
+ */
 export class UserDto {
   @IsOptional()
   @IsString()
@@ -76,15 +79,15 @@ export class CurrentJobDetailDto {
   otherJob: string
 }
 
-export class JobOfInterest {}
-
-// request 타입들
-export class CreateUserDto extends UserDto {
+/*
+ ** request 타입들
+ */
+export class AddUserDto extends UserDto {
   @ValidateNested({ each: true })
   @Type(() => CurrentJobDetailDto)
   currentJobDetail: CurrentJobDetailDto
 
-  @IsArray()
+  @ArrayNotEmpty()
   @IsIn(jobList, { each: true })
   jobOfInterestList: string[]
 }
@@ -94,8 +97,11 @@ export class CreateJobHistoryDto extends CurrentJobDetailDto {
   userId: string
 }
 
-// response 타입들
-export class CreateUserResponseDTO extends CreateUserDto {
-  @IsUUID()
-  userId: string
+/*
+ ** response 타입들
+ */
+export type AddUserResponseType = {
+  user: User,
+  currentJobDetail: CurrentJobDetail,
+  jobOfInterest: JobOfInterest[]
 }
