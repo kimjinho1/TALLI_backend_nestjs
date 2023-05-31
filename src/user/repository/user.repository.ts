@@ -7,6 +7,7 @@ import { CurrentJobDetailDto, UserDto } from '../dto/CreateUser.dto'
 export class UserRepository {
   constructor(private prisma: PrismaService) {}
 
+  // nickname으로 User 찾기
   async getUserByNickname(nickname: string): Promise<User | null> {
     return await this.prisma.user.findUnique({
       where: {
@@ -15,7 +16,7 @@ export class UserRepository {
     })
   }
 
-  // 유저 생성
+  // User 생성
   async createUser(userData: UserDto): Promise<User> {
     return await this.prisma.user.create({
       data: {
@@ -24,6 +25,7 @@ export class UserRepository {
     })
   }
 
+  // CurrentJobDetail 생성
   async createCurrentJobDetail(userId: string, currentJobDetail: CurrentJobDetailDto): Promise<CurrentJobDetail> {
     return await this.prisma.currentJobDetail.create({
       data: {
