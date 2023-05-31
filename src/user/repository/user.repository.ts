@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { CurrentJobDetail, User } from '@prisma/client'
+import { CurrentJobDetail, JobOfInterest, User } from '@prisma/client'
 import { PrismaService } from 'prisma/prisma.service'
 import { CurrentJobDetailDto, UserDto } from '../dto/CreateUser.dto'
 
@@ -7,11 +7,14 @@ import { CurrentJobDetailDto, UserDto } from '../dto/CreateUser.dto'
 export class UserRepository {
   constructor(private prisma: PrismaService) {}
 
-  // nickname으로 User 찾기
-  async getUserByNickname(nickname: string): Promise<User | null> {
-    return await this.prisma.user.findUnique({
+  // nickname or email로 User 찾기
+  async getUserByNicknameOrEmail(nickname: string, email: string): Promise<User | null> {
+    return await this.prisma.user.findFirst({
       where: {
-        nickname: nickname
+        OR: [
+          { nickname },
+          { email },
+        ]
       }
     })
   }
@@ -31,6 +34,25 @@ export class UserRepository {
       data: {
         userId,
         ...currentJobDetail
+      }
+    })
+  }
+
+  // JobOfInterest 여러게 한번에 생성
+  async createJobOfInterestList(userId: string, jobOfInterestList: string[]): Promise<void> {
+    await this.prisma.jobOfInterest.createMany({
+      data: jobOfInterestList.map(jobOfInterest => ({
+        userId,
+        jobOfInterest
+      }))
+    })
+  }
+
+// nickname or email로 User 찾기
+  async getJobOfInterest(userId: string): Promise<JobOfInterest[]> {
+    return await this.prisma.jobOfInterest.findMany({
+      where: {
+        userId
       }
     })
   }
