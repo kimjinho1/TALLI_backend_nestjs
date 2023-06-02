@@ -1,5 +1,10 @@
-import { IsInt, IsNotEmpty, IsOptional, IsPositive, IsString, Min } from 'class-validator'
+import { Company, JobNotice } from '@prisma/client'
+import { Transform } from 'class-transformer'
+import { IsDate, IsInt, IsNotEmpty, IsOptional, IsString, Min } from 'class-validator'
 
+/*
+ ** request 타입들
+ */
 export class CreateJobNoticeDto {
   @IsInt()
   @Min(0)
@@ -18,10 +23,10 @@ export class CreateJobNoticeDto {
   @IsNotEmpty()
   category: string
 
-  @IsOptional()
-  @IsString()
+  @Transform(({ value }) => new Date(value))
+  @IsDate()
   @IsNotEmpty()
-  deadline: string | null
+  deadline: Date
 
   @IsOptional()
   @IsString()
@@ -70,4 +75,12 @@ export class CreateJobNoticeDto {
   @IsString()
   @IsNotEmpty()
   jobWebsite: string
+}
+
+/*
+ ** response 타입들
+ */
+export interface ICreateJobNoticeResponse {
+  jobNotice: JobNotice
+  companyInfo: Company
 }
