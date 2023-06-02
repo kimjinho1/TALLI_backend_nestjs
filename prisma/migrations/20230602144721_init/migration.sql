@@ -1,3 +1,0 @@
--- AlterTable
-ALTER TABLE "JobNotice" ALTER COLUMN "hits" SET DEFAULT 0,
-ALTER COLUMN "bookmarks" SET DEFAULT 0;

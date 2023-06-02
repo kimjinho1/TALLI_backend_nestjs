@@ -36,14 +36,6 @@ CREATE TABLE "JobOfInterest" (
 );
 
 -- CreateTable
-CREATE TABLE "BookmarkedJobNotice" (
-    "id" UUID NOT NULL,
-    "user_id" UUID NOT NULL,
-
-    CONSTRAINT "BookmarkedJobNotice_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
 CREATE TABLE "Company" (
     "company_id" SERIAL NOT NULL,
     "company_name" VARCHAR NOT NULL,
@@ -62,6 +54,7 @@ CREATE TABLE "JobNotice" (
     "job_id" SERIAL NOT NULL,
     "company_id" INTEGER NOT NULL,
     "title" VARCHAR,
+    "title_image_url" VARCHAR,
     "category" VARCHAR NOT NULL,
     "deadline" DATE NOT NULL,
     "experience" VARCHAR,
@@ -72,15 +65,22 @@ CREATE TABLE "JobNotice" (
     "job_type" VARCHAR,
     "job_location" VARCHAR NOT NULL,
     "details" VARCHAR,
-    "job_website" VARCHAR,
-    "hits" INTEGER NOT NULL,
-    "title_image_url" VARCHAR,
     "details_image_url" VARCHAR,
-    "bookmarks" INTEGER NOT NULL,
+    "job_website" VARCHAR,
+    "hits" INTEGER NOT NULL DEFAULT 0,
     "created_at" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "modified_at" TIMESTAMP(6),
 
     CONSTRAINT "JobNotice_pkey" PRIMARY KEY ("job_id")
+);
+
+-- CreateTable
+CREATE TABLE "BookmarkedJobNotice" (
+    "id" UUID NOT NULL,
+    "user_id" UUID NOT NULL,
+    "job_id" INTEGER NOT NULL,
+
+    CONSTRAINT "BookmarkedJobNotice_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
@@ -102,7 +102,10 @@ ALTER TABLE "CurrentJobDetail" ADD CONSTRAINT "CurrentJobDetail_user_id_fkey" FO
 ALTER TABLE "JobOfInterest" ADD CONSTRAINT "JobOfInterest_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "User"("user_id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "JobNotice" ADD CONSTRAINT "JobNotice_company_id_fkey" FOREIGN KEY ("company_id") REFERENCES "Company"("company_id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "BookmarkedJobNotice" ADD CONSTRAINT "BookmarkedJobNotice_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "User"("user_id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "JobNotice" ADD CONSTRAINT "JobNotice_company_id_fkey" FOREIGN KEY ("company_id") REFERENCES "Company"("company_id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "BookmarkedJobNotice" ADD CONSTRAINT "BookmarkedJobNotice_job_id_fkey" FOREIGN KEY ("job_id") REFERENCES "JobNotice"("job_id") ON DELETE CASCADE ON UPDATE CASCADE;
