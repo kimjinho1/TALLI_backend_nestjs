@@ -76,6 +76,7 @@ model JobNotice {
   jobId           Int       @id @default(autoincrement()) @map("job_id")
   companyId       Int       @map("company_id") // one-to-many
   title           String?   @db.VarChar
+  titleImageUrl   String?   @map("title_image_url") @db.VarChar
   category        String    @db.VarChar
   deadline        DateTime  @db.Date
   experience      String?   @db.VarChar
@@ -86,11 +87,10 @@ model JobNotice {
   jobType         String?   @map("job_type") @db.VarChar
   jobLocation     String    @map("job_location") @db.VarChar
   details         String?   @db.VarChar
-  jobWebsite      String?   @map("job_website") @db.VarChar
-  hits            Int
-  titleImageUrl   String?   @map("title_image_url") @db.VarChar
   detailsImageUrl String?   @map("details_image_url") @db.VarChar
-  bookmarks       Int
+  jobWebsite      String?   @map("job_website") @db.VarChar
+  hits            Int       @default(0)
+  bookmarks       Int       @default(0)
   createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamp(6)
   modifiedAt      DateTime? @updatedAt @map("modified_at") @db.Timestamp(6)
 
