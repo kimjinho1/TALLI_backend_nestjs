@@ -8,6 +8,16 @@ import { CompanyRepository } from './repository/company.repository'
 export class CompanyService {
   constructor(private readonly repository: CompanyRepository) {}
 
+  // 개별 회사 정보 보기
+  async getCompanyById(companyId: number): Promise<Company> {
+    // 존재하는 회사인지 확인 -> 에러일 시 404 에러 코드 반환
+    const existedCompany: Company | null = await this.repository.getCompanyById(companyId)
+    if (!existedCompany) {
+      throw new NotFoundException('존재하지 않는 회사입니다')
+    }
+    return existedCompany
+  }
+
   // 회사 정보 추가
   async createCompany(createCompanyDto: CreateCompanyDto): Promise<Company> {
     // 회사 이름 중복 처리 -> 에러일 시 409 에러 코드 반환
