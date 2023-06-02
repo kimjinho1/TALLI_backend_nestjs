@@ -9,13 +9,13 @@ datasource db {
 
 model User {
   userId     String  @id @default(uuid()) @map("user_id") @db.Uuid
-  name       String?
-  nickname   String  @unique
-  sex        String?
-  age        String?
-  email      String  @unique
-  imageUrl   String? @map("image_url")
-  currentJob String  @map("current_job")
+  name       String? @db.VarChar(255)
+  nickname   String  @unique @db.VarChar(255)
+  sex        String? @db.VarChar(255)
+  age        String? @db.VarChar(255)
+  email      String  @unique @db.VarChar(255)
+  imageUrl   String? @map("image_url") @db.VarChar(255)
+  currentJob String  @map("current_job") @db.VarChar(255)
 
   // User와 CurrentJobDetail one-to-one 연결
   currentJobDetail CurrentJobDetail?
@@ -30,12 +30,12 @@ model User {
 model CurrentJobDetail {
   id             String @id @default(uuid()) @db.Uuid
   userId         String @unique @map("user_id") @db.Uuid // one-to-one
-  grade          String
-  activePeriod   String @map("active_period")
-  escapedJob     String @map("escaped_job")
-  escapedPeriod  String @map("escaped_period")
-  inactivePeriod String @map("inactive_period")
-  otherJob       String @map("other_job")
+  grade          String @db.VarChar(255)
+  activePeriod   String @map("active_period") @db.VarChar(255)
+  escapedJob     String @map("escaped_job") @db.VarChar(255)
+  escapedPeriod  String @map("escaped_period") @db.VarChar(255)
+  inactivePeriod String @map("inactive_period") @db.VarChar(255)
+  otherJob       String @map("other_job") @db.VarChar(255)
 
   // User와 CurrentJobDetail one-to-one 연결
   user User @relation(fields: [userId], references: [userId], onDelete: Cascade)
@@ -52,13 +52,13 @@ model JobOfInterest {
 
 model Company {
   companyId       Int    @id @default(autoincrement()) @map("company_id")
-  companyName     String @unique @map("company_name")
-  logoUrl         String @map("logo_url")
-  companyType     String @map("company_type")
+  companyName     String @unique @map("company_name") @db.VarChar(255)
+  logoUrl         String @map("logo_url") @db.VarChar(255)
+  companyType     String @map("company_type") @db.VarChar(255)
   employee        Int
-  incorporation   String
-  companyLocation String @map("company_location")
-  companyWebsite  String @map("company_website")
+  incorporation   String @db.VarChar(255)
+  companyLocation String @map("company_location") @db.VarChar(255)
+  companyWebsite  String @map("company_website") @db.VarChar(255)
 
   // Company와 Position one-to-many 연결
   jobNotice JobNotice[]
@@ -67,20 +67,20 @@ model Company {
 model JobNotice {
   jobId           Int       @id @default(autoincrement()) @map("job_id")
   companyId       Int       @map("company_id") // one-to-many
-  title           String
-  titleImageUrl   String?   @map("title_image_url")
-  category        String
+  title           String    @db.VarChar(255)
+  titleImageUrl   String?   @map("title_image_url") @db.VarChar(255)
+  category        String    @db.VarChar(255)
   deadline        DateTime
-  experience      String?
-  education       String?
-  requirements    String?
-  preferences     String?
-  salary          String?
-  jobType         String?   @map("job_type")
-  jobLocation     String    @map("job_location")
-  details         String?
-  detailsImageUrl String?   @map("details_image_url")
-  jobWebsite      String    @map("job_website")
+  experience      String?   @db.VarChar(255)
+  education       String?   @db.VarChar(255)
+  requirements    String?   @db.VarChar(255)
+  preferences     String?   @db.VarChar(255)
+  salary          String?   @db.VarChar(255)
+  jobType         String?   @map("job_type") @db.VarChar(255)
+  jobLocation     String    @map("job_location") @db.VarChar(255)
+  details         String?   @db.VarChar(255)
+  detailsImageUrl String?   @map("details_image_url") @db.VarChar(255)
+  jobWebsite      String    @map("job_website") @db.VarChar(255)
   hits            Int       @default(0)
   createdAt       DateTime  @default(now()) @map("created_at")
   modifiedAt      DateTime? @updatedAt @map("modified_at")
