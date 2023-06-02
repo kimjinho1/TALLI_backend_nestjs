@@ -14,7 +14,7 @@ import { ResponseWrapperInterceptor } from './response-wrapper/response-wrapper.
 [] 채용 공고 삭제
 [] 전체 회사 정보 보기
 [] 개별 회사 정보 보기
-[] 회사 정보 추가
+[V] 회사 정보 추가
 [] 회사 정보 수정
 [] 회사 정보 삭제
 [] 이미지 업로드
@@ -31,8 +31,8 @@ import { ResponseWrapperInterceptor } from './response-wrapper/response-wrapper.
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule)
-  // app.useGlobalInterceptors(new ResponseWrapperInterceptor())
   app.useGlobalInterceptors(new ResponseWrapperInterceptor())
+  app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }))
 
   const config = new DocumentBuilder()
     .setTitle('Median')
@@ -42,8 +42,6 @@ async function bootstrap(): Promise<void> {
 
   const document = SwaggerModule.createDocument(app, config)
   SwaggerModule.setup('api', app, document)
-
-  app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }))
 
   await app.listen(3000)
 }
