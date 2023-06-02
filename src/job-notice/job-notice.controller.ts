@@ -1,5 +1,6 @@
-import { Controller, HttpCode, HttpStatus, Post } from '@nestjs/common'
+import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common'
 import { ApiOperation, ApiTags } from '@nestjs/swagger'
+import { CreateJobNoticeDto } from './dto/CreateJobNotice.dto'
 import { JobNoticeService } from './job-notice.service'
 
 @Controller('job-notice')
@@ -10,7 +11,7 @@ export class JobNoticeController {
   @Post()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: '채용 공고 추가' })
-  async CreateJobNotice(): Promise<void> {
-    return
+  async createJobNotice(@Body() createJobNoticeDto: CreateJobNoticeDto): Promise<void> {
+    await this.jobNoticeService.createJobNotice(createJobNoticeDto)
   }
 }
