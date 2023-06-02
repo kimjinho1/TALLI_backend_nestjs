@@ -38,13 +38,13 @@ CREATE TABLE "JobOfInterest" (
 -- CreateTable
 CREATE TABLE "Company" (
     "company_id" SERIAL NOT NULL,
-    "company_name" VARCHAR NOT NULL,
-    "logo_url" VARCHAR NOT NULL,
-    "company_type" VARCHAR NOT NULL,
+    "company_name" TEXT NOT NULL,
+    "logo_url" TEXT NOT NULL,
+    "company_type" TEXT NOT NULL,
     "employee" INTEGER NOT NULL,
     "incorporation" TEXT NOT NULL,
-    "company_location" VARCHAR NOT NULL,
-    "company_website" VARCHAR NOT NULL,
+    "company_location" TEXT NOT NULL,
+    "company_website" TEXT NOT NULL,
 
     CONSTRAINT "Company_pkey" PRIMARY KEY ("company_id")
 );
@@ -53,23 +53,23 @@ CREATE TABLE "Company" (
 CREATE TABLE "JobNotice" (
     "job_id" SERIAL NOT NULL,
     "company_id" INTEGER NOT NULL,
-    "title" VARCHAR,
-    "title_image_url" VARCHAR,
-    "category" VARCHAR NOT NULL,
-    "deadline" DATE NOT NULL,
-    "experience" VARCHAR,
-    "education" VARCHAR,
-    "requirements" VARCHAR,
-    "preferences" VARCHAR,
-    "salary" VARCHAR,
-    "job_type" VARCHAR,
-    "job_location" VARCHAR NOT NULL,
-    "details" VARCHAR,
-    "details_image_url" VARCHAR,
-    "job_website" VARCHAR,
+    "title" TEXT NOT NULL,
+    "title_image_url" TEXT,
+    "category" TEXT NOT NULL,
+    "deadline" TIMESTAMP(3) NOT NULL,
+    "experience" TEXT,
+    "education" TEXT,
+    "requirements" TEXT,
+    "preferences" TEXT,
+    "salary" TEXT,
+    "job_type" TEXT,
+    "job_location" TEXT NOT NULL,
+    "details" TEXT,
+    "details_image_url" TEXT,
+    "job_website" TEXT NOT NULL,
     "hits" INTEGER NOT NULL DEFAULT 0,
-    "created_at" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "modified_at" TIMESTAMP(6),
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "modified_at" TIMESTAMP(3),
 
     CONSTRAINT "JobNotice_pkey" PRIMARY KEY ("job_id")
 );

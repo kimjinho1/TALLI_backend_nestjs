@@ -52,13 +52,13 @@ model JobOfInterest {
 
 model Company {
   companyId       Int    @id @default(autoincrement()) @map("company_id")
-  companyName     String @unique @map("company_name") @db.VarChar
-  logoUrl         String @map("logo_url") @db.VarChar
-  companyType     String @map("company_type") @db.VarChar
+  companyName     String @unique @map("company_name")
+  logoUrl         String @map("logo_url")
+  companyType     String @map("company_type")
   employee        Int
   incorporation   String
-  companyLocation String @map("company_location") @db.VarChar
-  companyWebsite  String @map("company_website") @db.VarChar
+  companyLocation String @map("company_location")
+  companyWebsite  String @map("company_website")
 
   // Company와 Position one-to-many 연결
   jobNotice JobNotice[]
@@ -67,23 +67,23 @@ model Company {
 model JobNotice {
   jobId           Int       @id @default(autoincrement()) @map("job_id")
   companyId       Int       @map("company_id") // one-to-many
-  title           String?   @db.VarChar
-  titleImageUrl   String?   @map("title_image_url") @db.VarChar
-  category        String    @db.VarChar
-  deadline        DateTime  @db.Date
-  experience      String?   @db.VarChar
-  education       String?   @db.VarChar
-  requirements    String?   @db.VarChar
-  preferences     String?   @db.VarChar
-  salary          String?   @db.VarChar
-  jobType         String?   @map("job_type") @db.VarChar
-  jobLocation     String    @map("job_location") @db.VarChar
-  details         String?   @db.VarChar
-  detailsImageUrl String?   @map("details_image_url") @db.VarChar
-  jobWebsite      String?   @map("job_website") @db.VarChar
+  title           String
+  titleImageUrl   String?   @map("title_image_url")
+  category        String
+  deadline        DateTime
+  experience      String?
+  education       String?
+  requirements    String?
+  preferences     String?
+  salary          String?
+  jobType         String?   @map("job_type")
+  jobLocation     String    @map("job_location")
+  details         String?
+  detailsImageUrl String?   @map("details_image_url")
+  jobWebsite      String    @map("job_website")
   hits            Int       @default(0)
-  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamp(6)
-  modifiedAt      DateTime? @updatedAt @map("modified_at") @db.Timestamp(6)
+  createdAt       DateTime  @default(now()) @map("created_at")
+  modifiedAt      DateTime? @updatedAt @map("modified_at")
 
   // Company와 JobNotice one-to-many 연결
   company Company @relation(fields: [companyId], references: [companyId], onDelete: Cascade)
