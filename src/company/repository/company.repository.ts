@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { Company } from '@prisma/client'
 import { PrismaService } from 'prisma/prisma.service'
-import { skip } from 'rxjs'
 import { CreateCompanyDto } from '../dto/CreateCompany.dto'
 import { UpdateCompanyDto } from '../dto/UpdateCompany.dto'
 
