@@ -1,14 +1,25 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post } from '@nestjs/common'
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Query } from '@nestjs/common'
 import { ApiOperation, ApiTags } from '@nestjs/swagger'
 import { Company } from '@prisma/client'
 import { CompanyService } from './company.service'
 import { CreateCompanyDto } from './dto/CreateCompany.dto'
+import { GetCompanyListResponse } from './dto/GetCompanyListResponse.dto'
 import { UpdateCompanyDto } from './dto/UpdateCompany.dto'
 
 @Controller('company')
 @ApiTags('회사 API')
 export class CompanyController {
   constructor(private readonly companyService: CompanyService) {}
+
+  @Get('/list')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: '전체 회사 정보 보기' })
+  async getCompanyList(
+    @Query('index') index: number,
+    @Query('difference') difference: number
+  ): Promise<GetCompanyListResponse> {
+    return await this.companyService.getCompanyList(index, difference)
+  }
 
   @Get('/:companyId')
   @HttpCode(HttpStatus.OK)

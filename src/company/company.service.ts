@@ -1,12 +1,30 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common'
+import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common'
 import { Company } from '@prisma/client'
 import { CreateCompanyDto } from './dto/CreateCompany.dto'
+import { GetCompanyListResponse } from './dto/GetCompanyListResponse.dto'
 import { UpdateCompanyDto } from './dto/UpdateCompany.dto'
 import { CompanyRepository } from './repository/company.repository'
 
 @Injectable()
 export class CompanyService {
   constructor(private readonly repository: CompanyRepository) {}
+
+  // 전체 회사 정보 보기
+  async getCompanyList(index: number, difference: number): Promise<GetCompanyListResponse> {
+    // 범위 입력이 올바른지 확인 -> 에러일 시 400 에러 코드 반환
+    if (index < 0 || difference < 1) {
+      throw new BadRequestException('잘못된 범위 입력입니다')
+    }
+
+    const allCompany: Company[] = await this.repository.getAllCompany()
+    const selectedCompany: Company[] = await this.repository.getCompanyList(index, difference)
+    const response: GetCompanyListResponse = {
+      numTotal: allCompany.length,
+      resultList: selectedCompany
+    }
+
+    return response
+  }
 
   // 개별 회사 정보 보기
   async getCompanyById(companyId: number): Promise<Company> {
@@ -15,6 +33,7 @@ export class CompanyService {
     if (!existedCompany) {
       throw new NotFoundException('존재하지 않는 회사입니다')
     }
+
     return existedCompany
   }
 
@@ -29,7 +48,6 @@ export class CompanyService {
     // Company 생성
     const createdCompany: Company = await this.repository.createCompany(createCompanyDto)
 
-    // post 결과 반환
     return createdCompany
   }
 
@@ -44,7 +62,6 @@ export class CompanyService {
     // Company 업데이트
     const updatedCompany: Company = await this.repository.updateCompany(companyId, updateCompanyDto)
 
-    // post 결과 반환
     return updatedCompany
   }
 
@@ -59,7 +76,6 @@ export class CompanyService {
     // Company 삭제
     const deletedCompany: Company = await this.repository.deleteCompany(companyId)
 
-    // post 결과 반환
     return deletedCompany
   }
 }
