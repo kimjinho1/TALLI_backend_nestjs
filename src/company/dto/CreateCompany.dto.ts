@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumber, IsPositive, IsString } from 'class-validator'
+import { IsInt, IsNotEmpty, IsPositive, IsString } from 'class-validator'
 
 export class CreateCompanyDto {
   @IsString()
@@ -13,7 +13,7 @@ export class CreateCompanyDto {
   @IsNotEmpty()
   companyType: string
 
-  @IsNumber()
+  @IsInt()
   @IsPositive()
   employee: number
 
