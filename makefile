@@ -7,6 +7,9 @@ nest:
 migrate:
 	npx prisma migrate dev --name init
 
+studio:
+	npx prisma studio
+
 clean:
 	sudo docker-compose down
 	docker network prune --force
