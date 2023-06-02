@@ -1,4 +1,4 @@
-import { Body, Controller, HttpCode, HttpStatus, Param, Patch, Post } from '@nestjs/common'
+import { Body, Controller, Delete, HttpCode, HttpStatus, Param, Patch, Post } from '@nestjs/common'
 import { ApiOperation, ApiTags } from '@nestjs/swagger'
 import { Company } from '@prisma/client'
 import { CompanyService } from './company.service'
@@ -25,5 +25,12 @@ export class CompanyController {
     @Body() updateCompanyDto: UpdateCompanyDto
   ): Promise<Company> {
     return await this.companyService.updateCompany(companyId, updateCompanyDto)
+  }
+
+  @Delete('/:companyId')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: '회사 정보 삭제' })
+  async DeleteCompany(@Param('companyId') companyId: number): Promise<Company> {
+    return await this.companyService.deleteCompany(companyId)
   }
 }
