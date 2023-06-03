@@ -1,8 +1,8 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common'
 import { Company, JobNotice } from '@prisma/client'
-import { CompanyRepository } from 'src/company/repository/company.repository'
+import { CompanyRepository } from 'src/company/company.repository'
 import { CreateJobNoticeDto, ICreateJobNoticeResponse } from './dto'
-import { JobNoticeRepository } from './repository/job-notice.repository'
+import { JobNoticeRepository } from './job-notice.repository'
 
 @Injectable()
 export class JobNoticeService {

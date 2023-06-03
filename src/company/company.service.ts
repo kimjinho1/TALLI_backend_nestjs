@@ -1,7 +1,7 @@
 import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common'
 import { Company } from '@prisma/client'
 import { CreateCompanyDto, GetCompanyListResponse, UpdateCompanyDto } from './dto'
-import { CompanyRepository } from './repository/company.repository'
+import { CompanyRepository } from './company.repository'
 
 @Injectable()
 export class CompanyService {

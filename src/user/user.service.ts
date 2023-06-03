@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
 import { CurrentJobDetail, JobOfInterest, User } from '@prisma/client'
 import { AddUserDto, IAddUserResponse } from './dto'
-import { UserRepository } from './repository/user.repository'
+import { UserRepository } from './user.repository'
 
 @Injectable()
 export class UserService {
