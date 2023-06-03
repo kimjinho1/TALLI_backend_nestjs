@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
+import { ConflictException, HttpException, HttpStatus, Injectable } from '@nestjs/common'
 import { CurrentJobDetail, JobOfInterest, User } from '@prisma/client'
 import { AddUserDto, IAddUserResponse } from './dto'
 import { UserRepository } from './user.repository'
@@ -15,7 +15,7 @@ export class UserService {
     // 닉네임 중복 처리 -> 에러일 시 409 에러 코드 반환
     const existedUser: User | null = await this.repository.getUserByNicknameOrEmail(userData.nickname, userData.email)
     if (existedUser) {
-      throw new HttpException('이미 존재하는 닉네임 또는 이메일입니다.', HttpStatus.CONFLICT)
+      throw new ConflictException('이미 존재하는 닉네임 또는 이메일입니다')
     }
 
     // User 생성

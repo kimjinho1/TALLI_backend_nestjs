@@ -7,6 +7,15 @@ import { CurrentJobDetailDto, UserDto } from './dto'
 export class UserRepository {
   constructor(private prisma: PrismaService) {}
 
+  // id로 User 찾기
+  async getUserById(userId: string): Promise<User | null> {
+    return await this.prisma.user.findFirst({
+      where: {
+        userId
+      }
+    })
+  }
+
   // nickname or email로 User 찾기
   async getUserByNicknameOrEmail(nickname: string, email: string): Promise<User | null> {
     return await this.prisma.user.findFirst({
