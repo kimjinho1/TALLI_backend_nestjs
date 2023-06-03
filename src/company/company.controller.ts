@@ -2,9 +2,7 @@ import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post
 import { ApiOperation, ApiTags } from '@nestjs/swagger'
 import { Company } from '@prisma/client'
 import { CompanyService } from './company.service'
-import { CreateCompanyDto } from './dto/CreateCompany.dto'
-import { GetCompanyListResponse } from './dto/GetCompanyListResponse.dto'
-import { UpdateCompanyDto } from './dto/UpdateCompany.dto'
+import { CreateCompanyDto, GetCompanyListResponse, UpdateCompanyDto } from './dto'
 
 @Controller('company')
 @ApiTags('회사 API')

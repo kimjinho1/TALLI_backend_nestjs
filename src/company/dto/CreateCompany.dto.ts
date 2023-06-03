@@ -1,4 +1,5 @@
-import { IsInt, IsNotEmpty, IsPositive, IsString } from 'class-validator'
+import { Transform, Type } from 'class-transformer'
+import { IsDate, IsInt, IsNotEmpty, IsPositive, IsString, ValidateIf } from 'class-validator'
 
 export class CreateCompanyDto {
   @IsString()
@@ -7,7 +8,8 @@ export class CreateCompanyDto {
 
   @IsString()
   @IsNotEmpty()
-  logoUrl: string
+  @ValidateIf((object, value) => value !== null)
+  logoUrl!: string | null
 
   @IsString()
   @IsNotEmpty()
@@ -15,11 +17,15 @@ export class CreateCompanyDto {
 
   @IsInt()
   @IsPositive()
-  employee: number
+  @ValidateIf((object, value) => value !== null)
+  employee: number | null
 
-  @IsString()
+  @IsDate()
   @IsNotEmpty()
-  incorporation: string
+  @ValidateIf((object, value) => value !== null)
+  @Transform(({ value }) => (value ? new Date(value) : null))
+  @Type(() => Date)
+  incorporation: Date | null
 
   @IsString()
   @IsNotEmpty()
@@ -27,5 +33,6 @@ export class CreateCompanyDto {
 
   @IsString()
   @IsNotEmpty()
-  companyWebsite: string
+  @ValidateIf((object, value) => value !== null)
+  companyWebsite: string | null
 }

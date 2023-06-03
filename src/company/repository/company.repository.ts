@@ -1,8 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { Company } from '@prisma/client'
 import { PrismaService } from 'prisma/prisma.service'
-import { CreateCompanyDto } from '../dto/CreateCompany.dto'
-import { UpdateCompanyDto } from '../dto/UpdateCompany.dto'
+import { CreateCompanyDto, UpdateCompanyDto } from '../dto'
 
 @Injectable()
 export class CompanyRepository {
