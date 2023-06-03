@@ -1,6 +1,6 @@
 import { Company } from '@prisma/client'
 
-export class GetCompanyListResponse {
+export interface IGetCompanyListResponse {
   numTotal: number
   resultList: Company[]
 }

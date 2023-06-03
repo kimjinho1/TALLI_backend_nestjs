@@ -2,7 +2,7 @@ import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post
 import { ApiOperation, ApiTags } from '@nestjs/swagger'
 import { Company } from '@prisma/client'
 import { CompanyService } from './company.service'
-import { CreateCompanyDto, GetCompanyListResponse, UpdateCompanyDto } from './dto'
+import { CreateCompanyDto, IGetCompanyListResponse, UpdateCompanyDto } from './dto'
 
 @Controller('company')
 @ApiTags('회사 API')
@@ -15,7 +15,7 @@ export class CompanyController {
   async getCompanyList(
     @Query('index') index: number,
     @Query('difference') difference: number
-  ): Promise<GetCompanyListResponse> {
+  ): Promise<IGetCompanyListResponse> {
     return await this.companyService.getCompanyList(index, difference)
   }
 

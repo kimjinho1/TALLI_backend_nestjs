@@ -1,6 +1,6 @@
 import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common'
 import { Company } from '@prisma/client'
-import { CreateCompanyDto, GetCompanyListResponse, UpdateCompanyDto } from './dto'
+import { CreateCompanyDto, IGetCompanyListResponse, UpdateCompanyDto } from './dto'
 import { CompanyRepository } from './company.repository'
 
 @Injectable()
@@ -8,7 +8,7 @@ export class CompanyService {
   constructor(private readonly repository: CompanyRepository) {}
 
   // 전체 회사 정보 보기
-  async getCompanyList(index: number, difference: number): Promise<GetCompanyListResponse> {
+  async getCompanyList(index: number, difference: number): Promise<IGetCompanyListResponse> {
     // 범위 입력이 올바른지 확인 -> 에러일 시 400 에러 코드 반환
     if (index < 0 || difference < 1) {
       throw new BadRequestException('잘못된 범위 입력입니다')
@@ -16,7 +16,7 @@ export class CompanyService {
 
     const allCompany: Company[] = await this.repository.getAllCompany()
     const selectedCompany: Company[] = await this.repository.getCompanyList(index, difference)
-    const response: GetCompanyListResponse = {
+    const response: IGetCompanyListResponse = {
       numTotal: allCompany.length,
       resultList: selectedCompany
     }
