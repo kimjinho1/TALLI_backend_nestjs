@@ -15,6 +15,10 @@ export class CompanyRepository {
     })
   }
 
+  async getCompanyCount(): Promise<number> {
+    return await this.prisma.company.count()
+  }
+
   // 모든 Company 반환
   async getAllCompany(): Promise<Company[]> {
     return await this.prisma.company.findMany()

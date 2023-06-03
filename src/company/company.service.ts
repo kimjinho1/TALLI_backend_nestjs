@@ -14,10 +14,11 @@ export class CompanyService {
       throw new BadRequestException('잘못된 범위 입력입니다')
     }
 
-    const allCompany: Company[] = await this.repository.getAllCompany()
+    // response 생성
+    const numTotal = await this.repository.getCompanyCount()
     const selectedCompany: Company[] = await this.repository.getCompanyList(index, difference)
     const response: IGetCompanyListResponse = {
-      numTotal: allCompany.length,
+      numTotal,
       resultList: selectedCompany
     }
 
