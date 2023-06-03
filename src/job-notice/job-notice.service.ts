@@ -1,6 +1,7 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common'
-import { Company, JobNotice, Prisma } from '@prisma/client'
+import { BookmarkedJobNotice, Company, JobNotice, Prisma, User } from '@prisma/client'
 import { CompanyRepository } from 'src/company/company.repository'
+import { UserRepository } from 'src/user/user.repository'
 import {
   CreateJobNoticeDto,
   GetJobNoticeListDto,
@@ -15,7 +16,8 @@ import { JobNoticeRepository } from './job-notice.repository'
 export class JobNoticeService {
   constructor(
     private readonly repository: JobNoticeRepository,
-    private readonly companyRepository: CompanyRepository
+    private readonly companyRepository: CompanyRepository,
+    private readonly userRepository: UserRepository
   ) {}
 
   // 정렬 기준을 정해주는 함수
@@ -35,8 +37,8 @@ export class JobNoticeService {
   }
 
   // 전체 채용 공고 보기
-  async getAllJobNotice(getJobNoticeListDto: GetJobNoticeListDto): Promise<IGetAllJobNoticeResponse> {
-    const { index, difference, category, order, filter } = getJobNoticeListDto
+  async getAllJobNotice(dto: GetJobNoticeListDto): Promise<IGetAllJobNoticeResponse> {
+    const { index, difference, category, order, filter } = dto
     const { location, experience, education, certificate, companyType, jobType } = filter
 
     // 필터링
@@ -98,25 +100,98 @@ export class JobNoticeService {
     return response
   }
 
+  // 개별 채용 공고 보기
+  async getJobNoticeById(jobId: number): Promise<ICreateJobNoticeResponse> {
+    // 존재하는 채용 공고인지 확인 -> 에러일 시 404 에러 코드 반환
+    const existedJobNotice: JobNotice | null = await this.repository.getJobNoticeById(jobId)
+    if (!existedJobNotice) {
+      throw new NotFoundException('존재하지 않는 채용 공고입니다')
+    }
+
+    // 반환용 Company
+    const company: Company | null = await this.companyRepository.getCompanyById(existedJobNotice.companyId)
+    if (!company) {
+      throw new NotFoundException('존재하지 않는 회사입니다')
+    }
+
+    // response 생성
+    const response: ICreateJobNoticeResponse = {
+      jobNotice: existedJobNotice,
+      companyInfo: company
+    }
+
+    return response
+  }
+
+  // 채용 공고 북마크 추가
+  async createBookmarkedJobNotice(jobId: number, userId: string): Promise<void> {
+    // 존재하는 채용 공고인지 확인 -> 에러일 시 404 에러 코드 반환
+    const existedJobNotice: JobNotice | null = await this.repository.getJobNoticeById(jobId)
+    if (!existedJobNotice) {
+      throw new NotFoundException('존재하지 않는 채용 공고입니다')
+    }
+
+    // 존재하는 유저인지 확인 -> 에러일 시 404 에러 코드 반환
+    const existedUser: User | null = await this.userRepository.getUserById(userId)
+    if (!existedUser) {
+      throw new NotFoundException('존재하지 않는 유저입니다')
+    }
+
+    // 존재하는 북마크된 채용 공고인지 확인 -> 에러일 시 409 에러 코드 반환
+    const existedBookmarkedJobNotice: BookmarkedJobNotice | null =
+      await this.repository.getJBookmarkedJobNoticeByJobIdAndUserID(jobId, userId)
+    if (existedBookmarkedJobNotice) {
+      throw new ConflictException('이미 존재하는 북마크된 채용 공고입니다')
+    }
+
+    // BookmarkedJobNotice 생성
+    await this.repository.createBookmarkedJobNotice(jobId, userId)
+  }
+
+  // 채용 공고 북마크 삭제
+  async deleteBookmarkedJobNotice(jobId: number, userId: string): Promise<void> {
+    // 존재하는 채용 공고인지 확인 -> 에러일 시 404 에러 코드 반환
+    const existedJobNotice: JobNotice | null = await this.repository.getJobNoticeById(jobId)
+    if (!existedJobNotice) {
+      throw new NotFoundException('존재하지 않는 채용 공고입니다')
+    }
+
+    // 존재하는 유저인지 확인 -> 에러일 시 404 에러 코드 반환
+    const existedUser: User | null = await this.userRepository.getUserById(userId)
+    if (!existedUser) {
+      throw new NotFoundException('존재하지 않는 유저입니다')
+    }
+
+    // 존재하는 북마크된 채용 공고인지 확인 -> 에러일 시 404 에러 코드 반환
+    const existedBookmarkedJobNotice: BookmarkedJobNotice | null =
+      await this.repository.getJBookmarkedJobNoticeByJobIdAndUserID(jobId, userId)
+    if (!existedBookmarkedJobNotice) {
+      throw new NotFoundException('존재하지 않는 채용 공고입니다')
+    }
+
+    // BookmarkedJobNotice 삭제
+    await this.repository.deleteBookmarkedJobNotice(jobId, userId)
+  }
+
   // 채용 공고 추가
-  async createJobNotice(createJobNoticeDto: CreateJobNoticeDto): Promise<ICreateJobNoticeResponse> {
+  async createJobNotice(dto: CreateJobNoticeDto): Promise<ICreateJobNoticeResponse> {
     // 존재하는 회사인지 확인 -> 에러일 시 404 에러 코드 반환
-    const existedCompany: Company | null = await this.companyRepository.getCompanyById(createJobNoticeDto.companyId)
+    const existedCompany: Company | null = await this.companyRepository.getCompanyById(dto.companyId)
     if (!existedCompany) {
       throw new NotFoundException('존재하지 않는 회사입니다')
     }
 
     // 채용 공고 중복 처리 -> 에러일 시 409 에러 코드 반환
     const existedJobNotice: JobNotice | null = await this.repository.getJobNoticeByCompanyIdAndTitle(
-      createJobNoticeDto.companyId,
-      createJobNoticeDto.title
+      dto.companyId,
+      dto.title
     )
     if (existedJobNotice) {
       throw new ConflictException('이미 존재하는 채용 공고입니다.')
     }
 
     // JobNotice 생성
-    const createdJobNotice: JobNotice = await this.repository.createJobNotice(createJobNoticeDto)
+    const createdJobNotice: JobNotice = await this.repository.createJobNotice(dto)
 
     // response 생성
     const response: ICreateJobNoticeResponse = {
@@ -128,10 +203,10 @@ export class JobNoticeService {
   }
 
   // 채용 공고 수정
-  async updateJobNotice(jobId: number, updateJobNoticeDto: UpdateJobNoticeDto): Promise<ICreateJobNoticeResponse> {
+  async updateJobNotice(jobId: number, dto: UpdateJobNoticeDto): Promise<ICreateJobNoticeResponse> {
     // 존재하는 회사인지 확인 -> 에러일 시 404 에러 코드 반환
-    if (updateJobNoticeDto.companyId !== undefined) {
-      const existedCompany: Company | null = await this.companyRepository.getCompanyById(updateJobNoticeDto.companyId)
+    if (dto.companyId !== undefined) {
+      const existedCompany: Company | null = await this.companyRepository.getCompanyById(dto.companyId)
       if (!existedCompany) {
         throw new NotFoundException('존재하지 않는 회사입니다')
       }
@@ -150,7 +225,7 @@ export class JobNoticeService {
     }
 
     // JobNotice 업데이트
-    const updateJobNotice: JobNotice = await this.repository.updateJobNotice(jobId, updateJobNoticeDto)
+    const updateJobNotice: JobNotice = await this.repository.updateJobNotice(jobId, dto)
 
     // response 생성
     const response: ICreateJobNoticeResponse = {

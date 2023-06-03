@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { JobNotice, Prisma } from '@prisma/client'
+import { BookmarkedJobNotice, JobNotice, Prisma } from '@prisma/client'
 import { PrismaService } from 'prisma/prisma.service'
 import { CreateJobNoticeDto, UpdateJobNoticeDto } from './dto'
 
@@ -14,9 +14,41 @@ export class JobNoticeRepository {
 
   // jobId로 JobNotice 찾기
   async getJobNoticeById(jobId: number): Promise<JobNotice | null> {
-    return await this.prisma.jobNotice.findUnique({
+    return await this.prisma.jobNotice.findFirst({
       where: {
         jobId
+      }
+    })
+  }
+
+  // jobId와 userId로 JobNotice 찾기
+  async getJBookmarkedJobNoticeByJobIdAndUserID(jobId: number, userId: string): Promise<BookmarkedJobNotice | null> {
+    return await this.prisma.bookmarkedJobNotice.findFirst({
+      where: {
+        AND: {
+          jobId,
+          userId
+        }
+      }
+    })
+  }
+
+  // BookmarkedJobNotice 생성
+  async createBookmarkedJobNotice(jobId: number, userId: string): Promise<void> {
+    await this.prisma.bookmarkedJobNotice.create({
+      data: {
+        jobId,
+        userId
+      }
+    })
+  }
+
+  // BookmarkedJobNotice 삭제
+  async deleteBookmarkedJobNotice(jobId: number, userId: string): Promise<void> {
+    await this.prisma.bookmarkedJobNotice.deleteMany({
+      where: {
+        jobId,
+        userId
       }
     })
   }
