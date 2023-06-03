@@ -2,7 +2,6 @@ import { CurrentJobDetail, JobOfInterest, User } from '@prisma/client'
 import { Type } from 'class-transformer'
 import {
   IsString,
-  IsOptional,
   IsEmail,
   IsUrl,
   IsDateString,
@@ -10,7 +9,9 @@ import {
   IsUUID,
   IsIn,
   IsNotEmpty,
-  ArrayNotEmpty
+  ArrayNotEmpty,
+  ValidateIf,
+  IsDefined
 } from 'class-validator'
 
 const sex = ['male', 'female']
@@ -31,28 +32,32 @@ const jobList = [
  ** 기본 타입들
  */
 export class UserDto {
-  @IsOptional()
   @IsString()
+  @IsNotEmpty()
+  @ValidateIf((object, value) => value !== null)
   name: string | null
 
   @IsString()
   @IsNotEmpty()
   nickname: string
 
-  @IsOptional()
   @IsIn(sex)
+  @IsNotEmpty()
+  @ValidateIf((object, value) => value !== null)
   sex: string | null
 
-  @IsOptional()
   @IsDateString()
+  @IsNotEmpty()
+  @ValidateIf((object, value) => value !== null)
   age: string | null
 
   @IsString()
   @IsEmail()
+  @IsNotEmpty()
   email: string
 
-  @IsOptional()
   @IsUrl()
+  @ValidateIf((object, value) => value !== null)
   imageUrl: string | null
 
   @IsString()
@@ -84,9 +89,11 @@ export class CurrentJobDetailDto {
  */
 export class AddUserDto extends UserDto {
   @ValidateNested({ each: true })
+  @IsDefined()
   @Type(() => CurrentJobDetailDto)
   currentJobDetail: CurrentJobDetailDto
 
+  @IsDefined()
   @ArrayNotEmpty()
   @IsIn(jobList, { each: true })
   jobOfInterestList: string[]

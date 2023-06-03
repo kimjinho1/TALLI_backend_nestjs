@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { CurrentJobDetail, JobOfInterest, User } from '@prisma/client'
 import { PrismaService } from 'prisma/prisma.service'
-import { CurrentJobDetailDto, UserDto } from '../dto/AddUser.dto'
+import { CurrentJobDetailDto, UserDto } from '../dto'
 
 @Injectable()
 export class UserRepository {
