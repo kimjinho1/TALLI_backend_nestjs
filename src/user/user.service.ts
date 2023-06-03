@@ -36,4 +36,12 @@ export class UserService {
       jobOfInterest: createdJobOfInterestList
     }
   }
+
+  // 전체 회원 닉네임 목록 보기
+  async getAllNickname(): Promise<string[]> {
+    const users = await this.repository.getUserList()
+    const nicknames = users.map(user => user.nickname)
+
+    return nicknames
+  }
 }

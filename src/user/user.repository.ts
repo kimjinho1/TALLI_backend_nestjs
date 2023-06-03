@@ -62,4 +62,9 @@ export class UserRepository {
       }
     })
   }
+
+  // 모든 유저 반환
+  async getUserList(): Promise<User[]> {
+    return await this.prisma.user.findMany()
+  }
 }
