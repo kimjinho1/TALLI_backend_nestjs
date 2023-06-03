@@ -1,6 +1,6 @@
 import { Company, JobNotice } from '@prisma/client'
-import { Transform } from 'class-transformer'
-import { IsDate, IsInt, IsNotEmpty, IsOptional, IsString, Min } from 'class-validator'
+import { Transform, Type } from 'class-transformer'
+import { IsDate, IsInt, IsNotEmpty, IsOptional, IsString, Min, ValidateIf } from 'class-validator'
 
 /*
  ** request 타입들
@@ -14,62 +14,61 @@ export class CreateJobNoticeDto {
   @IsNotEmpty()
   title: string
 
-  @IsOptional()
   @IsString()
   @IsNotEmpty()
+  @ValidateIf((object, value) => value !== null)
   titleImageUrl: string | null
 
   @IsString()
   @IsNotEmpty()
   category: string
 
-  @Transform(({ value }) => new Date(value))
+  @Transform(({ value }) => (value ? new Date(value) : null))
+  @ValidateIf((object, value) => value !== null)
+  @Type(() => Date)
   @IsDate()
   @IsNotEmpty()
-  deadline: Date
+  deadline: Date | null
 
-  @IsOptional()
   @IsString()
   @IsNotEmpty()
-  experience: string | null
+  experience: string
 
-  @IsOptional()
   @IsString()
   @IsNotEmpty()
-  education: string | null
+  education: string
 
-  @IsOptional()
   @IsString()
   @IsNotEmpty()
+  @ValidateIf((object, value) => value !== null)
   requirements: string | null
 
-  @IsOptional()
   @IsString()
   @IsNotEmpty()
+  @ValidateIf((object, value) => value !== null)
   preferences: string | null
 
-  @IsOptional()
   @IsString()
   @IsNotEmpty()
+  @ValidateIf((object, value) => value !== null)
   salary: string | null
 
-  @IsOptional()
   @IsString()
   @IsNotEmpty()
-  jobType: string | null
+  jobType: string
 
   @IsString()
   @IsNotEmpty()
   jobLocation: string
 
-  @IsOptional()
   @IsString()
   @IsNotEmpty()
+  @ValidateIf((object, value) => value !== null)
   details: string | null
 
-  @IsOptional()
   @IsString()
   @IsNotEmpty()
+  @ValidateIf((object, value) => value !== null)
   detailsImageUrl: string | null
 
   @IsString()

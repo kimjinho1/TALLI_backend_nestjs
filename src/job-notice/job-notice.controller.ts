@@ -1,6 +1,6 @@
 import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common'
 import { ApiOperation, ApiTags } from '@nestjs/swagger'
-import { CreateJobNoticeDto, ICreateJobNoticeResponse } from './dto/CreateJobNotice.dto'
+import { CreateJobNoticeDto, ICreateJobNoticeResponse } from './dto'
 import { JobNoticeService } from './job-notice.service'
 
 @Controller('job-notice')
