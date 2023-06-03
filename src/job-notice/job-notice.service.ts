@@ -168,6 +168,9 @@ export class JobNoticeService {
       companyInfo: company
     }
 
+    // jobNotice의 hits 카운트 올리기
+    await this.repository.updateJobNoticeHits(jobId)
+
     return response
   }
 

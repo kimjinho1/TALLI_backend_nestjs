@@ -33,6 +33,20 @@ export class JobNoticeRepository {
     })
   }
 
+  // jobNotice의 hits 카운트 올리기
+  async updateJobNoticeHits(jobId: number): Promise<void> {
+    await this.prisma.jobNotice.update({
+      where: {
+        jobId
+      },
+      data: {
+        hits: {
+          increment: 1
+        }
+      }
+    })
+  }
+
   // BookmarkedJobNotice 생성
   async createBookmarkedJobNotice(jobId: number, userId: string): Promise<void> {
     await this.prisma.bookmarkedJobNotice.create({
