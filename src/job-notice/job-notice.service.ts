@@ -1,7 +1,7 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common'
 import { Company, JobNotice } from '@prisma/client'
 import { CompanyRepository } from 'src/company/company.repository'
-import { CreateJobNoticeDto, ICreateJobNoticeResponse } from './dto'
+import { CreateJobNoticeDto, ICreateJobNoticeResponse, UpdateJobNoticeDto } from './dto'
 import { JobNoticeRepository } from './job-notice.repository'
 
 @Injectable()
@@ -30,9 +30,45 @@ export class JobNoticeService {
 
     // JobNotice 생성
     const createdJobNotice: JobNotice = await this.repository.createJobNotice(createJobNoticeDto)
+
+    // response 생성
     const response: ICreateJobNoticeResponse = {
       jobNotice: createdJobNotice,
       companyInfo: existedCompany
+    }
+
+    return response
+  }
+
+  // 채용 공고 수정
+  async updateJobNotice(jobId: number, updateJobNoticeDto: UpdateJobNoticeDto): Promise<ICreateJobNoticeResponse> {
+    // 존재하는 회사인지 확인 -> 에러일 시 404 에러 코드 반환
+    if (updateJobNoticeDto.companyId !== undefined) {
+      const existedCompany: Company | null = await this.companyRepository.getCompanyById(updateJobNoticeDto.companyId)
+      if (!existedCompany) {
+        throw new NotFoundException('존재하지 않는 회사입니다')
+      }
+    }
+
+    // 존재하는 채용 공고인지 확인 -> 에러일 시 404 에러 코드 반환
+    const existedJobNotice: JobNotice | null = await this.repository.getJobNoticeById(jobId)
+    if (!existedJobNotice) {
+      throw new NotFoundException('존재하지 않는 채용 공고입니다')
+    }
+
+    // 반환용 Company
+    const company: Company | null = await this.companyRepository.getCompanyById(existedJobNotice.companyId)
+    if (!company) {
+      throw new NotFoundException('존재하지 않는 회사입니다')
+    }
+
+    // JobNotice 업데이트
+    const updateJobNotice: JobNotice = await this.repository.updateJobNotice(jobId, updateJobNoticeDto)
+
+    // response 생성
+    const response: ICreateJobNoticeResponse = {
+      jobNotice: updateJobNotice,
+      companyInfo: company
     }
 
     return response

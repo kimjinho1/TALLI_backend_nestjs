@@ -1,6 +1,6 @@
 import { Company, JobNotice } from '@prisma/client'
 import { Transform, Type } from 'class-transformer'
-import { IsDate, IsInt, IsNotEmpty, IsOptional, IsString, Min, ValidateIf } from 'class-validator'
+import { IsDate, IsInt, IsNotEmpty, IsString, Min, ValidateIf } from 'class-validator'
 
 /*
  ** request 타입들
