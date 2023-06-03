@@ -26,7 +26,7 @@ export class CompanyRepository {
 
   // companyId로 Company 찾기
   async getCompanyById(companyId: number): Promise<Company | null> {
-    return await this.prisma.company.findUnique({
+    return await this.prisma.company.findFirst({
       where: {
         companyId
       }

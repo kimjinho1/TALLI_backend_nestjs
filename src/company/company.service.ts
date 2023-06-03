@@ -41,7 +41,7 @@ export class CompanyService {
     // 회사 이름 중복 처리 -> 에러일 시 409 에러 코드 반환
     const existedCompany: Company | null = await this.repository.getCompanyByCompanyName(createCompanyDto.companyName)
     if (existedCompany) {
-      throw new ConflictException('이미 존재하는 회사 이름입니다.')
+      throw new ConflictException('이미 존재하는 회사 이름입니다')
     }
 
     // Company 생성
