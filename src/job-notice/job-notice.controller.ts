@@ -6,6 +6,7 @@ import {
   GetJobNoticeListDto,
   ICreateJobNoticeResponse,
   IGetAllJobNoticeResponse,
+  SearchJobNoticeListDto,
   UpdateJobNoticeDto
 } from './dto'
 import { JobNoticeService } from './job-notice.service'
@@ -27,6 +28,13 @@ export class JobNoticeController {
   @ApiOperation({ summary: '개별 채용 공고 보기' })
   async getJobNotice(@Param('jobId') jobId: number): Promise<ICreateJobNoticeResponse> {
     return await this.jobNoticeService.getJobNoticeById(jobId)
+  }
+
+  @Post('/search')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: '채용 공고 검색' })
+  async searchJobNoticeList(@Body() dto: SearchJobNoticeListDto): Promise<IGetAllJobNoticeResponse> {
+    return await this.jobNoticeService.searchJobNoticeList(dto)
   }
 
   @Post('bookmark/:jobId/:userId')

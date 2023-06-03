@@ -1,6 +1,7 @@
 export * from './CreateJobNotice.dto'
 export * from './UpdateJobNotice.dto'
 export * from './GetJobNoticeList.dto'
+export * from './SearchJobNoticeList.dto'
 
 export interface IGetFilteredJobNotices {
   jobId: number

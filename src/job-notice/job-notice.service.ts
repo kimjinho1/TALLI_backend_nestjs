@@ -4,10 +4,12 @@ import { CompanyRepository } from 'src/company/company.repository'
 import { UserRepository } from 'src/user/user.repository'
 import {
   CreateJobNoticeDto,
+  FilterDto,
   GetJobNoticeListDto,
   ICreateJobNoticeResponse,
   IGetAllJobNoticeResponse,
   IGetFilteredJobNotices,
+  SearchJobNoticeListDto,
   UpdateJobNoticeDto
 } from './dto'
 import { JobNoticeRepository } from './job-notice.repository'
@@ -20,29 +22,10 @@ export class JobNoticeService {
     private readonly userRepository: UserRepository
   ) {}
 
-  // 정렬 기준을 정해주는 함수
-  private getOrderByClause(order: string): Prisma.JobNoticeOrderByWithRelationInput {
-    switch (order) {
-      case '최신 등록 순':
-        return { createdAt: 'desc' }
-      case '조회 많은 순':
-        return { hits: 'desc' }
-      case '북마크 많은 순':
-        return { bookmarkedJobNotices: { _count: 'desc' } }
-      case '마감일 빠른 순':
-        return { deadline: 'asc' }
-      default:
-        return { createdAt: 'desc' }
-    }
-  }
-
-  // 전체 채용 공고 보기
-  async getAllJobNotice(dto: GetJobNoticeListDto): Promise<IGetAllJobNoticeResponse> {
-    const { index, difference, category, order, filter } = dto
+  // 필터 생성
+  private getFilter(filter: FilterDto): Prisma.JobNoticeWhereInput {
     const { location, experience, education, certificate, companyType, jobType } = filter
-
-    // 필터링
-    const jobNoticeFilter: Prisma.JobNoticeWhereInput = {
+    return {
       jobLocation: location.length > 0 ? { in: location } : undefined,
       experience: experience.length > 0 ? { in: experience } : undefined,
       education: education.length > 0 ? { in: education } : undefined,
@@ -52,10 +35,16 @@ export class JobNoticeService {
       },
       jobType: jobType.length > 0 ? { in: jobType } : undefined
     }
+  }
 
-    // 쿼리
-    const query: Prisma.JobNoticeFindManyArgs = {
-      orderBy: this.getOrderByClause(order),
+  // Category로 쿼리 생성
+  private getQueryByCategory(
+    order: string,
+    category: string,
+    jobNoticeFilter: Prisma.JobNoticeWhereInput
+  ): Prisma.JobNoticeFindManyArgs {
+    return {
+      orderBy: this.getOrder(order),
       where: category !== '전체' ? { category, ...jobNoticeFilter } : jobNoticeFilter,
       include: {
         company: {
@@ -71,13 +60,57 @@ export class JobNoticeService {
         }
       }
     }
+  }
 
-    // 필터링된 jobNotice들
-    const tempJobNotices: any[] = await this.repository.getFilteredJobNotices(query)
-    const filteredJobNotices: any[] = tempJobNotices.slice(index, difference)
+  // searchWord로 쿼리 생성
+  private getQueryBySearchWord(
+    order: string,
+    searchWord: string,
+    jobNoticeFilter: Prisma.JobNoticeWhereInput
+  ): Prisma.JobNoticeFindManyArgs {
+    return {
+      orderBy: this.getOrder(order),
+      where: {
+        title: {
+          contains: searchWord
+        },
+        ...jobNoticeFilter
+      },
+      include: {
+        company: {
+          select: {
+            companyName: true,
+            logoUrl: true
+          }
+        },
+        bookmarkedJobNotices: {
+          select: {
+            jobId: true
+          }
+        }
+      }
+    }
+  }
 
-    // response 생성
-    const numTotal: number = tempJobNotices.length
+  // 정렬 기준을 정하기
+  private getOrder(order: string): Prisma.JobNoticeOrderByWithRelationInput {
+    switch (order) {
+      case '최신 등록 순':
+        return { createdAt: 'desc' }
+      case '조회 많은 순':
+        return { hits: 'desc' }
+      case '북마크 많은 순':
+        return { bookmarkedJobNotices: { _count: 'desc' } }
+      case '마감일 빠른 순':
+        return { deadline: 'asc' }
+      default:
+        return { createdAt: 'desc' }
+    }
+  }
+
+  // 채용 공고 필터 response 생성
+  private getResultList(length: number, filteredJobNotices: any[]): IGetAllJobNoticeResponse {
+    const numTotal: number = length
     const resultList: IGetFilteredJobNotices[] = filteredJobNotices.map(jobNotice => {
       return {
         jobId: jobNotice.jobId,
@@ -92,10 +125,25 @@ export class JobNoticeService {
         bookmarks: jobNotice.bookmarkedJobNotices.length
       }
     })
-    const response: IGetAllJobNoticeResponse = {
+    return {
       numTotal,
       resultList
     }
+  }
+
+  // 전체 채용 공고 보기
+  async getAllJobNotice(dto: GetJobNoticeListDto): Promise<IGetAllJobNoticeResponse> {
+    // 쿼리 생성
+    const { index, difference, category, order, filter } = dto
+    const jobNoticeFilter: Prisma.JobNoticeWhereInput = this.getFilter(filter)
+    const query: Prisma.JobNoticeFindManyArgs = this.getQueryByCategory(order, category, jobNoticeFilter)
+
+    // 필터링된 jobNotice들
+    const tempJobNotices: any[] = await this.repository.getFilteredJobNotices(query)
+    const filteredJobNotices: any[] = tempJobNotices.slice(index, difference)
+
+    // response 생성
+    const response: IGetAllJobNoticeResponse = this.getResultList(tempJobNotices.length, filteredJobNotices)
 
     return response
   }
@@ -119,6 +167,23 @@ export class JobNoticeService {
       jobNotice: existedJobNotice,
       companyInfo: company
     }
+
+    return response
+  }
+
+  // 채용 공고 검색
+  async searchJobNoticeList(dto: SearchJobNoticeListDto): Promise<IGetAllJobNoticeResponse> {
+    // 쿼리 생성
+    const { index, difference, searchWord, order, filter } = dto
+    const jobNoticeFilter: Prisma.JobNoticeWhereInput = this.getFilter(filter)
+    const query: Prisma.JobNoticeFindManyArgs = this.getQueryBySearchWord(order, searchWord, jobNoticeFilter)
+
+    // 필터링된 jobNotice들
+    const tempJobNotices: any[] = await this.repository.getFilteredJobNotices(query)
+    const filteredJobNotices: any[] = tempJobNotices.slice(index, difference)
+
+    // response 생성
+    const response: IGetAllJobNoticeResponse = this.getResultList(tempJobNotices.length, filteredJobNotices)
 
     return response
   }
