@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger'
 import { Type } from 'class-transformer'
 import { ValidateNested, IsIn, ArrayNotEmpty, IsDefined } from 'class-validator'
 import { CurrentJobDetailDto } from '../current.job.detaill.dto'
@@ -17,11 +18,13 @@ const jobList = [
 ]
 
 export class AddUserRequestDto extends UserDto {
+  @ApiProperty({ description: '유저 자세한 정보' })
   @ValidateNested({ each: true })
   @IsDefined()
   @Type(() => CurrentJobDetailDto)
   currentJobDetail: CurrentJobDetailDto
 
+  @ApiProperty({ description: '최대 10개인 문자열 배열', example: ['보건관리자', '임상연구'] })
   @IsDefined()
   @ArrayNotEmpty()
   @IsIn(jobList, { each: true })

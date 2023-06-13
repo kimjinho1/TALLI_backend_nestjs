@@ -2,7 +2,7 @@ import { Injectable, NestInterceptor, ExecutionContext, CallHandler } from '@nes
 import { Observable } from 'rxjs'
 import { map } from 'rxjs/operators'
 
-interface ResponseWrapper<T> {
+class ResponseWrapper<T> {
   data: T
 }
 
