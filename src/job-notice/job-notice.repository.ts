@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { BookmarkedJobNotice, JobNotice, Prisma } from '@prisma/client'
 import { PrismaService } from 'prisma/prisma.service'
-import { CreateJobNoticeDto, UpdateJobNoticeDto } from './dto'
+import { CreateJobNoticeRequestDto, UpdateJobNoticeRequestDto } from './dto/request'
 
 @Injectable()
 export class JobNoticeRepository {
@@ -80,7 +80,7 @@ export class JobNoticeRepository {
   }
 
   // JobNotice 생성
-  async createJobNotice(createJobNoticeDto: CreateJobNoticeDto): Promise<JobNotice> {
+  async createJobNotice(createJobNoticeDto: CreateJobNoticeRequestDto): Promise<JobNotice> {
     return await this.prisma.jobNotice.create({
       data: {
         ...createJobNoticeDto,
@@ -90,7 +90,7 @@ export class JobNoticeRepository {
   }
 
   // JobNotice 업데이트
-  async updateJobNotice(jobId: number, updateJobNoticeDto: UpdateJobNoticeDto): Promise<JobNotice> {
+  async updateJobNotice(jobId: number, updateJobNoticeDto: UpdateJobNoticeRequestDto): Promise<JobNotice> {
     return await this.prisma.jobNotice.update({
       where: {
         jobId

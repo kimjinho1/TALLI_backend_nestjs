@@ -1,10 +1,10 @@
 import { Type } from 'class-transformer'
 import { IsDefined, IsIn, IsInt, IsNotEmpty, IsString, Min, ValidateNested } from 'class-validator'
-import { FilterDto } from './GetJobNoticeList.dto'
+import { FilterDto } from '../filter.dto'
 
 const order = ['최신 등록 순', '조회 많은 순', '북마크 많은 순', '마감일 빠른 순']
 
-export class SearchJobNoticeListDto {
+export class SearchJobNoticeListRequestDto {
   @IsInt()
   @Min(0)
   index: number

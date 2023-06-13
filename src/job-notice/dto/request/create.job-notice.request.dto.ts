@@ -1,11 +1,7 @@
-import { Company, JobNotice } from '@prisma/client'
 import { Transform, Type } from 'class-transformer'
 import { IsDate, IsInt, IsNotEmpty, IsString, Min, ValidateIf } from 'class-validator'
 
-/*
- ** request 타입들
- */
-export class CreateJobNoticeDto {
+export class CreateJobNoticeRequestDto {
   @IsInt()
   @Min(0)
   companyId: number
@@ -74,12 +70,4 @@ export class CreateJobNoticeDto {
   @IsString()
   @IsNotEmpty()
   jobWebsite: string
-}
-
-/*
- ** response 타입들
- */
-export interface ICreateJobNoticeResponse {
-  jobNotice: JobNotice
-  companyInfo: Company
 }

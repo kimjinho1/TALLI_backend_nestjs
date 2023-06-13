@@ -2,13 +2,12 @@ import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post
 import { ApiOperation, ApiTags } from '@nestjs/swagger'
 import { JobNotice } from '@prisma/client'
 import {
-  CreateJobNoticeDto,
-  GetJobNoticeListDto,
-  ICreateJobNoticeResponse,
-  IGetAllJobNoticeResponse,
-  SearchJobNoticeListDto,
-  UpdateJobNoticeDto
-} from './dto'
+  CreateJobNoticeRequestDto,
+  GetJobNoticeListRequestDto,
+  SearchJobNoticeListRequestDto,
+  UpdateJobNoticeRequestDto
+} from './dto/request'
+import { CreateJobNoticeResponseDto, GetAllJobNoticeResponseDto } from './dto/response'
 import { JobNoticeService } from './job-notice.service'
 
 @Controller('job-notice')
@@ -19,21 +18,21 @@ export class JobNoticeController {
   @Post('/list')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: '전체 채용 공고 보기' })
-  async getJobNoticeList(@Body() getJobNoticeListDto: GetJobNoticeListDto): Promise<IGetAllJobNoticeResponse> {
+  async getJobNoticeList(@Body() getJobNoticeListDto: GetJobNoticeListRequestDto): Promise<GetAllJobNoticeResponseDto> {
     return await this.jobNoticeService.getAllJobNotice(getJobNoticeListDto)
   }
 
   @Get('/:jobId')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: '개별 채용 공고 보기' })
-  async getJobNotice(@Param('jobId') jobId: number): Promise<ICreateJobNoticeResponse> {
+  async getJobNotice(@Param('jobId') jobId: number): Promise<CreateJobNoticeResponseDto> {
     return await this.jobNoticeService.getJobNoticeById(jobId)
   }
 
   @Post('/search')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: '채용 공고 검색' })
-  async searchJobNoticeList(@Body() dto: SearchJobNoticeListDto): Promise<IGetAllJobNoticeResponse> {
+  async searchJobNoticeList(@Body() dto: SearchJobNoticeListRequestDto): Promise<GetAllJobNoticeResponseDto> {
     return await this.jobNoticeService.searchJobNoticeList(dto)
   }
 
@@ -56,7 +55,7 @@ export class JobNoticeController {
   @Post()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: '채용 공고 추가' })
-  async createJobNotice(@Body() createJobNoticeDto: CreateJobNoticeDto): Promise<ICreateJobNoticeResponse> {
+  async createJobNotice(@Body() createJobNoticeDto: CreateJobNoticeRequestDto): Promise<CreateJobNoticeResponseDto> {
     return await this.jobNoticeService.createJobNotice(createJobNoticeDto)
   }
 
@@ -65,8 +64,8 @@ export class JobNoticeController {
   @ApiOperation({ summary: '채용 공고 수정' })
   async UpdateJobNotice(
     @Param('jobId') jobId: number,
-    @Body() updateJobNoticeDto: UpdateJobNoticeDto
-  ): Promise<ICreateJobNoticeResponse> {
+    @Body() updateJobNoticeDto: UpdateJobNoticeRequestDto
+  ): Promise<CreateJobNoticeResponseDto> {
     return await this.jobNoticeService.updateJobNotice(jobId, updateJobNoticeDto)
   }
 

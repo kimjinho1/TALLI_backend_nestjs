@@ -2,16 +2,14 @@ import { ConflictException, Injectable, NotFoundException } from '@nestjs/common
 import { BookmarkedJobNotice, Company, JobNotice, Prisma, User } from '@prisma/client'
 import { CompanyRepository } from 'src/company/company.repository'
 import { UserRepository } from 'src/user/user.repository'
+import { FilterDto, FilteredJobNoticeDto } from './dto'
 import {
-  CreateJobNoticeDto,
-  FilterDto,
-  GetJobNoticeListDto,
-  ICreateJobNoticeResponse,
-  IGetAllJobNoticeResponse,
-  IGetFilteredJobNotices,
-  SearchJobNoticeListDto,
-  UpdateJobNoticeDto
-} from './dto'
+  CreateJobNoticeRequestDto,
+  GetJobNoticeListRequestDto,
+  SearchJobNoticeListRequestDto,
+  UpdateJobNoticeRequestDto
+} from './dto/request'
+import { CreateJobNoticeResponseDto, GetAllJobNoticeResponseDto } from './dto/response'
 import { JobNoticeRepository } from './job-notice.repository'
 
 @Injectable()
@@ -109,9 +107,9 @@ export class JobNoticeService {
   }
 
   // 채용 공고 필터 response 생성
-  private getResultList(length: number, filteredJobNotices: any[]): IGetAllJobNoticeResponse {
+  private getResultList(length: number, filteredJobNotices: any[]): GetAllJobNoticeResponseDto {
     const numTotal: number = length
-    const resultList: IGetFilteredJobNotices[] = filteredJobNotices.map(jobNotice => {
+    const resultList: FilteredJobNoticeDto[] = filteredJobNotices.map(jobNotice => {
       return {
         jobId: jobNotice.jobId,
         title: jobNotice.title,
@@ -132,7 +130,7 @@ export class JobNoticeService {
   }
 
   // 전체 채용 공고 보기
-  async getAllJobNotice(dto: GetJobNoticeListDto): Promise<IGetAllJobNoticeResponse> {
+  async getAllJobNotice(dto: GetJobNoticeListRequestDto): Promise<GetAllJobNoticeResponseDto> {
     // 쿼리 생성
     const { index, difference, category, order, filter } = dto
     const jobNoticeFilter: Prisma.JobNoticeWhereInput = this.getFilter(filter)
@@ -143,13 +141,13 @@ export class JobNoticeService {
     const filteredJobNotices: any[] = tempJobNotices.slice(index, difference)
 
     // response 생성
-    const response: IGetAllJobNoticeResponse = this.getResultList(tempJobNotices.length, filteredJobNotices)
+    const response: GetAllJobNoticeResponseDto = this.getResultList(tempJobNotices.length, filteredJobNotices)
 
     return response
   }
 
   // 개별 채용 공고 보기
-  async getJobNoticeById(jobId: number): Promise<ICreateJobNoticeResponse> {
+  async getJobNoticeById(jobId: number): Promise<CreateJobNoticeResponseDto> {
     // 존재하는 채용 공고인지 확인 -> 에러일 시 404 에러 코드 반환
     const existedJobNotice: JobNotice | null = await this.repository.getJobNoticeById(jobId)
     if (!existedJobNotice) {
@@ -163,7 +161,7 @@ export class JobNoticeService {
     }
 
     // response 생성
-    const response: ICreateJobNoticeResponse = {
+    const response: CreateJobNoticeResponseDto = {
       jobNotice: existedJobNotice,
       companyInfo: company
     }
@@ -175,7 +173,7 @@ export class JobNoticeService {
   }
 
   // 채용 공고 검색
-  async searchJobNoticeList(dto: SearchJobNoticeListDto): Promise<IGetAllJobNoticeResponse> {
+  async searchJobNoticeList(dto: SearchJobNoticeListRequestDto): Promise<GetAllJobNoticeResponseDto> {
     // 쿼리 생성
     const { index, difference, searchWord, order, filter } = dto
     const jobNoticeFilter: Prisma.JobNoticeWhereInput = this.getFilter(filter)
@@ -186,7 +184,7 @@ export class JobNoticeService {
     const filteredJobNotices: any[] = tempJobNotices.slice(index, difference)
 
     // response 생성
-    const response: IGetAllJobNoticeResponse = this.getResultList(tempJobNotices.length, filteredJobNotices)
+    const response: GetAllJobNoticeResponseDto = this.getResultList(tempJobNotices.length, filteredJobNotices)
 
     return response
   }
@@ -242,7 +240,7 @@ export class JobNoticeService {
   }
 
   // 채용 공고 추가
-  async createJobNotice(dto: CreateJobNoticeDto): Promise<ICreateJobNoticeResponse> {
+  async createJobNotice(dto: CreateJobNoticeRequestDto): Promise<CreateJobNoticeResponseDto> {
     // 존재하는 회사인지 확인 -> 에러일 시 404 에러 코드 반환
     const existedCompany: Company | null = await this.companyRepository.getCompanyById(dto.companyId)
     if (!existedCompany) {
@@ -262,7 +260,7 @@ export class JobNoticeService {
     const createdJobNotice: JobNotice = await this.repository.createJobNotice(dto)
 
     // response 생성
-    const response: ICreateJobNoticeResponse = {
+    const response: CreateJobNoticeResponseDto = {
       jobNotice: createdJobNotice,
       companyInfo: existedCompany
     }
@@ -271,7 +269,7 @@ export class JobNoticeService {
   }
 
   // 채용 공고 수정
-  async updateJobNotice(jobId: number, dto: UpdateJobNoticeDto): Promise<ICreateJobNoticeResponse> {
+  async updateJobNotice(jobId: number, dto: UpdateJobNoticeRequestDto): Promise<CreateJobNoticeResponseDto> {
     // 존재하는 회사인지 확인 -> 에러일 시 404 에러 코드 반환
     if (dto.companyId !== undefined) {
       const existedCompany: Company | null = await this.companyRepository.getCompanyById(dto.companyId)
@@ -296,7 +294,7 @@ export class JobNoticeService {
     const updateJobNotice: JobNotice = await this.repository.updateJobNotice(jobId, dto)
 
     // response 생성
-    const response: ICreateJobNoticeResponse = {
+    const response: CreateJobNoticeResponseDto = {
       jobNotice: updateJobNotice,
       companyInfo: company
     }
