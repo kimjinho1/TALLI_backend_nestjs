@@ -1,6 +1,7 @@
 import { Body, Controller, Get, HttpCode, HttpStatus, Post } from '@nestjs/common'
 import { ApiTags, ApiOperation } from '@nestjs/swagger'
-import { AddUserDto, IAddUserResponse } from './dto'
+import { AddUserRequestDto } from './dto/request'
+import { AddUserResponseDto } from './dto/response'
 import { UserService } from './user.service'
 
 @Controller('user')
@@ -11,7 +12,7 @@ export class UserController {
   @Post()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: '회원 정보 추가' })
-  async addUser(@Body() addUserDto: AddUserDto): Promise<IAddUserResponse> {
+  async addUser(@Body() addUserDto: AddUserRequestDto): Promise<AddUserResponseDto> {
     return await this.userService.addUser(addUserDto)
   }
 

@@ -1,6 +1,7 @@
 import { ConflictException, HttpException, HttpStatus, Injectable } from '@nestjs/common'
 import { CurrentJobDetail, JobOfInterest, User } from '@prisma/client'
-import { AddUserDto, IAddUserResponse } from './dto'
+import { AddUserRequestDto } from './dto/request'
+import { AddUserResponseDto } from './dto/response'
 import { UserRepository } from './user.repository'
 
 @Injectable()
@@ -8,7 +9,7 @@ export class UserService {
   constructor(private readonly repository: UserRepository) {}
 
   // 회원 정보 추가
-  async addUser(createUserDto: AddUserDto): Promise<IAddUserResponse> {
+  async addUser(createUserDto: AddUserRequestDto): Promise<AddUserResponseDto> {
     // request body에서 현재 직업, 관심 직군, 유저 정보를 분리
     const { currentJobDetail, jobOfInterestList, ...userData } = createUserDto
 
