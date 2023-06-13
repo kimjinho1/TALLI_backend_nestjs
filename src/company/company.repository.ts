@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { Company } from '@prisma/client'
 import { PrismaService } from 'prisma/prisma.service'
-import { CreateCompanyDto, UpdateCompanyDto } from './dto'
+import { CreateCompanyRequestDto, UpdateCompanyRequestDto } from './dto/request'
 
 @Injectable()
 export class CompanyRepository {
@@ -43,7 +43,7 @@ export class CompanyRepository {
   }
 
   // 회사 정보 추가
-  async createCompany(createCompanyDto: CreateCompanyDto): Promise<Company> {
+  async createCompany(createCompanyDto: CreateCompanyRequestDto): Promise<Company> {
     return await this.prisma.company.create({
       data: {
         ...createCompanyDto
@@ -52,7 +52,7 @@ export class CompanyRepository {
   }
 
   // 회사 정보 수정
-  async updateCompany(companyId: number, updateCompanyDto: UpdateCompanyDto): Promise<Company> {
+  async updateCompany(companyId: number, updateCompanyDto: UpdateCompanyRequestDto): Promise<Company> {
     return await this.prisma.company.update({
       where: {
         companyId

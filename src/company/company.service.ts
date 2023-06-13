@@ -1,14 +1,15 @@
 import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common'
 import { Company } from '@prisma/client'
-import { CreateCompanyDto, IGetCompanyListResponse, UpdateCompanyDto } from './dto'
 import { CompanyRepository } from './company.repository'
+import { CreateCompanyRequestDto, UpdateCompanyRequestDto } from './dto/request'
+import { GetCompanyListResponseDto } from './dto/response'
 
 @Injectable()
 export class CompanyService {
   constructor(private readonly repository: CompanyRepository) {}
 
   // 전체 회사 정보 보기
-  async getCompanyList(index: number, difference: number): Promise<IGetCompanyListResponse> {
+  async getCompanyList(index: number, difference: number): Promise<GetCompanyListResponseDto> {
     // 범위 입력이 올바른지 확인 -> 에러일 시 400 에러 코드 반환
     if (index < 0 || difference < 1) {
       throw new BadRequestException('잘못된 범위 입력입니다')
@@ -17,7 +18,7 @@ export class CompanyService {
     // response 생성
     const numTotal = await this.repository.getCompanyCount()
     const selectedCompany: Company[] = await this.repository.getCompanyList(index, difference)
-    const response: IGetCompanyListResponse = {
+    const response: GetCompanyListResponseDto = {
       numTotal,
       resultList: selectedCompany
     }
@@ -37,7 +38,7 @@ export class CompanyService {
   }
 
   // 회사 정보 추가
-  async createCompany(createCompanyDto: CreateCompanyDto): Promise<Company> {
+  async createCompany(createCompanyDto: CreateCompanyRequestDto): Promise<Company> {
     // 회사 이름 중복 처리 -> 에러일 시 409 에러 코드 반환
     const existedCompany: Company | null = await this.repository.getCompanyByCompanyName(createCompanyDto.companyName)
     if (existedCompany) {
@@ -51,7 +52,7 @@ export class CompanyService {
   }
 
   // 회사 정보 수정
-  async updateCompany(companyId: number, updateCompanyDto: UpdateCompanyDto): Promise<Company> {
+  async updateCompany(companyId: number, updateCompanyDto: UpdateCompanyRequestDto): Promise<Company> {
     // 존재하는 회사인지 확인 -> 에러일 시 404 에러 코드 반환
     const existedCompany: Company | null = await this.repository.getCompanyById(companyId)
     if (!existedCompany) {
