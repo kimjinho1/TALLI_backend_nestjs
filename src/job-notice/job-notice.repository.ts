@@ -83,7 +83,8 @@ export class JobNoticeRepository {
   async createJobNotice(createJobNoticeDto: CreateJobNoticeDto): Promise<JobNotice> {
     return await this.prisma.jobNotice.create({
       data: {
-        ...createJobNoticeDto
+        ...createJobNoticeDto,
+        modifiedAt: null
       }
     })
   }

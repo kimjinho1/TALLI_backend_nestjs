@@ -83,7 +83,7 @@ model JobNotice {
   jobWebsite      String    @map("job_website")
   hits            Int       @default(0)
   createdAt       DateTime  @default(now()) @map("created_at")
-  modifiedAt      DateTime? @updatedAt @map("modified_at")
+  modifiedAt      DateTime? @updatedAt @default(now()) @map("modified_at")
 
   // Company와 JobNotice one-to-many 연결
   company Company @relation(fields: [companyId], references: [companyId], onDelete: Cascade)
