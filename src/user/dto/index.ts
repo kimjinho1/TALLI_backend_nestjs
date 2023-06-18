@@ -1,5 +1,5 @@
 export * from './user.dto'
-export * from './current.job.detaill.dto'
+export * from './current-job-detaill.dto'
 
 export const jobList = [
   '보건관리자',
