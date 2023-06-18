@@ -1,5 +1,5 @@
 all:
-	docker-compose up
+	docker-compose up --build
 
 nest:
 	npm run start:dev
