@@ -1,15 +1,14 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post } from '@nestjs/common'
+import { Body, Controller, Get, HttpCode, HttpStatus, Param, Patch, Post } from '@nestjs/common'
 import {
   ApiTags,
   ApiOperation,
   ApiConflictResponse,
   ApiBody,
   ApiOkResponse,
-  ApiResponse,
   ApiNotFoundResponse,
   ApiParam
 } from '@nestjs/swagger'
-import { AddUserRequestDto } from './dto/request'
+import { AddUserRequestDto, UpdateUserRequestDto } from './dto/request'
 import { AddUserResponseDto } from './dto/response'
 import { UserService } from './user.service'
 
@@ -50,7 +49,7 @@ export class UserController {
     return await this.userService.getUserById(userId)
   }
 
-  @ApiOperation({ summary: '유저 정보 추가', description: 'User, CurrentJobDetail, JobOfInterest을 생성합니다.' })
+  @ApiOperation({ summary: '회원 정보 추가', description: 'User, CurrentJobDetail, JobOfInterest을 생성합니다.' })
   @ApiBody({ type: AddUserRequestDto })
   @ApiOkResponse({
     description: '성공 시, 200 Ok를 응답합니다.',
@@ -63,5 +62,20 @@ export class UserController {
   @HttpCode(HttpStatus.OK)
   async addUser(@Body() dto: AddUserRequestDto): Promise<AddUserResponseDto> {
     return await this.userService.addUser(dto)
+  }
+
+  @ApiOperation({ summary: '회원 프로필 수정', description: '유저 프로필(닉네임, 프로필 사진)을 수정합니다.' })
+  @ApiBody({ type: AddUserRequestDto })
+  @ApiOkResponse({
+    description: '성공 시, 200 Ok를 응답합니다.',
+    type: AddUserResponseDto
+  })
+  @ApiNotFoundResponse({
+    description: '존재하지 않는 유저 ID인 경우, 404 Not Found를 응답합니다.'
+  })
+  @Patch('/profile/:userId')
+  @HttpCode(HttpStatus.OK)
+  async updateUser(@Param('userId') userId: string, @Body() dto: UpdateUserRequestDto): Promise<AddUserResponseDto> {
+    return await this.userService.updateUser(userId, dto)
   }
 }

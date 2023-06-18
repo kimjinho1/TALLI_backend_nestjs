@@ -1,12 +1,21 @@
 import { ConflictException, HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
 import { CurrentJobDetail, JobOfInterest, User } from '@prisma/client'
-import { AddUserRequestDto } from './dto/request'
+import { AddUserRequestDto, UpdateUserRequestDto } from './dto/request'
 import { AddUserResponseDto } from './dto/response'
 import { UserRepository } from './user.repository'
 
 @Injectable()
 export class UserService {
   constructor(private readonly repository: UserRepository) {}
+
+  // 존재하는 유저인지 확인 -> 에러일 시 404 에러 코드 반환
+  private async validateUserByUserId(userId: string): Promise<User> {
+    const existedUser: User | null = await this.repository.getUserById(userId)
+    if (!existedUser) {
+      throw new NotFoundException('존재하지 않는 유저입니다')
+    }
+    return existedUser
+  }
 
   // 전체 회원 닉네임 목록 보기
   async getAllNickname(): Promise<string[]> {
@@ -16,13 +25,10 @@ export class UserService {
     return nicknames
   }
 
-  // 전체 회원 닉네임 목록 보기
+  // 개별 회원 정보 보기
   async getUserById(userId: string): Promise<AddUserResponseDto> {
     // 존재하는 유저인지 확인 -> 에러일 시 404 에러 코드 반환
-    const existedUser: User | null = await this.repository.getUserById(userId)
-    if (!existedUser) {
-      throw new NotFoundException('존재하지 않는 유저입니다')
-    }
+    const existedUser: User = await this.validateUserByUserId(userId)
 
     // 존재하는 유저 상세 정보인지 확인 -> 에러일 시 404 에러 코드 반환
     const currentJobDetail: CurrentJobDetail | null = await this.repository.getCurrentJobDetailByUserId(userId)
@@ -33,7 +39,7 @@ export class UserService {
     // 유저의 관심 직종
     const jobOfInterestList: JobOfInterest[] = await this.repository.getJobOfInterestListByUserId(userId)
     return {
-      user: existedUser,
+      ...existedUser,
       currentJobDetail: currentJobDetail,
       jobOfInterest: jobOfInterestList
     }
@@ -63,9 +69,20 @@ export class UserService {
 
     // post 결과 반환
     return {
-      user: createdUser,
+      ...createdUser,
       currentJobDetail: createdCurrentJobDetail,
       jobOfInterest: createdJobOfInterestList
     }
+  }
+
+  // 회원 정보 추가
+  async updateUser(userId: string, dto: UpdateUserRequestDto): Promise<AddUserResponseDto> {
+    // 회원 검증과 동시에 회원 정보를 미리 가져옴
+    let response: AddUserResponseDto = await this.getUserById(userId)
+
+    const updatedUser: User = await this.repository.updateUser(userId, dto)
+    response.nickname = updatedUser.nickname
+    response.imageUrl = updatedUser.imageUrl
+    return response
   }
 }
