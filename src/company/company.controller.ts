@@ -6,12 +6,13 @@ import {
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiParam,
   ApiQuery,
   ApiTags
 } from '@nestjs/swagger'
 import { Company } from '@prisma/client'
 import { CompanyService } from './company.service'
-import { CreateCompanyRequestDto, UpdateCompanyRequestDto } from './dto/request'
+import { CreateCompanyRequestDto, DeleteCompanyRequestDto, UpdateCompanyRequestDto } from './dto/request'
 import { GetCompanyListResponseDto } from './dto/response'
 
 @ApiTags('회사 API')
@@ -20,8 +21,8 @@ export class CompanyController {
   constructor(private readonly companyService: CompanyService) {}
 
   @ApiOperation({ summary: '전체 회사 정보 보기', description: '모든 회사의 정보를 반환합니다.' })
-  @ApiQuery({ name: 'index', type: Number })
-  @ApiQuery({ name: 'difference', type: Number })
+  @ApiQuery({ name: 'index', required: true, description: '시작 위치', type: Number })
+  @ApiQuery({ name: 'difference', required: true, description: '개수', type: Number })
   @ApiOkResponse({
     description: '성공 시, 200 Ok를 응답합니다.',
     type: GetCompanyListResponseDto
@@ -39,7 +40,7 @@ export class CompanyController {
   }
 
   @ApiOperation({ summary: '개별 회사 정보 보기', description: 'companyId에 매칭되는 회사의 정보를 반환합니다.' })
-  @ApiQuery({ name: 'companyId', type: Number })
+  @ApiParam({ name: 'companyId', required: true, description: '회사 ID', type: Number })
   @ApiOkResponse({
     description: '성공 시, 200 Ok를 응답합니다.'
   })
@@ -62,12 +63,12 @@ export class CompanyController {
   })
   @Post()
   @HttpCode(HttpStatus.OK)
-  async createCompany(@Body() createCompanyDto: CreateCompanyRequestDto): Promise<Company> {
-    return await this.companyService.createCompany(createCompanyDto)
+  async createCompany(@Body() dto: CreateCompanyRequestDto): Promise<Company> {
+    return await this.companyService.createCompany(dto)
   }
 
   @ApiOperation({ summary: '회사 정보 수정', description: 'companyId에 매칭되는 회사의 정보를 수정합니다.' })
-  @ApiQuery({ name: 'companyId', type: Number })
+  @ApiParam({ name: 'companyId', required: true, description: '회사 ID', type: Number })
   @ApiBody({ type: UpdateCompanyRequestDto })
   @ApiOkResponse({
     description: '성공 시, 200 Ok를 응답합니다.'
@@ -77,24 +78,20 @@ export class CompanyController {
   })
   @Patch('/:companyId')
   @HttpCode(HttpStatus.OK)
-  async updateCompany(
-    @Param('companyId') companyId: number,
-    @Body() updateCompanyDto: UpdateCompanyRequestDto
-  ): Promise<Company> {
-    return await this.companyService.updateCompany(companyId, updateCompanyDto)
+  async updateCompany(@Param('companyId') companyId: number, @Body() dto: UpdateCompanyRequestDto): Promise<Company> {
+    return await this.companyService.updateCompany(companyId, dto)
   }
 
   @ApiOperation({ summary: '회사 정보 삭제', description: 'companyId에 매칭되는 회사의 정보를 삭제합니다.' })
-  @ApiQuery({ name: 'companyId', type: Number })
   @ApiOkResponse({
     description: '성공 시, 200 Ok를 응답합니다.'
   })
   @ApiNotFoundResponse({
     description: 'companyId에 매칭되는 회사가 없는 경우, 404 Not Found 응답합니다.'
   })
-  @Delete('/:companyId')
+  @Delete()
   @HttpCode(HttpStatus.OK)
-  async deleteCompany(@Param('companyId') companyId: number): Promise<Company> {
-    return await this.companyService.deleteCompany(companyId)
+  async deleteCompany(@Body() dto: DeleteCompanyRequestDto): Promise<Company> {
+    return await this.companyService.deleteCompany(dto.companyId)
   }
 }

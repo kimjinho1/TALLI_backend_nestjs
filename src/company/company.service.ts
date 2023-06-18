@@ -38,21 +38,21 @@ export class CompanyService {
   }
 
   // 회사 정보 추가
-  async createCompany(createCompanyDto: CreateCompanyRequestDto): Promise<Company> {
+  async createCompany(dto: CreateCompanyRequestDto): Promise<Company> {
     // 회사 이름 중복 처리 -> 에러일 시 409 에러 코드 반환
-    const existedCompany: Company | null = await this.repository.getCompanyByCompanyName(createCompanyDto.companyName)
+    const existedCompany: Company | null = await this.repository.getCompanyByCompanyName(dto.companyName)
     if (existedCompany) {
       throw new ConflictException('이미 존재하는 회사 이름입니다')
     }
 
     // Company 생성
-    const createdCompany: Company = await this.repository.createCompany(createCompanyDto)
+    const createdCompany: Company = await this.repository.createCompany(dto)
 
     return createdCompany
   }
 
   // 회사 정보 수정
-  async updateCompany(companyId: number, updateCompanyDto: UpdateCompanyRequestDto): Promise<Company> {
+  async updateCompany(companyId: number, dto: UpdateCompanyRequestDto): Promise<Company> {
     // 존재하는 회사인지 확인 -> 에러일 시 404 에러 코드 반환
     const existedCompany: Company | null = await this.repository.getCompanyById(companyId)
     if (!existedCompany) {
@@ -60,7 +60,7 @@ export class CompanyService {
     }
 
     // Company 업데이트
-    const updatedCompany: Company = await this.repository.updateCompany(companyId, updateCompanyDto)
+    const updatedCompany: Company = await this.repository.updateCompany(companyId, dto)
 
     return updatedCompany
   }

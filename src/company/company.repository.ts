@@ -43,22 +43,22 @@ export class CompanyRepository {
   }
 
   // 회사 정보 추가
-  async createCompany(createCompanyDto: CreateCompanyRequestDto): Promise<Company> {
+  async createCompany(dto: CreateCompanyRequestDto): Promise<Company> {
     return await this.prisma.company.create({
       data: {
-        ...createCompanyDto
+        ...dto
       }
     })
   }
 
   // 회사 정보 수정
-  async updateCompany(companyId: number, updateCompanyDto: UpdateCompanyRequestDto): Promise<Company> {
+  async updateCompany(companyId: number, dto: UpdateCompanyRequestDto): Promise<Company> {
     return await this.prisma.company.update({
       where: {
         companyId
       },
       data: {
-        ...updateCompanyDto
+        ...dto
       }
     })
   }
