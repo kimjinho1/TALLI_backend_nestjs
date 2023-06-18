@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Param, Patch, Post } from '@nestjs/common'
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post } from '@nestjs/common'
 import {
   ApiTags,
   ApiOperation,
@@ -8,7 +8,7 @@ import {
   ApiNotFoundResponse,
   ApiParam
 } from '@nestjs/swagger'
-import { AddUserRequestDto, updateJobOfInterestRequestDto, UpdateUserRequestDto } from './dto/request'
+import { AddUserRequestDto, updateJobOfInterestRequestDto, UpdateUserRequestDto, UserIdRequestDto } from './dto/request'
 import { AddUserResponseDto } from './dto/response'
 import { UserService } from './user.service'
 
@@ -97,5 +97,21 @@ export class UserController {
     @Body() dto: updateJobOfInterestRequestDto
   ): Promise<AddUserResponseDto> {
     return await this.userService.updateJobOfInterest(userId, dto.jobOfInterestList)
+  }
+
+  @ApiOperation({ summary: '회원 정보 삭제', description: 'userId와 매칭되는 유저의 정보를 삭제합니다.' })
+  @ApiBody({ type: UserIdRequestDto })
+  @ApiOkResponse({
+    description: '성공 시, 200 Ok를 응답합니다.',
+    type: AddUserResponseDto
+  })
+  @ApiNotFoundResponse({
+    description: '존재하지 않는 유저 ID인 경우, 404 Not Found를 응답합니다.'
+  })
+  @Delete()
+  @HttpCode(HttpStatus.OK)
+  async deleteUser(@Body() dto: UserIdRequestDto): Promise<null> {
+    await this.userService.deleteUser(dto.userId)
+    return null
   }
 }

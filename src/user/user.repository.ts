@@ -128,4 +128,13 @@ export class UserRepository {
       }
     })
   }
+
+  // userId에 매칭되는 유저 정보 삭제
+  async deleteUser(userId: string): Promise<void> {
+    await this.prisma.user.delete({
+      where: {
+        userId
+      }
+    })
+  }
 }
