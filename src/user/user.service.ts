@@ -75,14 +75,40 @@ export class UserService {
     }
   }
 
-  // 회원 정보 추가
+  // 회원 정보 수정
   async updateUser(userId: string, dto: UpdateUserRequestDto): Promise<AddUserResponseDto> {
+    // 닉네임 중복 처리 -> 에러일 시 409 에러 코드 반환
+    const existedUser: User | null = await this.repository.getUserByNickname(dto.nickname)
+    if (existedUser) {
+      throw new ConflictException('이미 존재하는 닉네임입니다')
+    }
+
     // 회원 검증과 동시에 회원 정보를 미리 가져옴
     let response: AddUserResponseDto = await this.getUserById(userId)
 
+    // 회원 정보 업데이트
     const updatedUser: User = await this.repository.updateUser(userId, dto)
     response.nickname = updatedUser.nickname
     response.imageUrl = updatedUser.imageUrl
+    return response
+  }
+
+  // 회원 관심 직군 수정
+  async updateJobOfInterest(userId: string, jobs: string[]): Promise<AddUserResponseDto> {
+    // 회원 검증과 동시에 회원 정보를 미리 가져옴
+    let response: AddUserResponseDto = await this.getUserById(userId)
+    response.jobOfInterest = jobs
+
+    const existingJobs: JobOfInterest[] = await this.repository.getJobOfInterestList(userId)
+
+    const jobsToRemove = existingJobs.filter(job => !jobs.includes(job.jobOfInterest))
+    const jobsToAdd = jobs.filter(newJob => !existingJobs.some(job => job.jobOfInterest === newJob))
+    const jobsToRemoveNames = jobsToRemove.map(job => job.jobOfInterest)
+    const jobsToAddNames = jobsToAdd.filter(job => !jobsToRemoveNames.includes(job))
+
+    await this.repository.deleteJobOfInterestList(userId, jobsToRemoveNames)
+    await this.repository.createJobOfInterestList(userId, jobsToAddNames)
+
     return response
   }
 }

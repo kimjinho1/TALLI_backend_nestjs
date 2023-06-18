@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { CurrentJobDetail, JobOfInterest, User } from '@prisma/client'
+import { CurrentJobDetail, JobOfInterest, Prisma, User } from '@prisma/client'
 import { PrismaService } from 'prisma/prisma.service'
 import { CurrentJobDetailDto, UserDto } from './dto'
 import { UpdateUserRequestDto } from './dto/request'
@@ -13,6 +13,15 @@ export class UserRepository {
     return await this.prisma.user.findFirst({
       where: {
         userId
+      }
+    })
+  }
+
+  // nickname으로 User 찾기
+  async getUserByNickname(nickname: string): Promise<User | null> {
+    return await this.prisma.user.findFirst({
+      where: {
+        nickname
       }
     })
   }
@@ -95,6 +104,27 @@ export class UserRepository {
       },
       data: {
         ...dto
+      }
+    })
+  }
+
+  // userId에 매칭되는 모든 JobOfInterest 반환
+  async getJobOfInterestList(userId: string): Promise<JobOfInterest[]> {
+    return await this.prisma.jobOfInterest.findMany({
+      where: {
+        userId: userId
+      }
+    })
+  }
+
+  // userId에 매칭되는 모든 JobOfInterest 반환
+  async deleteJobOfInterestList(userId: string, jobsToRemoveNames: string[]): Promise<Prisma.BatchPayload> {
+    return await this.prisma.jobOfInterest.deleteMany({
+      where: {
+        userId,
+        jobOfInterest: {
+          in: jobsToRemoveNames
+        }
       }
     })
   }
