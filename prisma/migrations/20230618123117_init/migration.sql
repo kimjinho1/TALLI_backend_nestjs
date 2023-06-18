@@ -69,7 +69,7 @@ CREATE TABLE "JobNotice" (
     "job_website" TEXT NOT NULL,
     "hits" INTEGER NOT NULL DEFAULT 0,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "modified_at" TIMESTAMP(3),
+    "modified_at" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "JobNotice_pkey" PRIMARY KEY ("job_id")
 );
