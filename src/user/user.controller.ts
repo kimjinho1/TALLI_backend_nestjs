@@ -1,5 +1,14 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Post } from '@nestjs/common'
-import { ApiTags, ApiOperation, ApiConflictResponse, ApiBody, ApiOkResponse, ApiResponse } from '@nestjs/swagger'
+import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post } from '@nestjs/common'
+import {
+  ApiTags,
+  ApiOperation,
+  ApiConflictResponse,
+  ApiBody,
+  ApiOkResponse,
+  ApiResponse,
+  ApiNotFoundResponse,
+  ApiParam
+} from '@nestjs/swagger'
 import { AddUserRequestDto } from './dto/request'
 import { AddUserResponseDto } from './dto/response'
 import { UserService } from './user.service'
@@ -8,6 +17,38 @@ import { UserService } from './user.service'
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
+
+  @ApiOperation({ summary: '전체 유저 닉네임 목록 보기', description: '모든 유저의 닉네임을 반환합니다.' })
+  @ApiOkResponse({
+    description: '성공 시, 200 Ok를 응답합니다.',
+    type: [String]
+  })
+  @Get('/nickname')
+  @HttpCode(HttpStatus.OK)
+  async getAllNickname(): Promise<string[]> {
+    return await this.userService.getAllNickname()
+  }
+
+  @ApiOperation({ summary: '개별 회원 정보 보기', description: 'userId와 매칭되는 유저의 정보를 반환합니다.' })
+  @ApiParam({
+    name: 'userId',
+    required: true,
+    description: '유저 ID',
+    type: String
+  })
+  @ApiOkResponse({
+    description: '성공 시, 200 Ok를 응답합니다.',
+    type: AddUserResponseDto
+  })
+  @ApiNotFoundResponse({
+    description: '존재하지 않는 유저 ID인 경우, 404 Not Found를 응답합니다.'
+  })
+  @Get('/:userId')
+  @HttpCode(HttpStatus.OK)
+  async getUserByUserId(@Param('userId') userId: string): Promise<AddUserResponseDto> {
+    console.log(userId)
+    return await this.userService.getUserById(userId)
+  }
 
   @ApiOperation({ summary: '유저 정보 추가', description: 'User, CurrentJobDetail, JobOfInterest을 생성합니다.' })
   @ApiBody({ type: AddUserRequestDto })
@@ -20,18 +61,7 @@ export class UserController {
   })
   @Post()
   @HttpCode(HttpStatus.OK)
-  async addUser(@Body() addUserDto: AddUserRequestDto): Promise<AddUserResponseDto> {
-    return await this.userService.addUser(addUserDto)
-  }
-
-  @ApiOperation({ summary: '전체 유저 닉네임 목록 보기', description: '모든 유저의 닉네임을 반환합니다.' })
-  @ApiOkResponse({
-    description: '성공 시, 200 Ok를 응답합니다.',
-    type: [String]
-  })
-  @Get('/nickname')
-  @HttpCode(HttpStatus.OK)
-  async getAllNickname(): Promise<string[]> {
-    return await this.userService.getAllNickname()
+  async addUser(@Body() dto: AddUserRequestDto): Promise<AddUserResponseDto> {
+    return await this.userService.addUser(dto)
   }
 }

@@ -25,6 +25,38 @@ export class UserRepository {
     })
   }
 
+  // nickname or email로 User 찾기
+  async getJobOfInterest(userId: string): Promise<JobOfInterest[]> {
+    return await this.prisma.jobOfInterest.findMany({
+      where: {
+        userId
+      }
+    })
+  }
+
+  // 모든 유저 반환
+  async getUserList(): Promise<User[]> {
+    return await this.prisma.user.findMany()
+  }
+
+  // userId에 매칭되는 CurrentJobDetail 반환
+  async getCurrentJobDetailByUserId(userId: string): Promise<CurrentJobDetail | null> {
+    return await this.prisma.currentJobDetail.findUnique({
+      where: {
+        userId
+      }
+    })
+  }
+
+  // userId에 매칭되는 모든 JobOfInterest 반환
+  async getJobOfInterestListByUserId(userId: string): Promise<JobOfInterest[]> {
+    return await this.prisma.jobOfInterest.findMany({
+      where: {
+        userId
+      }
+    })
+  }
+
   // User 생성
   async createUser(userData: UserDto): Promise<User> {
     return await this.prisma.user.create({
@@ -52,19 +84,5 @@ export class UserRepository {
         jobOfInterest
       }))
     })
-  }
-
-  // nickname or email로 User 찾기
-  async getJobOfInterest(userId: string): Promise<JobOfInterest[]> {
-    return await this.prisma.jobOfInterest.findMany({
-      where: {
-        userId
-      }
-    })
-  }
-
-  // 모든 유저 반환
-  async getUserList(): Promise<User[]> {
-    return await this.prisma.user.findMany()
   }
 }

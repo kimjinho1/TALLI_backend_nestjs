@@ -1,4 +1,4 @@
-import { ConflictException, HttpException, HttpStatus, Injectable } from '@nestjs/common'
+import { ConflictException, HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
 import { CurrentJobDetail, JobOfInterest, User } from '@prisma/client'
 import { AddUserRequestDto } from './dto/request'
 import { AddUserResponseDto } from './dto/response'
@@ -7,6 +7,37 @@ import { UserRepository } from './user.repository'
 @Injectable()
 export class UserService {
   constructor(private readonly repository: UserRepository) {}
+
+  // 전체 회원 닉네임 목록 보기
+  async getAllNickname(): Promise<string[]> {
+    const users = await this.repository.getUserList()
+    const nicknames = users.map(user => user.nickname)
+
+    return nicknames
+  }
+
+  // 전체 회원 닉네임 목록 보기
+  async getUserById(userId: string): Promise<AddUserResponseDto> {
+    // 존재하는 유저인지 확인 -> 에러일 시 404 에러 코드 반환
+    const existedUser: User | null = await this.repository.getUserById(userId)
+    if (!existedUser) {
+      throw new NotFoundException('존재하지 않는 유저입니다')
+    }
+
+    // 존재하는 유저 상세 정보인지 확인 -> 에러일 시 404 에러 코드 반환
+    const currentJobDetail: CurrentJobDetail | null = await this.repository.getCurrentJobDetailByUserId(userId)
+    if (!currentJobDetail) {
+      throw new NotFoundException('존재하지 않는 유저 상제 정보입니다')
+    }
+
+    // 유저의 관심 직종
+    const jobOfInterestList: JobOfInterest[] = await this.repository.getJobOfInterestListByUserId(userId)
+    return {
+      user: existedUser,
+      currentJobDetail: currentJobDetail,
+      jobOfInterest: jobOfInterestList
+    }
+  }
 
   // 회원 정보 추가
   async addUser(createUserDto: AddUserRequestDto): Promise<AddUserResponseDto> {
@@ -36,13 +67,5 @@ export class UserService {
       currentJobDetail: createdCurrentJobDetail,
       jobOfInterest: createdJobOfInterestList
     }
-  }
-
-  // 전체 회원 닉네임 목록 보기
-  async getAllNickname(): Promise<string[]> {
-    const users = await this.repository.getUserList()
-    const nicknames = users.map(user => user.nickname)
-
-    return nicknames
   }
 }
