@@ -7,5 +7,5 @@ export class AddUserResponseDto extends UserDto {
   currentJobDetail: CurrentJobDetail
 
   @ApiProperty({ description: 'JobOfInterest[]' })
-  jobOfInterest: JobOfInterest[]
+  jobOfInterest: String[]
 }

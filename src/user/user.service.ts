@@ -41,14 +41,14 @@ export class UserService {
     return {
       ...existedUser,
       currentJobDetail: currentJobDetail,
-      jobOfInterest: jobOfInterestList
+      jobOfInterest: jobOfInterestList.map(obj => obj.jobOfInterest)
     }
   }
 
   // 회원 정보 추가
-  async addUser(createUserDto: AddUserRequestDto): Promise<AddUserResponseDto> {
+  async addUser(dto: AddUserRequestDto): Promise<AddUserResponseDto> {
     // request body에서 현재 직업, 관심 직군, 유저 정보를 분리
-    const { currentJobDetail, jobOfInterestList, ...userData } = createUserDto
+    const { currentJobDetail, jobOfInterestList, ...userData } = dto
 
     // 닉네임 중복 처리 -> 에러일 시 409 에러 코드 반환
     const existedUser: User | null = await this.repository.getUserByNicknameOrEmail(userData.nickname, userData.email)
@@ -71,7 +71,7 @@ export class UserService {
     return {
       ...createdUser,
       currentJobDetail: createdCurrentJobDetail,
-      jobOfInterest: createdJobOfInterestList
+      jobOfInterest: dto.jobOfInterestList
     }
   }
 
