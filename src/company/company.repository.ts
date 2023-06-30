@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common'
 import { Company } from '@prisma/client'
 import { PrismaService } from 'prisma/prisma.service'
 import { CreateCompanyRequestDto, UpdateCompanyRequestDto } from './dto/request'
+import { AllCompanyNamesDto } from './dto'
 
 @Injectable()
 export class CompanyRepository {
@@ -22,6 +23,15 @@ export class CompanyRepository {
   // 모든 Company 반환
   async getAllCompany(): Promise<Company[]> {
     return await this.prisma.company.findMany()
+  }
+
+  // 모든 Company의 이름 반환
+  async getAllCompanyNames(): Promise<AllCompanyNamesDto[]> {
+    return await this.prisma.company.findMany({
+      select: {
+        companyName: true
+      }
+    })
   }
 
   // companyId로 Company 찾기

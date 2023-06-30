@@ -1,4 +1,4 @@
-import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common'
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common'
 import { Company } from '@prisma/client'
 import { CompanyRepository } from './company.repository'
 import { CreateCompanyRequestDto, UpdateCompanyRequestDto } from './dto/request'
@@ -39,10 +39,10 @@ export class CompanyService {
 
   // 회사 정보 추가
   async createCompany(dto: CreateCompanyRequestDto): Promise<Company> {
-    // 회사 이름 중복 처리 -> 에러일 시 409 에러 코드 반환
+    // 회사 이름 중복 처리 -> 에러일 시 400 에러 코드 반환
     const existedCompany: Company | null = await this.repository.getCompanyByCompanyName(dto.companyName)
     if (existedCompany) {
-      throw new ConflictException('이미 존재하는 회사 이름입니다')
+      throw new BadRequestException('이미 존재하는 회사 이름입니다')
     }
 
     // Company 생성
@@ -57,6 +57,14 @@ export class CompanyService {
     const existedCompany: Company | null = await this.repository.getCompanyById(companyId)
     if (!existedCompany) {
       throw new NotFoundException('존재하지 않는 회사입니다')
+    }
+
+    // 회사 이름 중복 처리 -> 에러일 시 400 에러 코드 반환
+    if (dto.companyName !== null && dto.companyName !== undefined) {
+      const duplicatedNameCompany: Company | null = await this.repository.getCompanyByCompanyName(dto.companyName)
+      if (duplicatedNameCompany) {
+        throw new BadRequestException('이미 존재하는 회사 이름입니다')
+      }
     }
 
     // Company 업데이트

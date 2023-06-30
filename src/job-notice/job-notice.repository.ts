@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common'
 import { BookmarkedJobNotice, JobNotice, Prisma } from '@prisma/client'
 import { PrismaService } from 'prisma/prisma.service'
 import { CreateJobNoticeRequestDto, UpdateJobNoticeRequestDto } from './dto/request'
+import { AllJobCompanyTitlesDto } from './dto'
 
 @Injectable()
 export class JobNoticeRepository {
@@ -106,6 +107,15 @@ export class JobNoticeRepository {
     return await this.prisma.jobNotice.delete({
       where: {
         jobId
+      }
+    })
+  }
+
+  // 모든 채용 공고명 가져오기
+  async getAllJobNoticeTitles(): Promise<AllJobCompanyTitlesDto[]> {
+    return await this.prisma.jobNotice.findMany({
+      select: {
+        title: true
       }
     })
   }

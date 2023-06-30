@@ -1,4 +1,4 @@
-import { ConflictException, HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common'
 import { CurrentJobDetail, JobOfInterest, User } from '@prisma/client'
 import { AddUserRequestDto, UpdateUserRequestDto } from './dto/request'
 import { AddUserResponseDto } from './dto/response'
@@ -50,10 +50,10 @@ export class UserService {
     // request body에서 현재 직업, 관심 직군, 유저 정보를 분리
     const { currentJobDetail, jobOfInterestList, ...userData } = dto
 
-    // 닉네임 중복 처리 -> 에러일 시 409 에러 코드 반환
+    // 닉네임 중복 처리 -> 에러일 시 400 에러 코드 반환
     const existedUser: User | null = await this.repository.getUserByNicknameOrEmail(userData.nickname, userData.email)
     if (existedUser) {
-      throw new ConflictException('이미 존재하는 닉네임 또는 이메일입니다')
+      throw new BadRequestException('이미 존재하는 닉네임 또는 이메일입니다')
     }
 
     // User 생성
@@ -77,10 +77,10 @@ export class UserService {
 
   // 회원 정보 수정
   async updateUser(userId: string, dto: UpdateUserRequestDto): Promise<AddUserResponseDto> {
-    // 닉네임 중복 처리 -> 에러일 시 409 에러 코드 반환
+    // 닉네임 중복 처리 -> 에러일 시 400 에러 코드 반환
     const existedUser: User | null = await this.repository.getUserByNickname(dto.nickname)
     if (existedUser) {
-      throw new ConflictException('이미 존재하는 닉네임입니다')
+      throw new BadRequestException('이미 존재하는 닉네임입니다')
     }
 
     // 회원 검증과 동시에 회원 정보를 미리 가져옴

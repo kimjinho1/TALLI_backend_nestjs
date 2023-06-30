@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common'
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common'
 import { BookmarkedJobNotice, Company, JobNotice, Prisma, User } from '@prisma/client'
 import { CompanyRepository } from 'src/company/company.repository'
 import { UserRepository } from 'src/user/user.repository'
@@ -203,11 +203,11 @@ export class JobNoticeService {
       throw new NotFoundException('존재하지 않는 유저입니다')
     }
 
-    // 존재하는 북마크된 채용 공고인지 확인 -> 에러일 시 409 에러 코드 반환
+    // 존재하는 북마크된 채용 공고인지 확인 -> 에러일 시 400 에러 코드 반환
     const existedBookmarkedJobNotice: BookmarkedJobNotice | null =
       await this.repository.getJBookmarkedJobNoticeByJobIdAndUserID(jobId, userId)
     if (existedBookmarkedJobNotice) {
-      throw new ConflictException('이미 존재하는 북마크된 채용 공고입니다')
+      throw new BadRequestException('이미 존재하는 북마크된 채용 공고입니다')
     }
 
     // BookmarkedJobNotice 생성
@@ -247,13 +247,13 @@ export class JobNoticeService {
       throw new NotFoundException('존재하지 않는 회사입니다')
     }
 
-    // 채용 공고 중복 처리 -> 에러일 시 409 에러 코드 반환
+    // 채용 공고 중복 처리 -> 에러일 시 400 에러 코드 반환
     const existedJobNotice: JobNotice | null = await this.repository.getJobNoticeByCompanyIdAndTitle(
       dto.companyId,
       dto.title
     )
     if (existedJobNotice) {
-      throw new ConflictException('이미 존재하는 채용 공고입니다.')
+      throw new BadRequestException('이미 존재하는 채용 공고입니다.')
     }
 
     // JobNotice 생성
@@ -314,5 +314,15 @@ export class JobNoticeService {
     const deletedJobNotice: JobNotice = await this.repository.deleteJobNotice(jobId)
 
     return deletedJobNotice
+  }
+
+  // 검색 자동 완성 목록 보기
+  async getAutoComplete(): Promise<string[]> {
+    const companyNames = await this.companyRepository.getAllCompanyNames()
+    const jobNoticeTitles = await this.repository.getAllJobNoticeTitles()
+    return [
+      ...companyNames.map(companyName => companyName.companyName),
+      ...jobNoticeTitles.map(jobNoticeTitle => jobNoticeTitle.title)
+    ]
   }
 }

@@ -76,4 +76,14 @@ export class JobNoticeController {
   async DeleteJobNotice(@Body() dto: DeleteJobNoticeRequestDto): Promise<JobNotice> {
     return await this.jobNoticeService.deleteJobNotice(dto.jobId)
   }
+
+  @Get('/search/autocomplte')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: '검색 자동 완성 목록 보기',
+    description: '검색 자동 완성 목록(전체 공고명&회사명 목록) 보기'
+  })
+  async getAutoComplete(): Promise<string[]> {
+    return await this.jobNoticeService.getAutoComplete()
+  }
 }
