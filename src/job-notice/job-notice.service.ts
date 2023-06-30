@@ -190,7 +190,7 @@ export class JobNoticeService {
   }
 
   // 채용 공고 북마크 추가
-  async createBookmarkedJobNotice(jobId: number, userId: string): Promise<void> {
+  async createBookmarkedJobNotice(jobId: number, userId: string): Promise<BookmarkedJobNotice> {
     // 존재하는 채용 공고인지 확인 -> 에러일 시 404 에러 코드 반환
     const existedJobNotice: JobNotice | null = await this.repository.getJobNoticeById(jobId)
     if (!existedJobNotice) {
@@ -211,7 +211,7 @@ export class JobNoticeService {
     }
 
     // BookmarkedJobNotice 생성
-    await this.repository.createBookmarkedJobNotice(jobId, userId)
+    return await this.repository.createBookmarkedJobNotice(jobId, userId)
   }
 
   // 채용 공고 북마크 삭제
@@ -232,7 +232,7 @@ export class JobNoticeService {
     const existedBookmarkedJobNotice: BookmarkedJobNotice | null =
       await this.repository.getJBookmarkedJobNoticeByJobIdAndUserID(jobId, userId)
     if (!existedBookmarkedJobNotice) {
-      throw new NotFoundException('존재하지 않는 채용 공고입니다')
+      throw new NotFoundException('존재하지 않는 북마크된 채용 공고입니다')
     }
 
     // BookmarkedJobNotice 삭제

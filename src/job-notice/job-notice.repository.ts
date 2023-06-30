@@ -49,8 +49,8 @@ export class JobNoticeRepository {
   }
 
   // BookmarkedJobNotice 생성
-  async createBookmarkedJobNotice(jobId: number, userId: string): Promise<void> {
-    await this.prisma.bookmarkedJobNotice.create({
+  async createBookmarkedJobNotice(jobId: number, userId: string): Promise<BookmarkedJobNotice> {
+    return await this.prisma.bookmarkedJobNotice.create({
       data: {
         jobId,
         userId

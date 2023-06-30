@@ -1,10 +1,11 @@
 import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post } from '@nestjs/common'
 import { ApiOperation, ApiTags } from '@nestjs/swagger'
-import { JobNotice } from '@prisma/client'
+import { BookmarkedJobNotice, JobNotice } from '@prisma/client'
 import {
   CreateJobNoticeRequestDto,
   DeleteJobNoticeRequestDto,
   GetJobNoticeListRequestDto,
+  JobUserIdRequestDto,
   SearchJobNoticeListRequestDto,
   UpdateJobNoticeRequestDto
 } from './dto/request'
@@ -37,19 +38,18 @@ export class JobNoticeController {
     return await this.jobNoticeService.searchJobNoticeList(dto)
   }
 
-  @Post('bookmark/:jobId/:userId')
+  @Post('bookmark')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: '채용 공고 북마크 추가' })
-  async createBookmarkedJobNotice(@Param('jobId') jobId: number, @Param('userId') userId: string): Promise<null> {
-    await this.jobNoticeService.createBookmarkedJobNotice(jobId, userId)
-    return null
+  async createBookmarkedJobNotice(@Body() dto: JobUserIdRequestDto): Promise<BookmarkedJobNotice> {
+    return await this.jobNoticeService.createBookmarkedJobNotice(dto.jobId, dto.userId)
   }
 
-  @Delete('bookmark/:jobId/:userId')
+  @Delete('bookmark')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: '채용 공고 북마크 삭제' })
-  async deleteBookmarkedJobNotice(@Param('jobId') jobId: number, @Param('userId') userId: string): Promise<null> {
-    await this.jobNoticeService.deleteBookmarkedJobNotice(jobId, userId)
+  async deleteBookmarkedJobNotice(@Body() dto: JobUserIdRequestDto): Promise<null> {
+    await this.jobNoticeService.deleteBookmarkedJobNotice(dto.jobId, dto.userId)
     return null
   }
 
