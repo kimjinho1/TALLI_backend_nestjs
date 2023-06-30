@@ -7,13 +7,15 @@ import { JobNoticeModule } from './job-notice/job-notice.module'
 import { ServeStaticModule } from '@nestjs/serve-static'
 import { join } from 'path'
 
+export const assetsPath = join(process.cwd(), 'assets')
+
 @Module({
   imports: [
     UserModule,
     CompanyModule,
     JobNoticeModule,
     ServeStaticModule.forRoot({
-      rootPath: join(process.cwd(), 'assets')
+      rootPath: assetsPath
     })
   ],
   controllers: [AppController],
