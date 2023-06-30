@@ -3,10 +3,19 @@ import { AppController } from './app.controller'
 import { AppService } from './app.service'
 import { UserModule } from './user/user.module'
 import { CompanyModule } from './company/company.module'
-import { JobNoticeModule } from './job-notice/job-notice.module';
+import { JobNoticeModule } from './job-notice/job-notice.module'
+import { ServeStaticModule } from '@nestjs/serve-static'
+import { join } from 'path'
 
 @Module({
-  imports: [UserModule, CompanyModule, JobNoticeModule],
+  imports: [
+    UserModule,
+    CompanyModule,
+    JobNoticeModule,
+    ServeStaticModule.forRoot({
+      rootPath: join(process.cwd(), 'assets')
+    })
+  ],
   controllers: [AppController],
   providers: [AppService]
 })
