@@ -1,13 +1,13 @@
 -- CreateTable
 CREATE TABLE "User" (
     "user_id" UUID NOT NULL,
-    "name" TEXT,
-    "nickname" TEXT NOT NULL,
-    "sex" TEXT,
-    "age" TEXT,
-    "email" TEXT NOT NULL,
-    "image_url" TEXT,
-    "current_job" TEXT NOT NULL,
+    "name" VARCHAR(255),
+    "nickname" VARCHAR(255) NOT NULL,
+    "sex" VARCHAR(255),
+    "age" VARCHAR(255),
+    "email" VARCHAR(255) NOT NULL,
+    "image_url" VARCHAR(255),
+    "current_job" VARCHAR(255) NOT NULL,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("user_id")
 );
@@ -16,12 +16,12 @@ CREATE TABLE "User" (
 CREATE TABLE "CurrentJobDetail" (
     "id" UUID NOT NULL,
     "user_id" UUID NOT NULL,
-    "grade" TEXT NOT NULL,
-    "active_period" TEXT NOT NULL,
-    "escaped_job" TEXT NOT NULL,
-    "escaped_period" TEXT NOT NULL,
-    "inactive_period" TEXT NOT NULL,
-    "other_job" TEXT NOT NULL,
+    "grade" VARCHAR(255) NOT NULL,
+    "active_period" VARCHAR(255) NOT NULL,
+    "escaped_job" VARCHAR(255) NOT NULL,
+    "escaped_period" VARCHAR(255) NOT NULL,
+    "inactive_period" VARCHAR(255) NOT NULL,
+    "other_job" VARCHAR(255) NOT NULL,
 
     CONSTRAINT "CurrentJobDetail_pkey" PRIMARY KEY ("id")
 );
@@ -30,7 +30,7 @@ CREATE TABLE "CurrentJobDetail" (
 CREATE TABLE "JobOfInterest" (
     "id" UUID NOT NULL,
     "user_id" UUID NOT NULL,
-    "job_of_interest" TEXT NOT NULL,
+    "job_of_interest" VARCHAR(255) NOT NULL,
 
     CONSTRAINT "JobOfInterest_pkey" PRIMARY KEY ("id")
 );
@@ -38,13 +38,13 @@ CREATE TABLE "JobOfInterest" (
 -- CreateTable
 CREATE TABLE "Company" (
     "company_id" SERIAL NOT NULL,
-    "company_name" TEXT NOT NULL,
-    "logo_url" TEXT,
-    "company_type" TEXT NOT NULL,
+    "company_name" VARCHAR(255) NOT NULL,
+    "logo_url" VARCHAR(255),
+    "company_type" VARCHAR(255) NOT NULL,
     "employee" INTEGER,
-    "incorporation" DATE,
-    "company_location" TEXT NOT NULL,
-    "company_website" TEXT,
+    "incorporation" TIMESTAMP(3),
+    "company_location" VARCHAR(255) NOT NULL,
+    "company_website" VARCHAR(255),
 
     CONSTRAINT "Company_pkey" PRIMARY KEY ("company_id")
 );
@@ -53,20 +53,20 @@ CREATE TABLE "Company" (
 CREATE TABLE "JobNotice" (
     "job_id" SERIAL NOT NULL,
     "company_id" INTEGER NOT NULL,
-    "title" TEXT NOT NULL,
-    "title_image_url" TEXT,
-    "category" TEXT NOT NULL,
+    "title" VARCHAR(255) NOT NULL,
+    "title_image_url" VARCHAR(255),
+    "category" VARCHAR(255) NOT NULL,
     "deadline" TIMESTAMP(3),
-    "experience" TEXT NOT NULL,
-    "education" TEXT NOT NULL,
-    "requirements" TEXT,
-    "preferences" TEXT,
-    "salary" TEXT,
-    "job_type" TEXT NOT NULL,
-    "job_location" TEXT NOT NULL,
-    "details" TEXT,
-    "details_image_url" TEXT,
-    "job_website" TEXT NOT NULL,
+    "experience" VARCHAR(255) NOT NULL,
+    "education" VARCHAR(255) NOT NULL,
+    "requirements" VARCHAR(255),
+    "preferences" VARCHAR(255),
+    "salary" VARCHAR(255),
+    "job_type" VARCHAR(255) NOT NULL,
+    "job_location" VARCHAR(255) NOT NULL,
+    "details" VARCHAR(255),
+    "details_image_url" VARCHAR(255),
+    "job_website" VARCHAR(255) NOT NULL,
     "hits" INTEGER NOT NULL DEFAULT 0,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "modified_at" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
@@ -81,6 +81,21 @@ CREATE TABLE "BookmarkedJobNotice" (
     "job_id" INTEGER NOT NULL,
 
     CONSTRAINT "BookmarkedJobNotice_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Content" (
+    "content_id" SERIAL NOT NULL,
+    "title" VARCHAR(255) NOT NULL,
+    "creater" VARCHAR(255) NOT NULL,
+    "category" VARCHAR(255) NOT NULL,
+    "playform" VARCHAR(255) NOT NULL,
+    "content_url" VARCHAR(255) NOT NULL,
+    "thumbail_url" VARCHAR(255) NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL,
+    "registered_at" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "Content_pkey" PRIMARY KEY ("content_id")
 );
 
 -- CreateIndex
