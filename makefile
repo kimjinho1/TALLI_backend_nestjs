@@ -8,7 +8,7 @@ migrate:
 	npx prisma migrate dev --name init
 
 m: migrate
-	nest
+	npm run start:dev
 
 studio:
 	npx prisma studio
