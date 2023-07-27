@@ -1,8 +1,5 @@
 import { Module } from '@nestjs/common'
 import { AppController } from './app.controller'
-import { UserModule } from './user/user.module'
-import { CompanyModule } from './company/company.module'
-import { JobNoticeModule } from './job-notice/job-notice.module'
 import { ServeStaticModule } from '@nestjs/serve-static'
 import { join } from 'path'
 import { CoreModule } from './core/core.module'

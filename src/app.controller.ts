@@ -1,20 +1,9 @@
-import {
-  BadRequestException,
-  ConsoleLogger,
-  Controller,
-  Get,
-  Param,
-  Post,
-  UploadedFile,
-  UseInterceptors
-} from '@nestjs/common'
+import { BadRequestException, Controller, Get, Param, Post, UploadedFile, UseInterceptors } from '@nestjs/common'
 import { FileInterceptor } from '@nestjs/platform-express'
-import { join } from 'path'
 import { diskStorage } from 'multer'
 import * as path from 'path'
 import * as fs from 'fs'
 import { assetsPath } from './app.module'
-import { Console } from 'console'
 
 @Controller()
 export class AppController {
