@@ -12,7 +12,7 @@ export class CompanyRepository {
     return await this.prisma.company.count()
   }
 
-  /** 모든 회사 정보 반환 */
+  /** 매칭되는 모든 회사 정보 반환 */
   async getCompanyList(index: number, difference: number): Promise<Company[]> {
     return await this.prisma.company.findMany({
       skip: index,
@@ -64,6 +64,20 @@ export class CompanyRepository {
     return await this.prisma.company.delete({
       where: {
         companyId
+      }
+    })
+  }
+
+  /** 모든 회사 정보 반환 */
+  async getAllCompany(): Promise<Company[]> {
+    return await this.prisma.company.findMany()
+  }
+
+  /** 모든 Company의 이름 반환 */
+  async getAllCompanyNames(): Promise<Pick<Company, 'companyName'>[]> {
+    return await this.prisma.company.findMany({
+      select: {
+        companyName: true
       }
     })
   }
