@@ -12,6 +12,7 @@ import {
   ValidateNested
 } from 'class-validator'
 import { Type } from 'class-transformer'
+import { jobList } from 'src/core/application/service/dto/user/response'
 
 const sex = ['male', 'female']
 
@@ -80,19 +81,6 @@ export class CurrentJobDetailDto {
   @IsString()
   otherJob: string
 }
-
-const jobList = [
-  '보건관리자',
-  '임상연구',
-  '보험심사',
-  '기획 / 마케팅',
-  '공공기관',
-  '공무원',
-  '메디컬라이터',
-  '영업직',
-  '정신건강간호사',
-  '손해사정사'
-]
 
 export class AddUserInfoCommand extends UserDto {
   @ApiProperty({ description: '유저 자세한 정보' })

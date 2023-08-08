@@ -3,7 +3,7 @@ import { CurrentJobDetail, JobOfInterest, User } from '@prisma/client'
 import { ErrorMessages } from 'src/common/exception/error.messages'
 import { UserRepository } from 'src/core/adapter/repository/user.repository'
 import { UserInfoDto } from './dto/user/response'
-import { AddUserInfoCommand } from 'src/core/adapter/web/command/user'
+import { AddUserInfoCommand, UpdateUserCommand } from 'src/core/adapter/web/command/user'
 
 @Injectable()
 export class UserService {
@@ -68,6 +68,42 @@ export class UserService {
     }
   }
 
+  /** 회원 정보 수정 */
+  async updateUser(userId: string, dto: UpdateUserCommand): Promise<UserInfoDto> {
+    /** 닉네임 중복 처리 -> 에러일 시 400 에러 코드 반환 */
+    await this.checkUserDuplicateByNickname(dto.nickname)
+
+    /** 회원 검증과 동시에 회원 정보를 미리 가져옴 */
+    let userInfo = await this.getUserInfo(userId)
+
+    /** 회원 정보 업데이트 */
+    const updatedUser = await this.repository.updateUser(userId, dto)
+    userInfo.nickname = updatedUser.nickname
+    userInfo.imageUrl = updatedUser.imageUrl
+    return userInfo
+  }
+
+  /** 회원 관심 직군 수정 */
+  async updateJobOfInterest(userId: string, jobs: string[]): Promise<UserInfoDto> {
+    /** 회원 검증과 동시에 회원 정보를 미리 가져옴 */
+    let userInfo = await this.getUserInfo(userId)
+    const interestedJobs = await this.repository.getJobOfInterestList(userId)
+
+    const jobTitlesToRemove = interestedJobs.filter(job => !jobs.includes(job.title)).map(job => job.title)
+    const jobTitlesToAdd = jobs
+      .filter(newJob => !interestedJobs.some(job => job.title === newJob))
+      .filter(job => !jobTitlesToRemove.includes(job))
+    const jobsToAdd = await this.repository.getJobIdsByJobOfInterestList(jobTitlesToAdd)
+    const jobIdsToAdd = jobsToAdd.map(job => job.jobId)
+
+    await this.repository.deleteJobOfInterestList(userId, jobTitlesToRemove)
+    await this.repository.createJobOfInterestList(userId, jobIdsToAdd)
+    const jobOfInterestList = await this.repository.getJobOfInterestList(userId)
+    userInfo.jobOfInterestList = jobOfInterestList.map(job => job.title)
+
+    return userInfo
+  }
+
   /**
    * UTILS
    */
@@ -91,10 +127,18 @@ export class UserService {
   }
 
   /** 닉네임, 이메일 중복 처리 -> 에러일 시 400 에러 코드 반환 */
-  private async checkUserDuplicateByNicknameOrEmail(userId: string, email: string): Promise<void> {
-    const user = await this.repository.getUserByNicknameOrEmail(userId, email)
+  private async checkUserDuplicateByNicknameOrEmail(nickname: string, email: string): Promise<void> {
+    const user = await this.repository.getUserByNicknameOrEmail(nickname, email)
     if (user) {
       throw new BadRequestException(ErrorMessages.NICKNAME_OR_EMAIL_ALREADY_EXISTS)
+    }
+  }
+
+  /** 닉네임 중복 처리 -> 에러일 시 400 에러 코드 반환 */
+  private async checkUserDuplicateByNickname(nickname: string): Promise<void> {
+    const user = await this.repository.getUserByNickname(nickname)
+    if (user) {
+      throw new BadRequestException(ErrorMessages.NICKNAME_ALREADY_EXISTS)
     }
   }
 }
