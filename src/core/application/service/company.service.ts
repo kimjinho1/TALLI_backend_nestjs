@@ -54,6 +54,14 @@ export class CompanyService {
     return await this.repository.updateCompany(companyId, dto)
   }
 
+  /** 회사 정보 삭제 */
+  async deleteCompany(companyId: number): Promise<CompanyDto> {
+    /** 존재하는 회사인지 확인 -> 에러일 시 404 에러 코드 반환 */
+    await this.getCompany(companyId)
+
+    return await this.repository.deleteCompany(companyId)
+  }
+
   /**
    * UTILS
    */

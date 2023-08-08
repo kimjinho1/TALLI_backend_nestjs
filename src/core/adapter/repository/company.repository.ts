@@ -58,4 +58,13 @@ export class CompanyRepository {
       }
     })
   }
+
+  /** 회사 정보 삭제 */
+  async deleteCompany(companyId: number): Promise<Company> {
+    return await this.prisma.company.delete({
+      where: {
+        companyId
+      }
+    })
+  }
 }
