@@ -61,7 +61,7 @@ export class UserController {
     type: AddUserInfoCommand
   })
   @ApiBadRequestResponse({
-    description: '닉네임이 이미 존재하는 경우, 400 Bad Request 를 응답합니다.'
+    description: '닉네임과 이메일이 이미 존재하는 경우, 400 Bad Request 를 응답합니다.'
   })
   @HttpCode(HttpStatus.CREATED)
   @Post()
