@@ -12,7 +12,7 @@ import {
 } from '@nestjs/swagger'
 import { Company } from '@prisma/client'
 import { CompanyService } from 'src/core/application/service/company.service'
-import { CompanyListDto } from 'src/core/application/service/dto/company/response'
+import { CompanyDto, CompanyListDto } from 'src/core/application/service/dto/company/response'
 
 @ApiTags('회사 API')
 @Controller('company')
@@ -36,5 +36,28 @@ export class CompanyController {
     @Query('difference') difference: number
   ): Promise<CompanyListDto> {
     return await this.companyService.getCompanyList(index, difference)
+  }
+
+  @ApiOperation({
+    summary: '개별 회사 정보 보기',
+    description: 'companyId에 매칭되는 회사의 정보를 반환합니다.'
+  })
+  @ApiParam({
+    name: 'companyId',
+    required: true,
+    description: '회사 ID',
+    type: Number
+  })
+  @ApiOkResponse({
+    description: '성공 시, 200 Ok를 응답합니다.',
+    type: CompanyDto
+  })
+  @ApiNotFoundResponse({
+    description: 'companyId에 매칭되는 회사가 없는 경우, 404 Not Found 응답합니다.'
+  })
+  @Get('/:companyId')
+  @HttpCode(HttpStatus.OK)
+  async getCompanyInfo(@Param('companyId') companyId: number): Promise<CompanyDto> {
+    return await this.companyService.getCompanyInfo(companyId)
   }
 }

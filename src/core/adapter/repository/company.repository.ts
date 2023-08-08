@@ -18,4 +18,13 @@ export class CompanyRepository {
       take: difference
     })
   }
+
+  /** 회사 정보 반환 */
+  async getCompany(companyId: number): Promise<Company | null> {
+    return await this.prisma.company.findFirst({
+      where: {
+        companyId
+      }
+    })
+  }
 }
