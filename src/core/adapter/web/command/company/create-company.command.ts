@@ -12,7 +12,7 @@ export class CreateCompanyCommand {
   @IsString()
   @IsNotEmpty()
   @ValidateIf((object, value) => value !== null)
-  logoUrl!: string | null
+  logoUrl: string | null
 
   @ApiProperty({ description: '기업 형태', example: '대기업' })
   @IsString()
