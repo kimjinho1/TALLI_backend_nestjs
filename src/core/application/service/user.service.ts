@@ -104,6 +104,14 @@ export class UserService {
     return userInfo
   }
 
+  /** 회원 정보 삭제 */
+  async deleteUser(userId: string): Promise<void> {
+    /** 존재하는 유저인지 확인 -> 에러일 시 404 에러 코드 반환 */
+    await this.getUser(userId)
+
+    await this.repository.deleteUser(userId)
+  }
+
   /**
    * UTILS
    */

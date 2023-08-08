@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { CurrentJobDetail, Job, JobOfInterest, Prisma, User } from '@prisma/client'
+import { CurrentJobDetail, Job, Prisma, User } from '@prisma/client'
 import { PrismaService } from 'prisma/prisma.service'
 import { CurrentJobDetailDto, UpdateUserCommand, UserDto } from '../web/command/user'
 
@@ -154,6 +154,15 @@ export class UserRepository {
             in: jobTitlesToRemove
           }
         }
+      }
+    })
+  }
+
+  /** userId에 매칭되는 유저 정보 삭제 */
+  async deleteUser(userId: string): Promise<void> {
+    await this.prisma.user.delete({
+      where: {
+        userId
       }
     })
   }

@@ -2,7 +2,6 @@ import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post
 import {
   ApiTags,
   ApiOperation,
-  ApiConflictResponse,
   ApiBody,
   ApiOkResponse,
   ApiNotFoundResponse,
@@ -12,7 +11,7 @@ import {
 } from '@nestjs/swagger'
 import { UserInfoDto } from 'src/core/application/service/dto/user/response'
 import { UserService } from 'src/core/application/service/user.service'
-import { AddUserInfoCommand, UpdateUserCommand, updateJobOfInterestCommand } from './command/user'
+import { AddUserInfoCommand, DeleteUserCommand, UpdateUserCommand, updateJobOfInterestCommand } from './command/user'
 
 @ApiTags('User')
 @Controller('user')
@@ -79,6 +78,9 @@ export class UserController {
     description: '성공 시, 200 Ok를 응답합니다.',
     type: UserInfoDto
   })
+  @ApiBadRequestResponse({
+    description: '닉네임이 이미 존재하는 경우, 400 Bad Request를 응답합니다.'
+  })
   @ApiNotFoundResponse({
     description: '존재하지 않는 유저 ID인 경우, 404 Not Found를 응답합니다.'
   })
@@ -97,9 +99,6 @@ export class UserController {
     description: '성공 시, 200 Ok를 응답합니다.',
     type: UserInfoDto
   })
-  @ApiBadRequestResponse({
-    description: '닉네임이 이미 존재하는 경우, 400 Bad Request를 응답합니다.'
-  })
   @ApiNotFoundResponse({
     description: '존재하지 않는 유저 ID인 경우, 404 Not Found를 응답합니다.'
   })
@@ -110,5 +109,23 @@ export class UserController {
     @Body() dto: updateJobOfInterestCommand
   ): Promise<UserInfoDto> {
     return await this.userService.updateJobOfInterest(userId, dto.jobOfInterestList)
+  }
+
+  @ApiOperation({
+    summary: '회원 정보 삭제',
+    description: 'userId와 매칭되는 유저의 정보를 삭제합니다.'
+  })
+  @ApiBody({ type: DeleteUserCommand })
+  @ApiOkResponse({
+    description: '성공 시, 200 Ok를 응답합니다.'
+  })
+  @ApiNotFoundResponse({
+    description: '존재하지 않는 유저 ID인 경우, 404 Not Found를 응답합니다.'
+  })
+  @Delete()
+  @HttpCode(HttpStatus.OK)
+  async deleteUser(@Body() dto: DeleteUserCommand): Promise<null> {
+    await this.userService.deleteUser(dto.userId)
+    return null
   }
 }
