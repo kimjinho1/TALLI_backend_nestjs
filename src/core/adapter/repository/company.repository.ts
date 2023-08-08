@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { Company } from '@prisma/client'
 import { PrismaService } from 'prisma/prisma.service'
+import { CreateCompanyCommand } from '../web/command/company'
 
 @Injectable()
 export class CompanyRepository {
@@ -24,6 +25,24 @@ export class CompanyRepository {
     return await this.prisma.company.findFirst({
       where: {
         companyId
+      }
+    })
+  }
+
+  /** companyName으로 Company 찾기 */
+  async getCompanyByCompanyName(companyName: string): Promise<Company | null> {
+    return await this.prisma.company.findFirst({
+      where: {
+        companyName
+      }
+    })
+  }
+
+  /** 회사 정보 추가 */
+  async createCompany(dto: CreateCompanyCommand): Promise<Company> {
+    return await this.prisma.company.create({
+      data: {
+        ...dto
       }
     })
   }

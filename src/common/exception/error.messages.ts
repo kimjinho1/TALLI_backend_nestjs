@@ -4,5 +4,6 @@ export const ErrorMessages = {
   NICKNAME_OR_EMAIL_ALREADY_EXISTS: '이미 존재하는 닉네임 또는 이메일입니다.',
   NICKNAME_ALREADY_EXISTS: '이미 존재하는 닉네임입니다.',
   INVALID_SEARCH_RANGE_INPUT: '잘못된 검색 범위 입력입니다',
-  COMPANY_NOT_FOUND: '존재하지 않는 회사입니다'
+  COMPANY_NOT_FOUND: '존재하지 않는 회사입니다',
+  COMPANY_NAME_ALREADY_EXISTS: '이미 존재하는 회사 이름입니다'
 }
