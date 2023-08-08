@@ -13,7 +13,7 @@ import {
 import { Company } from '@prisma/client'
 import { CompanyService } from 'src/core/application/service/company.service'
 import { CompanyDto, CompanyListDto } from 'src/core/application/service/dto/company/response'
-import { CreateCompanyCommand } from './command/company'
+import { CreateCompanyCommand, UpdateCompanyCommand } from './command/company'
 
 @ApiTags('회사 API')
 @Controller('company')
@@ -78,5 +78,29 @@ export class CompanyController {
   @Post()
   async createCompany(@Body() dto: CreateCompanyCommand): Promise<CompanyDto> {
     return await this.companyService.createCompany(dto)
+  }
+
+  @ApiOperation({
+    summary: '회사 정보 수정',
+    description: 'companyId에 매칭되는 회사의 정보를 수정합니다.'
+  })
+  @ApiParam({
+    name: 'companyId',
+    required: true,
+    description: '회사 ID',
+    type: Number
+  })
+  @ApiBody({ type: UpdateCompanyCommand })
+  @ApiOkResponse({
+    description: '성공 시, 200 Ok를 응답합니다.',
+    type: CompanyDto
+  })
+  @ApiNotFoundResponse({
+    description: 'companyId에 매칭되는 회사가 없는 경우, 404 Not Found 응답합니다.'
+  })
+  @HttpCode(HttpStatus.OK)
+  @Patch('/:companyId')
+  async updateCompany(@Param('companyId') companyId: number, @Body() dto: UpdateCompanyCommand): Promise<CompanyDto> {
+    return await this.companyService.updateCompany(companyId, dto)
   }
 }

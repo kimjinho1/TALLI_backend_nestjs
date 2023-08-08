@@ -3,7 +3,7 @@ import { CompanyRepository } from 'src/core/adapter/repository/company.repositor
 import { CompanyDto, CompanyListDto } from './dto/company/response'
 import { ErrorMessages } from 'src/common/exception/error.messages'
 import { Company } from '@prisma/client'
-import { CreateCompanyCommand } from 'src/core/adapter/web/command/company'
+import { CreateCompanyCommand, UpdateCompanyCommand } from 'src/core/adapter/web/command/company'
 
 @Injectable()
 export class CompanyService {
@@ -39,6 +39,19 @@ export class CompanyService {
     await this.checkCompanyDuplicateByCompanyName(dto.companyName)
 
     return await this.repository.createCompany(dto)
+  }
+
+  /** 회사 정보 수정 */
+  async updateCompany(companyId: number, dto: UpdateCompanyCommand): Promise<CompanyDto> {
+    /** 존재하는 회사인지 확인 -> 없다면 404 에러 코드 반환 */
+    await this.getCompany(companyId)
+
+    /** 회사 이름 중복 처리 -> 에러일 시 400 에러 코드 반환 */
+    if (dto.companyName !== null && dto.companyName !== undefined) {
+      await this.checkCompanyDuplicateByCompanyName(dto.companyName)
+    }
+
+    return await this.repository.updateCompany(companyId, dto)
   }
 
   /**
