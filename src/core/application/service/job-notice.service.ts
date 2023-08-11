@@ -3,14 +3,16 @@ import { BookmarkedJobNotice, Company, JobNotice, Prisma, User } from '@prisma/c
 import { CompanyRepository } from 'src/core/adapter/repository/company.repository'
 import { JobNoticeRepository } from 'src/core/adapter/repository/job-notice.repository'
 import { UserRepository } from 'src/core/adapter/repository/user.repository'
-import { JobNoticeListDto } from './dto/job-notice/response'
-import { FilterDto, GetJobNoticeListCommand } from 'src/core/adapter/web/command/job-notice'
+import { JobNoticeInfoDto, JobNoticeListDto } from './dto/job-notice/response'
+import { CreateJobNoticeCommand, FilterDto, GetJobNoticeListCommand } from 'src/core/adapter/web/command/job-notice'
+import { CompanyService } from './company.service'
+import { ErrorMessages } from 'src/common/exception/error.messages'
 
 @Injectable()
 export class JobNoticeService {
   constructor(
     private readonly repository: JobNoticeRepository,
-    private readonly companyRepository: CompanyRepository,
+    private readonly companyService: CompanyService,
     private readonly userRepository: UserRepository
   ) {}
 
@@ -26,6 +28,24 @@ export class JobNoticeService {
     const filteredJobNotices = tempJobNotices.slice(index, difference)
 
     return this.getResultList(tempJobNotices.length, filteredJobNotices)
+  }
+
+  /** 채용 공고 추가 */
+  async createJobNotice(dto: CreateJobNoticeCommand): Promise<JobNoticeInfoDto> {
+    /** 존재하는 회사인지 확인 -> 에러일 시 404 에러 코드 반환 */
+    const existedCompany = await this.companyService.getCompany(dto.companyId)
+
+    /** 채용 공고 중복 확인 -> 에러일 시 400 에러 코드 반환 */
+    await this.checkJobNoticeDuplicateByTitle(dto.companyId, dto.title)
+
+    /** 채용 공고 생성 */
+    const createdJobNotice = await this.repository.createJobNotice(dto)
+
+    const response = {
+      jobNotice: createdJobNotice,
+      companyInfo: existedCompany
+    }
+    return response
   }
 
   /**
@@ -55,27 +75,7 @@ export class JobNoticeService {
   ): Prisma.JobNoticeFindManyArgs {
     return {
       orderBy: this.getOrder(order),
-      where: category !== '전체' ? { category, ...jobNoticeFilter } : jobNoticeFilter,
-      select: {
-        jobNoticeId: true,
-        title: true,
-        titleImageUrl: true,
-        jobLocation: true,
-        experience: true,
-        deadline: true,
-        hits: true,
-        company: {
-          select: {
-            companyName: true,
-            logoUrl: true
-          }
-        },
-        bookmarkedJobNotices: {
-          select: {
-            jobNoticeId: true
-          }
-        }
-      }
+      where: category !== '전체' ? { category, ...jobNoticeFilter } : jobNoticeFilter
     }
   }
 
@@ -144,6 +144,14 @@ export class JobNoticeService {
           }
         }
       }
+    }
+  }
+
+  /** 채용 공고 중복 확인 -> 에러일 시 400 에러 코드 반환 */
+  private async checkJobNoticeDuplicateByTitle(companyId: number, title: string): Promise<void> {
+    const jobNotice = await this.repository.getJobNoticeByCompanyIdAndTitle(companyId, title)
+    if (jobNotice) {
+      throw new BadRequestException(ErrorMessages.JOB_NOTICE_ALREADY_EXISTS)
     }
   }
 }
