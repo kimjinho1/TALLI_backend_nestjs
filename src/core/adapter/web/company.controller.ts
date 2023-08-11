@@ -3,6 +3,7 @@ import {
   ApiBadRequestResponse,
   ApiBody,
   ApiConflictResponse,
+  ApiCreatedResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
@@ -10,7 +11,6 @@ import {
   ApiQuery,
   ApiTags
 } from '@nestjs/swagger'
-import { Company } from '@prisma/client'
 import { CompanyService } from 'src/core/application/service/company.service'
 import { CompanyDto, CompanyListDto } from 'src/core/application/service/dto/company/response'
 import { CreateCompanyCommand, DeleteCompanyCommand, UpdateCompanyCommand } from './command/company'
@@ -30,7 +30,6 @@ export class CompanyController {
   @ApiBadRequestResponse({
     description: '쿼리(index, difference)가 올바르지 않은 경우, 400 Bad Request 응답합니다.'
   })
-  @HttpCode(HttpStatus.OK)
   @Get('/list')
   async getCompanyList(
     @Query('index') index: number,
@@ -56,7 +55,6 @@ export class CompanyController {
   @ApiNotFoundResponse({
     description: 'companyId에 매칭되는 회사가 없는 경우, 404 Not Found 응답합니다.'
   })
-  @HttpCode(HttpStatus.OK)
   @Get('/:companyId')
   async getCompanyInfo(@Param('companyId') companyId: number): Promise<CompanyDto> {
     return await this.companyService.getCompanyInfo(companyId)
@@ -67,14 +65,14 @@ export class CompanyController {
     description: '회사 정보를 추가합니다.'
   })
   @ApiBody({ type: CreateCompanyCommand })
-  @ApiOkResponse({
-    description: '성공 시, 200 Ok를 응답합니다.',
+  @ApiCreatedResponse({
+    description: '성공 시, 201 Created를 응답합니다.',
     type: CompanyDto
   })
   @ApiConflictResponse({
     description: '회사 이름이 중복인 경우, 400 Bad Request 응답합니다.'
   })
-  @HttpCode(HttpStatus.OK)
+  @HttpCode(HttpStatus.CREATED)
   @Post()
   async createCompany(@Body() dto: CreateCompanyCommand): Promise<CompanyDto> {
     return await this.companyService.createCompany(dto)
@@ -98,7 +96,6 @@ export class CompanyController {
   @ApiNotFoundResponse({
     description: 'companyId에 매칭되는 회사가 없는 경우, 404 Not Found 응답합니다.'
   })
-  @HttpCode(HttpStatus.OK)
   @Patch('/:companyId')
   async updateCompany(@Param('companyId') companyId: number, @Body() dto: UpdateCompanyCommand): Promise<CompanyDto> {
     return await this.companyService.updateCompany(companyId, dto)
@@ -115,7 +112,6 @@ export class CompanyController {
   @ApiNotFoundResponse({
     description: 'companyId에 매칭되는 회사가 없는 경우, 404 Not Found 응답합니다.'
   })
-  @HttpCode(HttpStatus.OK)
   @Delete()
   async deleteCompany(@Body() dto: DeleteCompanyCommand): Promise<CompanyDto> {
     return await this.companyService.deleteCompany(dto.companyId)

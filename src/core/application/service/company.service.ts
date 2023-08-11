@@ -67,7 +67,7 @@ export class CompanyService {
    */
 
   /** 존재하는 회사인지 확인 -> 없다면 404 에러 코드 반환 */
-  private async getCompany(companyId: number): Promise<Company> {
+  public async getCompany(companyId: number): Promise<Company> {
     const company = await this.repository.getCompany(companyId)
     if (company === null) {
       throw new NotFoundException(ErrorMessages.COMPANY_NOT_FOUND)

@@ -46,7 +46,6 @@ export class UserController {
     description: '존재하지 않는 유저 ID인 경우, 404 Not Found를 응답합니다.'
   })
   @Get('/:userId')
-  @HttpCode(HttpStatus.OK)
   async getUserInfo(@Param('userId') userId: string): Promise<UserInfoDto> {
     return await this.userService.getUserInfo(userId)
   }
@@ -85,7 +84,6 @@ export class UserController {
     description: '존재하지 않는 유저 ID인 경우, 404 Not Found를 응답합니다.'
   })
   @Patch('/profile/:userId')
-  @HttpCode(HttpStatus.OK)
   async updateUser(@Param('userId') userId: string, @Body() dto: UpdateUserCommand): Promise<UserInfoDto> {
     return await this.userService.updateUser(userId, dto)
   }
@@ -103,7 +101,6 @@ export class UserController {
     description: '존재하지 않는 유저 ID인 경우, 404 Not Found를 응답합니다.'
   })
   @Patch('/interest/:userId')
-  @HttpCode(HttpStatus.OK)
   async updateJobOfInterest(
     @Param('userId') userId: string,
     @Body() dto: updateJobOfInterestCommand
@@ -123,7 +120,6 @@ export class UserController {
     description: '존재하지 않는 유저 ID인 경우, 404 Not Found를 응답합니다.'
   })
   @Delete()
-  @HttpCode(HttpStatus.OK)
   async deleteUser(@Body() dto: DeleteUserCommand): Promise<null> {
     await this.userService.deleteUser(dto.userId)
     return null
