@@ -81,6 +81,19 @@ export class JobNoticeController {
     return await this.jobNoticeService.createBookmarkedJobNotice(dto.jobId, dto.userId)
   }
 
+  @ApiOperation({ summary: '채용 공고 북마크 삭제' })
+  @ApiBody({ type: createBookmarkedJobNoticeCommand })
+  @ApiOkResponse({
+    description: '성공 시, 200 Ok를 응답합니다.',
+    type: createBookmarkedJobNoticeCommand
+  })
+  @Delete('bookmark')
+  async deleteBookmarkedJobNotice(
+    @Body() dto: createBookmarkedJobNoticeCommand
+  ): Promise<createBookmarkedJobNoticeCommand> {
+    return await this.jobNoticeService.deleteBookmarkedJobNotice(dto.jobId, dto.userId)
+  }
+
   @ApiOperation({ summary: '채용 공고 추가' })
   @ApiBody({ type: CreateJobNoticeCommand })
   @ApiCreatedResponse({

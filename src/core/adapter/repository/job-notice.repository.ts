@@ -58,7 +58,7 @@ export class JobNoticeRepository {
     })
   }
 
-  /** jobId와 userId로 JobNotice 찾기 */
+  /** jobId와 userId로 북마크된 채용 공고 찾기 */
   async getBookmarkedJobNotice(jobId: number, userId: string): Promise<BookmarkedJobNotice | null> {
     return await this.prisma.bookmarkedJobNotice.findFirst({
       where: {
@@ -70,10 +70,20 @@ export class JobNoticeRepository {
     })
   }
 
-  /** BookmarkedJobNotice 생성 */
+  /** 북마크된 채용 공고 생성 */
   async createBookmarkedJobNotice(jobId: number, userId: string): Promise<BookmarkedJobNotice> {
     return await this.prisma.bookmarkedJobNotice.create({
       data: {
+        jobNoticeId: jobId,
+        userId
+      }
+    })
+  }
+
+  /** 북마크된 채용 공고 삭제 */
+  async deleteBookmarkedJobNotice(jobId: number, userId: string): Promise<void> {
+    await this.prisma.bookmarkedJobNotice.deleteMany({
+      where: {
         jobNoticeId: jobId,
         userId
       }

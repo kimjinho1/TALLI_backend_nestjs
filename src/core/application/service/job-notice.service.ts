@@ -89,6 +89,25 @@ export class JobNoticeService {
     return result
   }
 
+  /** 채용 공고 북마크 삭제 */
+  async deleteBookmarkedJobNotice(jobId: number, userId: string): Promise<createBookmarkedJobNoticeCommand> {
+    /** 존재하는 채용 공고인지 확인 -> 에러일 시 404 에러 코드 반환 */
+    await this.getJobNotice(jobId)
+
+    /** 존재하는 유저인지 확인 -> 에러일 시 404 에러 코드 반환 */
+    await this.userService.getUser(userId)
+
+    /** 북마크된 채용 공고인지 확인 -> 에러일 시 404 에러 코드 반환 */
+    const bookmarkedJobNotice = await this.getBookmarkedJobNotice(jobId, userId)
+
+    await this.repository.deleteBookmarkedJobNotice(jobId, userId)
+    const result = {
+      jobId: bookmarkedJobNotice.jobNoticeId,
+      userId: bookmarkedJobNotice.userId
+    }
+    return result
+  }
+
   /** 채용 공고 추가 */
   async createJobNotice(dto: CreateJobNoticeCommand): Promise<JobNoticeInfoDto> {
     /** 존재하는 회사인지 확인 -> 에러일 시 404 에러 코드 반환 */
@@ -217,5 +236,14 @@ export class JobNoticeService {
     if (bookmarkedJobNotice) {
       throw new BadRequestException(ErrorMessages.BOOKMARKEND_JOB_NOTICE_ALREADY_EXISTS)
     }
+  }
+
+  /** 북마크된 채용 공고인지 확인 -> 에러일 시 404 에러 코드 반환 */
+  private async getBookmarkedJobNotice(jobId: number, userId: string): Promise<BookmarkedJobNotice> {
+    const bookmarkedJobNotice = await this.repository.getBookmarkedJobNotice(jobId, userId)
+    if (!bookmarkedJobNotice) {
+      throw new NotFoundException(ErrorMessages.BOOKMARKEND_JOB_NOTICE_NOT_FOUND)
+    }
+    return bookmarkedJobNotice
   }
 }
