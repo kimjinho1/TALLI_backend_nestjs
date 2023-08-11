@@ -132,4 +132,13 @@ export class JobNoticeRepository {
       }
     })
   }
+
+  /** 모든 채용 공고명 가져오기 */
+  async getAllJobNoticeTitles(): Promise<Pick<JobNotice, 'title'>[]> {
+    return await this.prisma.jobNotice.findMany({
+      select: {
+        title: true
+      }
+    })
+  }
 }

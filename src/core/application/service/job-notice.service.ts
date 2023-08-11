@@ -13,11 +13,13 @@ import {
 import { CompanyService } from './company.service'
 import { ErrorMessages } from 'src/common/exception/error.messages'
 import { UserService } from './user.service'
+import { CompanyRepository } from 'src/core/adapter/repository/company.repository'
 
 @Injectable()
 export class JobNoticeService {
   constructor(
     private readonly repository: JobNoticeRepository,
+    private readonly companyRepository: CompanyRepository,
     private readonly companyService: CompanyService,
     private readonly userService: UserService
   ) {}
@@ -156,6 +158,16 @@ export class JobNoticeService {
     await this.getJobNotice(jobId)
 
     return await this.repository.deleteJobNotice(jobId)
+  }
+
+  /** 검색 자동 완성 목록 보기 */
+  async getAutoComplete(): Promise<string[]> {
+    const companyNames = await this.companyRepository.getAllCompanyNames()
+    const jobNoticeTitles = await this.repository.getAllJobNoticeTitles()
+    return [
+      ...companyNames.map(companyName => companyName.companyName),
+      ...jobNoticeTitles.map(jobNoticeTitle => jobNoticeTitle.title)
+    ]
   }
 
   /**

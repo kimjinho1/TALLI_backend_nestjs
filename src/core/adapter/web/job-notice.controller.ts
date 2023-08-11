@@ -55,17 +55,6 @@ export class JobNoticeController {
     return await this.jobNoticeService.getJobNoticeInfo(jobId)
   }
 
-  @ApiOperation({ summary: '채용 공고 검색' })
-  @ApiBody({ type: SearchJobNoticeListCommand })
-  @ApiOkResponse({
-    description: '성공 시, 200 Ok를 응답합니다.',
-    type: JobNoticeListDto
-  })
-  @Post('/search')
-  async searchJobNoticeList(@Body() dto: SearchJobNoticeListCommand): Promise<JobNoticeListDto> {
-    return await this.jobNoticeService.searchJobNoticeList(dto)
-  }
-
   @ApiOperation({ summary: '채용 공고 북마크 추가' })
   @ApiBody({ type: createBookmarkedJobNoticeCommand })
   @ApiCreatedResponse({
@@ -137,5 +126,29 @@ export class JobNoticeController {
   @Delete()
   async DeleteJobNotice(@Body() dto: DeleteJobNoticeCommand): Promise<JobNoticeDto> {
     return await this.jobNoticeService.deleteJobNotice(dto.jobId)
+  }
+
+  @ApiOperation({ summary: '채용 공고 검색' })
+  @ApiBody({ type: SearchJobNoticeListCommand })
+  @ApiOkResponse({
+    description: '성공 시, 200 Ok를 응답합니다.',
+    type: JobNoticeListDto
+  })
+  @Post('/search')
+  async searchJobNoticeList(@Body() dto: SearchJobNoticeListCommand): Promise<JobNoticeListDto> {
+    return await this.jobNoticeService.searchJobNoticeList(dto)
+  }
+
+  @ApiOperation({
+    summary: '검색 자동 완성 목록 보기',
+    description: '검색 자동 완성 목록(전체 공고명&회사명 목록) 보기'
+  })
+  @ApiOkResponse({
+    description: '성공 시, 200 Ok를 응답합니다.',
+    type: [String]
+  })
+  @Get('/search/autocomplte')
+  async getAutoComplete(): Promise<string[]> {
+    return await this.jobNoticeService.getAutoComplete()
   }
 }
