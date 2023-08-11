@@ -4,7 +4,12 @@ import { CompanyRepository } from 'src/core/adapter/repository/company.repositor
 import { JobNoticeRepository } from 'src/core/adapter/repository/job-notice.repository'
 import { UserRepository } from 'src/core/adapter/repository/user.repository'
 import { JobNoticeInfoDto, JobNoticeListDto } from './dto/job-notice/response'
-import { CreateJobNoticeCommand, FilterDto, GetJobNoticeListCommand } from 'src/core/adapter/web/command/job-notice'
+import {
+  CreateJobNoticeCommand,
+  FilterDto,
+  GetJobNoticeListCommand,
+  SearchJobNoticeListCommand
+} from 'src/core/adapter/web/command/job-notice'
 import { CompanyService } from './company.service'
 import { ErrorMessages } from 'src/common/exception/error.messages'
 
@@ -49,6 +54,20 @@ export class JobNoticeService {
       companyInfo: company
     }
     return response
+  }
+
+  /** 채용 공고 검색 */
+  async searchJobNoticeList(dto: SearchJobNoticeListCommand): Promise<JobNoticeListDto> {
+    /** 쿼리 생성 */
+    const { index, difference, searchWord, order, filter } = dto
+    const jobNoticeFilter = this.getFilter(filter)
+    const query = this.getQueryBySearchWord(order, searchWord, jobNoticeFilter)
+
+    /** 필터링된 jobNotice들 */
+    const tempJobNotices = await this.repository.getFilteredJobNotices(query)
+    const filteredJobNotices = tempJobNotices.slice(index, difference)
+
+    return this.getResultList(tempJobNotices.length, filteredJobNotices)
   }
 
   /** 채용 공고 추가 */
@@ -151,19 +170,6 @@ export class JobNoticeService {
           contains: searchWord
         },
         ...jobNoticeFilter
-      },
-      include: {
-        company: {
-          select: {
-            companyName: true,
-            logoUrl: true
-          }
-        },
-        bookmarkedJobNotices: {
-          select: {
-            jobNoticeId: true
-          }
-        }
       }
     }
   }

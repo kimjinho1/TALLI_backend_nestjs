@@ -3,13 +3,14 @@ import {
   ApiBadRequestResponse,
   ApiBody,
   ApiCreatedResponse,
+  ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
   ApiParam,
   ApiTags
 } from '@nestjs/swagger'
 import { JobNoticeService } from 'src/core/application/service/job-notice.service'
-import { CreateJobNoticeCommand, GetJobNoticeListCommand } from './command/job-notice'
+import { CreateJobNoticeCommand, GetJobNoticeListCommand, SearchJobNoticeListCommand } from './command/job-notice'
 import { JobNoticeInfoDto, JobNoticeListDto } from 'src/core/application/service/dto/job-notice/response'
 
 @ApiTags('채용 공고 API')
@@ -39,9 +40,23 @@ export class JobNoticeController {
     description: '성공 시, 200 Ok를 응답합니다.',
     type: JobNoticeInfoDto
   })
+  @ApiNotFoundResponse({
+    description: 'jobId에 매칭되는 채용 공고가 없는 경우, 404 Not Found 응답합니다.'
+  })
   @Get('/:jobId')
   async getJobNotice(@Param('jobId') jobId: number): Promise<JobNoticeInfoDto> {
     return await this.jobNoticeService.getJobNoticeInfo(jobId)
+  }
+
+  @ApiOperation({ summary: '채용 공고 검색' })
+  @ApiBody({ type: SearchJobNoticeListCommand })
+  @ApiOkResponse({
+    description: '성공 시, 200 Ok를 응답합니다.',
+    type: JobNoticeListDto
+  })
+  @Post('/search')
+  async searchJobNoticeList(@Body() dto: SearchJobNoticeListCommand): Promise<JobNoticeListDto> {
+    return await this.jobNoticeService.searchJobNoticeList(dto)
   }
 
   @ApiOperation({ summary: '채용 공고 추가' })
