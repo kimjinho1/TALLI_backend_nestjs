@@ -12,12 +12,13 @@ import {
 import { JobNoticeService } from 'src/core/application/service/job-notice.service'
 import {
   CreateJobNoticeCommand,
+  DeleteJobNoticeCommand,
   GetJobNoticeListCommand,
   SearchJobNoticeListCommand,
   UpdateJobNoticeCommand,
   createBookmarkedJobNoticeCommand
 } from './command/job-notice'
-import { JobNoticeInfoDto, JobNoticeListDto } from 'src/core/application/service/dto/job-notice/response'
+import { JobNoticeDto, JobNoticeInfoDto, JobNoticeListDto } from 'src/core/application/service/dto/job-notice/response'
 
 @ApiTags('채용 공고 API')
 @Controller('job-notice')
@@ -125,5 +126,16 @@ export class JobNoticeController {
   @Patch('/:jobId')
   async UpdateJobNotice(@Param('jobId') jobId: number, @Body() dto: UpdateJobNoticeCommand): Promise<JobNoticeInfoDto> {
     return await this.jobNoticeService.updateJobNotice(jobId, dto)
+  }
+
+  @ApiOperation({ summary: '채용 공고 삭제' })
+  @ApiBody({ type: DeleteJobNoticeCommand })
+  @ApiOkResponse({
+    description: '성공 시, 200 Ok를 응답합니다.',
+    type: JobNoticeDto
+  })
+  @Delete()
+  async DeleteJobNotice(@Body() dto: DeleteJobNoticeCommand): Promise<JobNoticeDto> {
+    return await this.jobNoticeService.deleteJobNotice(dto.jobId)
   }
 }

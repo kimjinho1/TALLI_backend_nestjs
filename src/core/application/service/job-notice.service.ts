@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common'
 import { BookmarkedJobNotice, Company, JobNotice, Prisma, User } from '@prisma/client'
 import { JobNoticeRepository } from 'src/core/adapter/repository/job-notice.repository'
-import { JobNoticeInfoDto, JobNoticeListDto } from './dto/job-notice/response'
+import { JobNoticeDto, JobNoticeInfoDto, JobNoticeListDto } from './dto/job-notice/response'
 import {
   CreateJobNoticeCommand,
   FilterDto,
@@ -148,6 +148,14 @@ export class JobNoticeService {
       companyInfo: company
     }
     return response
+  }
+
+  /** 채용 공고 삭제 */
+  async deleteJobNotice(jobId: number): Promise<JobNoticeDto> {
+    /** 존재하는 채용 공고인지 확인 -> 에러일 시 404 에러 코드 반환 */
+    await this.getJobNotice(jobId)
+
+    return await this.repository.deleteJobNotice(jobId)
   }
 
   /**

@@ -123,4 +123,13 @@ export class JobNoticeRepository {
       }
     })
   }
+
+  /** JobNotice 삭제 */
+  async deleteJobNotice(jobId: number): Promise<JobNotice> {
+    return await this.prisma.jobNotice.delete({
+      where: {
+        jobNoticeId: jobId
+      }
+    })
+  }
 }
