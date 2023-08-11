@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common'
 import { BookmarkedJobNotice, JobNotice, Prisma } from '@prisma/client'
 import { PrismaService } from 'prisma/prisma.service'
 import { FilteredJobNoticeListDto } from './dto/job-notice'
-import { CreateJobNoticeCommand } from '../web/command/job-notice'
+import { CreateJobNoticeCommand, UpdateJobNoticeCommand } from '../web/command/job-notice'
 
 @Injectable()
 export class JobNoticeRepository {
@@ -108,6 +108,18 @@ export class JobNoticeRepository {
       data: {
         ...dto,
         modifiedAt: null
+      }
+    })
+  }
+
+  /** JobNotice 업데이트 */
+  async updateJobNotice(jobId: number, updateJobNoticeDto: UpdateJobNoticeCommand): Promise<JobNotice> {
+    return await this.prisma.jobNotice.update({
+      where: {
+        jobNoticeId: jobId
+      },
+      data: {
+        ...updateJobNoticeDto
       }
     })
   }

@@ -7,6 +7,7 @@ import {
   FilterDto,
   GetJobNoticeListCommand,
   SearchJobNoticeListCommand,
+  UpdateJobNoticeCommand,
   createBookmarkedJobNoticeCommand
 } from 'src/core/adapter/web/command/job-notice'
 import { CompanyService } from './company.service'
@@ -111,7 +112,7 @@ export class JobNoticeService {
   /** 채용 공고 추가 */
   async createJobNotice(dto: CreateJobNoticeCommand): Promise<JobNoticeInfoDto> {
     /** 존재하는 회사인지 확인 -> 에러일 시 404 에러 코드 반환 */
-    const existedCompany = await this.companyService.getCompany(dto.companyId)
+    const company = await this.companyService.getCompany(dto.companyId)
 
     /** 채용 공고 중복 확인 -> 에러일 시 400 에러 코드 반환 */
     await this.checkJobNoticeDuplicateByTitle(dto.companyId, dto.title)
@@ -121,7 +122,30 @@ export class JobNoticeService {
 
     const response = {
       jobNotice: createdJobNotice,
-      companyInfo: existedCompany
+      companyInfo: company
+    }
+    return response
+  }
+
+  /** 채용 공고 수정 */
+  async updateJobNotice(jobId: number, dto: UpdateJobNoticeCommand): Promise<JobNoticeInfoDto> {
+    /** 존재하는 회사인지 확인 -> 에러일 시 404 에러 코드 반환 */
+    if (dto.companyId !== undefined) {
+      await this.companyService.getCompany(dto.companyId)
+    }
+
+    /** 존재하는 채용 공고인지 확인 -> 에러일 시 404 에러 코드 반환 */
+    const jobNotice = await this.getJobNotice(jobId)
+
+    /** 반환용 Company */
+    const company = await this.companyService.getCompany(jobNotice.companyId)
+
+    /** JobNotice 업데이트 */
+    const updateJobNotice = await this.repository.updateJobNotice(jobId, dto)
+
+    const response = {
+      jobNotice: updateJobNotice,
+      companyInfo: company
     }
     return response
   }

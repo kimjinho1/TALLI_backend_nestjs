@@ -14,6 +14,7 @@ import {
   CreateJobNoticeCommand,
   GetJobNoticeListCommand,
   SearchJobNoticeListCommand,
+  UpdateJobNoticeCommand,
   createBookmarkedJobNoticeCommand
 } from './command/job-notice'
 import { JobNoticeInfoDto, JobNoticeListDto } from 'src/core/application/service/dto/job-notice/response'
@@ -107,5 +108,22 @@ export class JobNoticeController {
   @Post()
   async createJobNotice(@Body() dto: CreateJobNoticeCommand): Promise<JobNoticeInfoDto> {
     return await this.jobNoticeService.createJobNotice(dto)
+  }
+
+  @ApiOperation({ summary: '채용 공고 수정' })
+  @ApiParam({
+    name: 'jobId',
+    required: true,
+    description: '채용 공고 ID',
+    type: Number
+  })
+  @ApiBody({ type: UpdateJobNoticeCommand })
+  @ApiOkResponse({
+    description: '성공 시, 200 Ok를 응답합니다.',
+    type: JobNoticeInfoDto
+  })
+  @Patch('/:jobId')
+  async UpdateJobNotice(@Param('jobId') jobId: number, @Body() dto: UpdateJobNoticeCommand): Promise<JobNoticeInfoDto> {
+    return await this.jobNoticeService.updateJobNotice(jobId, dto)
   }
 }
