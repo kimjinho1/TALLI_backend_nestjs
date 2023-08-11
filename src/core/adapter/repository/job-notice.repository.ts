@@ -58,6 +58,28 @@ export class JobNoticeRepository {
     })
   }
 
+  /** jobId와 userId로 JobNotice 찾기 */
+  async getBookmarkedJobNotice(jobId: number, userId: string): Promise<BookmarkedJobNotice | null> {
+    return await this.prisma.bookmarkedJobNotice.findFirst({
+      where: {
+        AND: {
+          jobNoticeId: jobId,
+          userId
+        }
+      }
+    })
+  }
+
+  /** BookmarkedJobNotice 생성 */
+  async createBookmarkedJobNotice(jobId: number, userId: string): Promise<BookmarkedJobNotice> {
+    return await this.prisma.bookmarkedJobNotice.create({
+      data: {
+        jobNoticeId: jobId,
+        userId
+      }
+    })
+  }
+
   /** jobId와 공고명으로 JobNotice 찾기 */
   async getJobNoticeByCompanyIdAndTitle(companyId: number, title: string): Promise<JobNotice | null> {
     return await this.prisma.jobNotice.findFirst({

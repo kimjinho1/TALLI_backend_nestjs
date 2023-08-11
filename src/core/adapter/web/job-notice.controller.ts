@@ -10,7 +10,12 @@ import {
   ApiTags
 } from '@nestjs/swagger'
 import { JobNoticeService } from 'src/core/application/service/job-notice.service'
-import { CreateJobNoticeCommand, GetJobNoticeListCommand, SearchJobNoticeListCommand } from './command/job-notice'
+import {
+  CreateJobNoticeCommand,
+  GetJobNoticeListCommand,
+  SearchJobNoticeListCommand,
+  createBookmarkedJobNoticeCommand
+} from './command/job-notice'
 import { JobNoticeInfoDto, JobNoticeListDto } from 'src/core/application/service/dto/job-notice/response'
 
 @ApiTags('채용 공고 API')
@@ -57,6 +62,23 @@ export class JobNoticeController {
   @Post('/search')
   async searchJobNoticeList(@Body() dto: SearchJobNoticeListCommand): Promise<JobNoticeListDto> {
     return await this.jobNoticeService.searchJobNoticeList(dto)
+  }
+
+  @ApiOperation({ summary: '채용 공고 북마크 추가' })
+  @ApiBody({ type: createBookmarkedJobNoticeCommand })
+  @ApiCreatedResponse({
+    description: '성공 시, 201 Created를 응답합니다.',
+    type: createBookmarkedJobNoticeCommand
+  })
+  @ApiBadRequestResponse({
+    description: '이미 북마크된 채용 공고인 경우, 400 Bad Request 를 응답합니다.'
+  })
+  @HttpCode(HttpStatus.CREATED)
+  @Post('bookmark')
+  async createBookmarkedJobNotice(
+    @Body() dto: createBookmarkedJobNoticeCommand
+  ): Promise<createBookmarkedJobNoticeCommand> {
+    return await this.jobNoticeService.createBookmarkedJobNotice(dto.jobId, dto.userId)
   }
 
   @ApiOperation({ summary: '채용 공고 추가' })

@@ -117,7 +117,7 @@ export class UserService {
    */
 
   /** 존재하는 유저인지 확인 -> 에러일 시 404 에러 코드 반환 */
-  private async getUser(userId: string): Promise<User> {
+  public async getUser(userId: string): Promise<User> {
     try {
       return await this.repository.getUser(userId)
     } catch (error) {

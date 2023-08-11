@@ -7,5 +7,6 @@ export const ErrorMessages = {
   COMPANY_NOT_FOUND: '존재하지 않는 회사입니다.',
   COMPANY_NAME_ALREADY_EXISTS: '이미 존재하는 회사 이름입니다.',
   JOB_NOTICE_NOT_FOUND: '존재하지 않는 채용 공고입니다.',
-  JOB_NOTICE_ALREADY_EXISTS: '이미 존재하는 채용 공고입니다.'
+  JOB_NOTICE_ALREADY_EXISTS: '이미 존재하는 채용 공고입니다.',
+  BOOKMARKEND_JOB_NOTICE_ALREADY_EXISTS: '이미 북마크된 채용 공고입니다.'
 }

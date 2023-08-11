@@ -1,24 +1,24 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common'
 import { BookmarkedJobNotice, Company, JobNotice, Prisma, User } from '@prisma/client'
-import { CompanyRepository } from 'src/core/adapter/repository/company.repository'
 import { JobNoticeRepository } from 'src/core/adapter/repository/job-notice.repository'
-import { UserRepository } from 'src/core/adapter/repository/user.repository'
 import { JobNoticeInfoDto, JobNoticeListDto } from './dto/job-notice/response'
 import {
   CreateJobNoticeCommand,
   FilterDto,
   GetJobNoticeListCommand,
-  SearchJobNoticeListCommand
+  SearchJobNoticeListCommand,
+  createBookmarkedJobNoticeCommand
 } from 'src/core/adapter/web/command/job-notice'
 import { CompanyService } from './company.service'
 import { ErrorMessages } from 'src/common/exception/error.messages'
+import { UserService } from './user.service'
 
 @Injectable()
 export class JobNoticeService {
   constructor(
     private readonly repository: JobNoticeRepository,
     private readonly companyService: CompanyService,
-    private readonly userRepository: UserRepository
+    private readonly userService: UserService
   ) {}
 
   /** 전체 채용 공고 보기 */
@@ -68,6 +68,25 @@ export class JobNoticeService {
     const filteredJobNotices = tempJobNotices.slice(index, difference)
 
     return this.getResultList(tempJobNotices.length, filteredJobNotices)
+  }
+
+  /** 채용 공고 북마크 추가 */
+  async createBookmarkedJobNotice(jobId: number, userId: string): Promise<createBookmarkedJobNoticeCommand> {
+    /** 존재하는 채용 공고인지 확인 -> 에러일 시 404 에러 코드 반환 */
+    await this.getJobNotice(jobId)
+
+    /** 존재하는 유저인지 확인 -> 에러일 시 404 에러 코드 반환 */
+    await this.userService.getUser(userId)
+
+    /** 존재하는 북마크된 채용 공고인지 확인 -> 에러일 시 400 에러 코드 반환 */
+    await this.checkBookmarkedJobNoticeDuplicate(jobId, userId)
+
+    const bookmarkedJobNotice = await this.repository.createBookmarkedJobNotice(jobId, userId)
+    const result = {
+      jobId: bookmarkedJobNotice.jobNoticeId,
+      userId: bookmarkedJobNotice.userId
+    }
+    return result
   }
 
   /** 채용 공고 추가 */
@@ -189,6 +208,14 @@ export class JobNoticeService {
     const jobNotice = await this.repository.getJobNoticeByCompanyIdAndTitle(companyId, title)
     if (jobNotice) {
       throw new BadRequestException(ErrorMessages.JOB_NOTICE_ALREADY_EXISTS)
+    }
+  }
+
+  /** 북마크된 채용 공고 중복 확인 -> 에러일 시 400 에러 코드 반환 */
+  private async checkBookmarkedJobNoticeDuplicate(jobId: number, userId: string): Promise<void> {
+    const bookmarkedJobNotice = await this.repository.getBookmarkedJobNotice(jobId, userId)
+    if (bookmarkedJobNotice) {
+      throw new BadRequestException(ErrorMessages.BOOKMARKEND_JOB_NOTICE_ALREADY_EXISTS)
     }
   }
 }
