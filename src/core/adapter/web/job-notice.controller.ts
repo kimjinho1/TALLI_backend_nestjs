@@ -5,6 +5,7 @@ import {
   ApiCreatedResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiParam,
   ApiTags
 } from '@nestjs/swagger'
 import { JobNoticeService } from 'src/core/application/service/job-notice.service'
@@ -25,6 +26,22 @@ export class JobNoticeController {
   @Post('/list')
   async getJobNoticeList(@Body() dto: GetJobNoticeListCommand): Promise<JobNoticeListDto> {
     return await this.jobNoticeService.getAllJobNotice(dto)
+  }
+
+  @ApiOperation({ summary: '개별 채용 공고 보기' })
+  @ApiParam({
+    name: 'jobId',
+    required: true,
+    description: '채용 공고 ID',
+    type: Number
+  })
+  @ApiOkResponse({
+    description: '성공 시, 200 Ok를 응답합니다.',
+    type: JobNoticeInfoDto
+  })
+  @Get('/:jobId')
+  async getJobNotice(@Param('jobId') jobId: number): Promise<JobNoticeInfoDto> {
+    return await this.jobNoticeService.getJobNoticeInfo(jobId)
   }
 
   @ApiOperation({ summary: '채용 공고 추가' })

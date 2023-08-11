@@ -30,6 +30,27 @@ export class JobNoticeService {
     return this.getResultList(tempJobNotices.length, filteredJobNotices)
   }
 
+  /** 개별 채용 공고 보기 */
+  async getJobNoticeInfo(jobId: number): Promise<JobNoticeInfoDto> {
+    /** 존재하는 채용 공고인지 확인 -> 에러일 시 404 에러 코드 반환 */
+    const jobNotice = await this.getJobNotice(jobId)
+
+    /** 반환용 Company */
+    const company = await this.companyService.getCompany(jobNotice.companyId)
+
+    /** jobNotice의 hits 카운트 올리기 */
+    await this.repository.updateJobNoticeHits(jobId)
+
+    const response = {
+      jobNotice: {
+        ...jobNotice,
+        hits: jobNotice.hits + 1
+      },
+      companyInfo: company
+    }
+    return response
+  }
+
   /** 채용 공고 추가 */
   async createJobNotice(dto: CreateJobNoticeCommand): Promise<JobNoticeInfoDto> {
     /** 존재하는 회사인지 확인 -> 에러일 시 404 에러 코드 반환 */
@@ -144,6 +165,16 @@ export class JobNoticeService {
           }
         }
       }
+    }
+  }
+
+  /** 존재하는 채용 공고인지 확인 -> 에러일 시 404 에러 코드 반환 */
+  private async getJobNotice(jobId: number): Promise<JobNotice> {
+    try {
+      const jobNotice = await this.repository.getJobNotice(jobId)
+      return jobNotice
+    } catch (error) {
+      throw new NotFoundException(ErrorMessages.JOB_NOTICE_NOT_FOUND)
     }
   }
 
