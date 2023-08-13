@@ -2,7 +2,7 @@ import { NestFactory } from '@nestjs/core'
 import { AppModule } from './app.module'
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger'
 import { ValidationPipe } from '@nestjs/common'
-import { ResponseWrapperInterceptor } from './response-wrapper/response-wrapper.interceptor'
+import { ResponseWrapperInterceptor } from './common/response-wrapper/response-wrapper.interceptor'
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule)

@@ -1,29 +1,15 @@
-import {
-  BadRequestException,
-  ConsoleLogger,
-  Controller,
-  Get,
-  Param,
-  Post,
-  UploadedFile,
-  UseInterceptors
-} from '@nestjs/common'
-import { AppService } from './app.service'
+import { BadRequestException, Controller, Get, Param, Post, UploadedFile, UseInterceptors } from '@nestjs/common'
 import { FileInterceptor } from '@nestjs/platform-express'
-import { join } from 'path'
 import { diskStorage } from 'multer'
 import * as path from 'path'
 import * as fs from 'fs'
 import { assetsPath } from './app.module'
-import { Console } from 'console'
 
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) {}
-
   @Get()
   getHello(): string {
-    return this.appService.getHello()
+    return 'Talli Backend'
   }
 
   @Post('/image/:path')

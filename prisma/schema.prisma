@@ -17,37 +17,40 @@ model User {
   imageUrl   String? @map("image_url") @db.VarChar(255)
   currentJob String  @map("current_job") @db.VarChar(255)
 
-  // User와 CurrentJobDetail one-to-one 연결
-  currentJobDetail CurrentJobDetail?
-
-  // User와 JobOfInterestList one-to-many 연결
-  jobOfInterest JobOfInterest[]
-
-  // User와 BookmarkedJobNotice one-to-many 연결
+  currentJobDetail     CurrentJobDetail?
+  jobOfInterest        JobOfInterest[]
   bookmarkedJobNotices BookmarkedJobNotice[]
 }
 
 model CurrentJobDetail {
-  id             String @id @default(uuid()) @db.Uuid
-  userId         String @unique @map("user_id") @db.Uuid // one-to-one
-  grade          String @db.VarChar(255)
-  activePeriod   String @map("active_period") @db.VarChar(255)
-  escapedJob     String @map("escaped_job") @db.VarChar(255)
-  escapedPeriod  String @map("escaped_period") @db.VarChar(255)
-  inactivePeriod String @map("inactive_period") @db.VarChar(255)
-  otherJob       String @map("other_job") @db.VarChar(255)
+  currentJobDetailId String @id @default(uuid()) @map("current_job_detail_id") @db.Uuid
+  grade              String @db.VarChar(255)
+  activePeriod       String @map("active_period") @db.VarChar(255)
+  escapedJob         String @map("escaped_job") @db.VarChar(255)
+  escapedPeriod      String @map("escaped_period") @db.VarChar(255)
+  inactivePeriod     String @map("inactive_period") @db.VarChar(255)
+  otherJob           String @map("other_job") @db.VarChar(255)
 
-  // User와 CurrentJobDetail one-to-one 연결
+  userId String @unique @map("user_id") @db.Uuid
+
   user User @relation(fields: [userId], references: [userId], onDelete: Cascade)
 }
 
-model JobOfInterest {
-  id            String @id @default(uuid()) @db.Uuid
-  userId        String @map("user_id") @db.Uuid // one-to-many
-  jobOfInterest String @map("job_of_interest") @db.VarChar(255)
+model Job {
+  jobId Int    @id @default(autoincrement()) @map("job_id")
+  title String @db.VarChar(255)
 
-  // User와 CurrentJobDetail one-to-many 연결
+  jobOfInterest JobOfInterest[]
+}
+
+model JobOfInterest {
+  userId String @map("user_id") @db.Uuid
+  jobId  Int    @map("job_id")
+
   user User @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  job  Job  @relation(fields: [jobId], references: [jobId], onDelete: Cascade)
+
+  @@id([userId, jobId])
 }
 
 model Company {
@@ -60,13 +63,11 @@ model Company {
   companyLocation String    @map("company_location") @db.VarChar(255)
   companyWebsite  String?   @map("company_website") @db.VarChar(255)
 
-  // Company와 Position one-to-many 연결
   jobNotice JobNotice[]
 }
 
 model JobNotice {
-  jobId           Int       @id @default(autoincrement()) @map("job_id")
-  companyId       Int       @map("company_id") // one-to-many
+  jobNoticeId     Int       @id @default(autoincrement()) @map("job_notice_id")
   title           String    @db.VarChar(255)
   titleImageUrl   String?   @map("title_image_url") @db.VarChar(255)
   category        String    @db.VarChar(255)
@@ -85,33 +86,30 @@ model JobNotice {
   createdAt       DateTime  @default(now()) @map("created_at")
   modifiedAt      DateTime? @default(now()) @updatedAt @map("modified_at")
 
-  // Company와 JobNotice one-to-many 연결
-  company Company @relation(fields: [companyId], references: [companyId], onDelete: Cascade)
+  companyId Int @map("company_id")
 
-  // JobNotice와 BookmarkedJobNotice one-to-many 연결
+  company              Company               @relation(fields: [companyId], references: [companyId], onDelete: Cascade)
   bookmarkedJobNotices BookmarkedJobNotice[]
 }
 
 model BookmarkedJobNotice {
-  id     String @id @default(uuid()) @db.Uuid
-  userId String @map("user_id") @db.Uuid // one-to-many
-  jobId  Int    @map("job_id") // one-to-many
+  userId      String @map("user_id") @db.Uuid
+  jobNoticeId Int    @map("job_notice_id")
 
-  // User와 BookmarkedJobNotice one-to-many 연결
-  user User @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  jobNotice JobNotice @relation(fields: [jobNoticeId], references: [jobNoticeId], onDelete: Cascade)
 
-  // JobNotice와 BookmarkedJobNotice one-to-many 연결
-  jobNotice JobNotice @relation(fields: [jobId], references: [jobId], onDelete: Cascade)
+  @@id([userId, jobNoticeId])
 }
 
-model Content {
-  contentId    Int       @id @default(autoincrement()) @map("content_id")
-  title        String    @db.VarChar(255)
-  creater      String    @db.VarChar(255)
-  category     String    @db.VarChar(255)
-  playform     String    @db.VarChar(255)
-  contentUrl   String    @map("content_url") @db.VarChar(255)
-  thumbailUrl  String    @map("thumbail_url") @db.VarChar(255)
-  createdAt    DateTime  @map("created_at")
-  registeredAt DateTime? @default(now()) @map("registered_at")
-}
+// model Content {
+//   contentId    Int       @id @default(autoincrement()) @map("content_id")
+//   title        String    @db.VarChar(255)
+//   creater      String    @db.VarChar(255)
+//   category     String    @db.VarChar(255)
+//   playform     String    @db.VarChar(255)
+//   contentUrl   String    @map("content_url") @db.VarChar(255)
+//   thumbailUrl  String    @map("thumbail_url") @db.VarChar(255)
+//   createdAt    DateTime  @map("created_at")
+//   registeredAt DateTime? @default(now()) @map("registered_at")
+// }
