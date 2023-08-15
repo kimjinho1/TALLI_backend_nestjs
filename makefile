@@ -12,8 +12,8 @@ nest:
 migrate:
 	npx prisma migrate dev --name init
 
-m: migrate
-	npm run start:dev
+seed:
+	npm run seed
 
 studio:
 	npx prisma studio
