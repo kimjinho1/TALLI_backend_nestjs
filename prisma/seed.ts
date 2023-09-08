@@ -114,7 +114,7 @@ async function insertCompanyDataToNewDB() {
 
 async function main() {
   // await createDefaultJobs()
-  await insertCompanyAndJobNoticeDataToNewDB()
+  await insertCompanyDataToNewDB()
 }
 
 main()
