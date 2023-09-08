@@ -79,7 +79,7 @@ model JobNotice {
   salary          String?   @db.VarChar(255)
   jobType         String    @map("job_type") @db.VarChar(255)
   jobLocation     String    @map("job_location") @db.VarChar(255)
-  details         String?   @db.VarChar(255)
+  details         String?
   detailsImageUrl String?   @map("details_image_url") @db.VarChar(255)
   jobWebsite      String    @map("job_website") @db.VarChar(255)
   hits            Int       @default(0)
