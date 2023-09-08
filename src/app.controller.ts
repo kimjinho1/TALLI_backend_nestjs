@@ -3,7 +3,6 @@ import { FileInterceptor } from '@nestjs/platform-express'
 import { diskStorage } from 'multer'
 import * as path from 'path'
 import * as fs from 'fs'
-import { assetsPath } from './app.module'
 
 @Controller()
 export class AppController {
@@ -17,11 +16,11 @@ export class AppController {
     FileInterceptor('image', {
       storage: diskStorage({
         destination: (req, file, cb) => {
-          const uploadPath = path.join(assetsPath, 'images', req.params.path)
+          const uploadPath = path.join(process.cwd(), 'images', req.params.path)
           cb(null, uploadPath)
         },
         filename: (req, file, cb) => {
-          const uploadPath = path.join(assetsPath, 'images', req.params.path)
+          const uploadPath = path.join(process.cwd(), 'images', req.params.path)
           console.log(uploadPath)
           fs.readdir(uploadPath, (err, files) => {
             if (err) {
