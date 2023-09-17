@@ -1,16 +1,20 @@
-import * as fs from 'fs'
-import * as csv from 'csv-parser'
-import axios from 'axios'
 import { PrismaClient } from '@prisma/client'
+import axios from 'axios'
+import * as csv from 'csv-parser'
+import { createReadStream, existsSync, mkdirSync, readFile, readdirSync, statSync } from 'fs'
+import { rm, writeFile } from 'fs/promises'
+import { join, relative } from 'path'
+import { promisify } from 'util'
 
 const prisma = new PrismaClient()
+export const imageDirPath = join(process.cwd(), 'images')
 
 /** Load csv file */
 export function readCSVFile(filePath: string): Promise<any[]> {
   const results: any[] = []
 
   return new Promise((resolve, reject) => {
-    const stream = fs.createReadStream(filePath).on('error', error => reject(error))
+    const stream = createReadStream(filePath).on('error', error => reject(error))
 
     stream
       .pipe(csv())
@@ -26,16 +30,30 @@ export function readCSVFile(filePath: string): Promise<any[]> {
   })
 }
 
+export function ensureDirectoryExists(directoryPath: string): void {
+  try {
+    if (!existsSync(directoryPath)) {
+      mkdirSync(directoryPath, { recursive: true })
+    }
+  } catch (error) {
+    throw new Error(`폴더 생성 실패: ${error}`)
+  }
+}
+
+export async function removeFolder(folderPath: string): Promise<void> {
+  try {
+    await rm(folderPath, { recursive: true })
+  } catch (error) {
+    throw new Error(`폴더 삭제 실패: ${error}`)
+  }
+}
+
 /** Download image by image url */
 export async function downloadImage(imageUrl: string, imageSavePath: string) {
   try {
     const response = await axios.get(imageUrl, { responseType: 'arraybuffer' })
-    fs.writeFile(imageSavePath, response.data, err => {
-      if (err) {
-        console.error(err)
-      }
-      console.log(`Image downloaded successfully! -> ${imageSavePath}`)
-    })
+
+    await writeFile(imageSavePath, response.data)
   } catch (error) {
     console.error(`잘못된 이미지 경로입니다. -> ${imageUrl}`)
   }
@@ -63,25 +81,24 @@ export async function updateCompanyAndJobNoticeIdSequence() {
     false
   )`
   */
-  const company_id = await prisma.$executeRaw`SELECT setval(
+  await prisma.$executeRaw`SELECT setval(
   pg_get_serial_sequence('"Company"', 'company_id'),
   coalesce(max(company_id) + 1, 1),
   false
 ) FROM "Company"`
 
-  const jobNoticeId = await prisma.$executeRaw`SELECT setval(
+  await prisma.$executeRaw`SELECT setval(
   pg_get_serial_sequence('"JobNotice"', 'job_notice_id'),
   coalesce(max(job_notice_id) + 1, 1),
   false
 ) FROM "JobNotice"`
 
-  console.log('Company ID sequence update successfully:', company_id)
-  console.log('JobNotice ID sequence update successfully:', jobNoticeId)
+  console.log('Update company_id and job_notice_id sequence')
 }
 
-/** autoincrement 확인 */
-export async function test() {
-  const data = {
+/** autoincrement가 업데이트 되었는지 확인 */
+export async function checkSequenceUpdated() {
+  const testCompanyData = {
     companyName: 'test1234',
     logoUrl: 'images/company/test1234.png',
     companyType: '대학병원',
@@ -91,8 +108,142 @@ export async function test() {
     companyWebsite: 'http://www.snuh.com'
   }
 
-  const created_company = await prisma.company.create({
-    data
+  const testJobNoticeData = {
+    companyId: 4,
+    title: '1231231[경력] CO팀 CRA 채용 (서울본사)',
+    titleImageUrl: null,
+    category: '임상연구',
+    deadline: null,
+    experience: '경력',
+    education: '대졸 이상 (4년제)',
+    requirements:
+      '• 의학, 간호학, 약학, 생물학 등 임상시험 관련학과 졸업자\n' +
+      '• 임상시험 CRA 경력 1년 이상자\n' +
+      '• Oncology Study 경험자',
+    preferences: '• 임상시험 관련 규정에 대한 이해도가 있는 분(ICH/GCP, FDA 가이드라인 등)\n• 영어활용 우수자',
+    salary: '개별연봉제(면접 후 협의)',
+    jobType: '정규직(면접 시 평가에 따라 수습기간 적용가능성 有)',
+    jobLocation: '서울 강남구',
+    details:
+      '■ 담당업무\n' +
+      '- IIT&SIT Management\n' +
+      '- Site Management & Monitoring\n' +
+      '- IRB related Activity\n' +
+      '- Essential document management\n' +
+      '- Study Set up\n' +
+      '- Site contract\n' +
+      "- Investigator's fee management\n" +
+      '- Other study related operation tasks\n' +
+      '\n' +
+      '■ 근무조건\n' +
+      '- 고용형태 : 정규직(면접 시 평가에 따라 수습기간 적용가능성 有)\n' +
+      '- 근무일시 : 주5일(월~금), 시차출퇴근제(Core time 오전 10시~오후 5시)\n' +
+      '- 소속 : CO팀\n' +
+      '- 급여 : 개별연봉제(면접 후 협의)\n' +
+      '- 재택근무 : 근속 3개월 후 재택근무 가능\n' +
+      '- 근무지역 : 서울특별시 강남구 역삼로 412, 씨엔알빌딩(2호선 선릉역, 지하주차장 무료)\n' +
+      '\n' +
+      '■ 지원방법\n' +
+      '- 홈페이지 지원, 이메일 지원\n' +
+      '- 이메일 : recruit@cnrres.com\n' +
+      '- 홈페이지 : www.cnrres.com > Careers\n' +
+      '- 채용문의 : 이메일로 문의\n' +
+      '- 이메일 지원 시 CV양식 자유',
+    detailsImageUrl: null,
+    jobWebsite: 'http://www.cnrres.com/careers/careers-list/?mod=document&pageid=1&keyword=CRA&uid=72',
+    hits: 110,
+    createdAt: '2000-02-04T07:00:00.000Z',
+    modifiedAt: null
+  }
+
+  const createdCompany = await prisma.company.create({
+    data: testCompanyData
   })
-  console.log('id:', created_company.companyId)
+
+  const createdJobNotice = await prisma.jobNotice.create({
+    data: testJobNoticeData
+  })
+
+  console.log('Success sequence update check')
+
+  await prisma.company.delete({
+    where: {
+      companyId: createdCompany.companyId
+    }
+  })
+
+  await prisma.jobNotice.delete({
+    where: {
+      jobNoticeId: createdJobNotice.jobNoticeId
+    }
+  })
+
+  console.log('Roll back test data')
+}
+
+/** 파일 경로를 이름, 숫자 순으로 정렬 */
+export function sortFilePathsByNameAndNumber(filePaths: string[]): string[] {
+  filePaths.sort((a, b) => {
+    // "/" 앞의 이름으로 정렬
+    const nameA = a.split('/')[0]
+    const nameB = b.split('/')[0]
+    const nameComparison = nameA.localeCompare(nameB)
+
+    if (nameComparison !== 0) {
+      return nameComparison
+    }
+
+    // ".png" 앞의 숫자로 정렬
+    const numberA = parseInt(a.match(/(\d+)/)?.[0] || '0', 10)
+    const numberB = parseInt(b.match(/(\d+)/)?.[0] || '0', 10)
+
+    return numberA - numberB
+  })
+
+  return filePaths
+}
+
+export function transformPathPattern(path: string): string {
+  return path
+    .replace(/\//g, '_') // '/'를 '_'로 대체
+    .replace(/(\d+)\//g, '$1_') // 숫자와 '/' 사이에 '_' 삽입
+    .replace(/\.[^.]+$/, '') // 확장자 제거
+}
+
+// 이미지 파일을 Buffer로 읽는 함수
+export async function readImageFileAsBuffer(filePath: string): Promise<Buffer> {
+  const readFileAsync = promisify(readFile)
+  try {
+    const buffer = await readFileAsync(filePath)
+    return Buffer.from(buffer)
+  } catch (error) {
+    throw new Error(`Failed to read image file: ${error}`)
+  }
+}
+
+/** 특정 경로에 포함된 모든 파일의 경로를 반환  */
+export function getAllFilesInDirectory(directoryPath: string): string[] {
+  const filePaths: string[] = []
+
+  function traverseDirectory(currentPath: string) {
+    const files = readdirSync(currentPath)
+
+    for (const file of files) {
+      const filePath = join(currentPath, file)
+      const stats = statSync(filePath)
+
+      if (stats.isDirectory()) {
+        traverseDirectory(filePath) // 재귀적으로 폴더 내의 파일 검색
+      } else {
+        const relativePath = relative(directoryPath, filePath)
+        filePaths.push(relativePath) // 파일 경로를 배열에 추가
+      }
+    }
+  }
+
+  traverseDirectory(directoryPath)
+
+  const sortedFilePaths = sortFilePathsByNameAndNumber(filePaths)
+
+  return sortedFilePaths
 }

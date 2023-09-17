@@ -1,11 +1,22 @@
-import * as fs from 'fs'
-import * as path from 'path'
 import { PrismaClient } from '@prisma/client'
-import { downloadImage, readCSVFile, test, updateCompanyAndJobNoticeIdSequence } from './utils'
+import { join } from 'path'
+import { SeedStorage } from './seed-storage'
 import { legacy_company, legacy_position } from './type'
+import {
+  checkSequenceUpdated,
+  downloadImage,
+  ensureDirectoryExists,
+  getAllFilesInDirectory,
+  imageDirPath,
+  readCSVFile,
+  readImageFileAsBuffer,
+  removeFolder,
+  transformPathPattern,
+  updateCompanyAndJobNoticeIdSequence
+} from './utils'
 
 const prisma = new PrismaClient()
-const imageDirPath = path.join(process.cwd(), 'images')
+const seedStorage = new SeedStorage()
 
 /** 유저 직군 데이터 삽입 */
 async function createDefaultJobs() {
@@ -29,6 +40,8 @@ async function createDefaultJobs() {
       }
     })
   }
+
+  console.log('Finish createDefaultJobs')
 }
 
 /** Company 데이터 삽입 */
@@ -38,26 +51,28 @@ async function insertCompanyDataToNewDB() {
   const all_company_data: legacy_company[] = await readCSVFile(companyCsvFilePath)
 
   const imageType = 'company'
-  const imageSaveDir = path.join(imageDirPath, imageType)
+  const imageSaveDir = join(imageDirPath, imageType)
 
-  if (!fs.existsSync(imageSaveDir)) {
-    fs.mkdirSync(imageSaveDir, { recursive: true })
-  }
+  ensureDirectoryExists(imageSaveDir)
 
   for (const data of all_company_data.slice(1)) {
+    const companyId = parseInt(data.companyId)
+    const logoImagePath = data.logoUrl === '' ? null : join(imageSaveDir, `${companyId}.png`)
+    const logoImageRelativePath = data.logoUrl === '' ? null : join(imageType, `${companyId}.png`)
+
+    if (logoImagePath) {
+      await downloadImage(data.logoUrl, logoImagePath)
+    }
+
     const company = {
-      companyId: parseInt(data.companyId),
+      companyId,
       companyName: data.companyName,
-      logoUrl: data.logoUrl === '' ? null : path.join(imageSaveDir, `${data.companyId}.png`),
+      logoUrl: logoImageRelativePath,
       companyType: data.companyType,
       employee: data.employee === '' ? null : parseInt(data.employee),
       incorporation: data.incorporation === '' ? null : new Date(data.incorporation),
       companyLocation: data.companyLocation,
       companyWebsite: data.companyWebsite === '' ? null : data.companyWebsite
-    }
-
-    if (company.logoUrl) {
-      await downloadImage(data.logoUrl, company.logoUrl)
     }
 
     try {
@@ -67,10 +82,14 @@ async function insertCompanyDataToNewDB() {
         }
       })
     } catch (error) {
+      console.error('---------------------------------')
+      console.error('--------- Company Error ---------')
+      console.error('---------------------------------')
       console.error(error)
-      console.error(company)
     }
   }
+
+  console.log('Finish insertCompanyDataToNewDB')
 }
 
 /** Job Notice 데이터 삽입 */
@@ -81,23 +100,32 @@ async function insertJobNoticeDataToNewDB() {
 
   const titleImageType = 'job-notice/title'
   const detailImageType = 'job-notice/detail'
-  const titleImageSaveDir = path.join(imageDirPath, titleImageType)
-  const detailImageSaveDir = path.join(imageDirPath, detailImageType)
+  const titleImageSaveDir = join(imageDirPath, titleImageType)
+  const detailImageSaveDir = join(imageDirPath, detailImageType)
 
-  // 함수로 만들기
-  if (!fs.existsSync(titleImageSaveDir)) {
-    fs.mkdirSync(titleImageSaveDir, { recursive: true })
-  }
-  if (!fs.existsSync(detailImageSaveDir)) {
-    fs.mkdirSync(detailImageSaveDir, { recursive: true })
-  }
+  ensureDirectoryExists(titleImageSaveDir)
+  ensureDirectoryExists(detailImageSaveDir)
 
   for (const data of all_position_data.slice(1)) {
+    const jobId = parseInt(data.jobId)
+    const titleImagePath = data.titleImageUrl === '' ? null : join(titleImageSaveDir, `${jobId}.png`)
+    const detailsImagePath = data.detailsImageUrl === '' ? null : join(detailImageSaveDir, `${jobId}.png`)
+    const titleImageRelativePath = data.titleImageUrl === '' ? null : join(titleImageType, `${jobId}.png`)
+    const detailsImageRelativePath = data.detailsImageUrl === '' ? null : join(detailImageType, `${jobId}.png`)
+
+    if (titleImagePath) {
+      await downloadImage(data.titleImageUrl, titleImagePath)
+    }
+
+    if (detailsImagePath) {
+      await downloadImage(data.detailsImageUrl, detailsImagePath)
+    }
+
     const position = {
       jobNoticeId: parseInt(data.jobId),
       companyId: parseInt(data.companyId),
       title: data.title,
-      titleImageUrl: data.titleImageUrl === '' ? null : path.join(titleImageSaveDir, `${data.jobId}.png`),
+      titleImageUrl: titleImageRelativePath,
       category: data.category,
       deadline: data.deadline === '' ? null : new Date(data.deadline),
       experience: data.experience,
@@ -108,19 +136,11 @@ async function insertJobNoticeDataToNewDB() {
       jobType: data.jobType,
       jobLocation: data.jobLocation,
       details: data.details === '' ? null : data.details,
-      detailsImageUrl: data.detailsImageUrl === '' ? null : path.join(detailImageSaveDir, `${data.jobId}.png`),
+      detailsImageUrl: detailsImageRelativePath,
       jobWebsite: data.jobWebsite,
       hits: parseInt(data.hits),
       createdAt: new Date(data.createdAt),
       modifiedAt: data.modifiedAt === '' ? null : new Date(data.modifiedAt)
-    }
-
-    if (position.titleImageUrl) {
-      await downloadImage(data.titleImageUrl, position.titleImageUrl)
-    }
-
-    if (position.detailsImageUrl) {
-      await downloadImage(data.detailsImageUrl, position.detailsImageUrl)
     }
 
     try {
@@ -130,21 +150,57 @@ async function insertJobNoticeDataToNewDB() {
         }
       })
     } catch (error) {
+      console.error('---------------------------------')
+      console.error('--------- Company Error ---------')
+      console.error('---------------------------------')
       console.error(error)
-      console.error(position)
     }
   }
+
+  console.log('Finish insertJobNoticeDataToNewDB')
 }
 
-async function main() {
+// async function uploadImageToStorageBucket(url: string, path: string): Promise<void> {
+//   const response = await axios.get(url, {
+//     responseType: 'arraybuffer'
+//   })
+//   const contentType = 'image/png'
+//   const metadata = [{ imageId: transformPathPattern(path) }]
+
+//   await seedStorage.save(path, contentType, Buffer.from(response.data), metadata)
+// }
+
+/** 모든 이미지 파일들 gcp 버킷에 저장 */
+async function uploadAllImagesToStorageBucket(): Promise<void> {
+  const paths = getAllFilesInDirectory(imageDirPath)
+  const contentType = 'image/png'
+
+  await Promise.all(
+    paths.map(async path => {
+      const media = await readImageFileAsBuffer(join(imageDirPath, path))
+      const metadata = [{ imageId: transformPathPattern(path) }]
+
+      await seedStorage.save(path, contentType, media, metadata)
+    })
+  )
+
+  console.log('Finish uploadImagesToStorageBucket')
+}
+
+async function uploadDataToGCP() {
   await createDefaultJobs()
   await insertCompanyDataToNewDB()
-  await updateCompanyAndJobNoticeIdSequence()
-  await test()
   await insertJobNoticeDataToNewDB()
+
+  await updateCompanyAndJobNoticeIdSequence()
+  await checkSequenceUpdated()
+
+  await uploadAllImagesToStorageBucket()
+
+  await removeFolder(imageDirPath)
 }
 
-main()
+uploadDataToGCP()
   .catch(e => {
     console.error(e)
     process.exit(1)
