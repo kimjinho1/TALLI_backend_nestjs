@@ -30,6 +30,7 @@ export function readCSVFile(filePath: string): Promise<any[]> {
   })
 }
 
+/** 폴더가 없으면 생성 */
 export function ensureDirectoryExists(directoryPath: string): void {
   try {
     if (!existsSync(directoryPath)) {
@@ -40,6 +41,7 @@ export function ensureDirectoryExists(directoryPath: string): void {
   }
 }
 
+/** 폴더 삭제 */
 export async function removeFolder(folderPath: string): Promise<void> {
   try {
     await rm(folderPath, { recursive: true })
@@ -203,6 +205,7 @@ export function sortFilePathsByNameAndNumber(filePaths: string[]): string[] {
   return filePaths
 }
 
+/** 문자열 format 수정(company/1.png -> company_1) */
 export function transformPathPattern(path: string): string {
   return path
     .replace(/\//g, '_') // '/'를 '_'로 대체
@@ -210,7 +213,7 @@ export function transformPathPattern(path: string): string {
     .replace(/\.[^.]+$/, '') // 확장자 제거
 }
 
-// 이미지 파일을 Buffer로 읽는 함수
+/** 이미지 파일을 Buffer로 읽는 함수 */
 export async function readImageFileAsBuffer(filePath: string): Promise<Buffer> {
   const readFileAsync = promisify(readFile)
   try {

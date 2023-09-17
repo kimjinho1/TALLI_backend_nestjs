@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client'
+import axios from 'axios'
 import { join } from 'path'
 import { SeedStorage } from './seed-storage'
 import { legacy_company, legacy_position } from './type'
@@ -160,15 +161,16 @@ async function insertJobNoticeDataToNewDB() {
   console.log('Finish insertJobNoticeDataToNewDB')
 }
 
-// async function uploadImageToStorageBucket(url: string, path: string): Promise<void> {
-//   const response = await axios.get(url, {
-//     responseType: 'arraybuffer'
-//   })
-//   const contentType = 'image/png'
-//   const metadata = [{ imageId: transformPathPattern(path) }]
+/** 특정 이미지 파일 gcp 버킷에 저장 */
+async function uploadImageToStorageBucket(url: string, path: string): Promise<void> {
+  const response = await axios.get(url, {
+    responseType: 'arraybuffer'
+  })
+  const contentType = 'image/png'
+  const metadata = [{ imageId: transformPathPattern(path) }]
 
-//   await seedStorage.save(path, contentType, Buffer.from(response.data), metadata)
-// }
+  await seedStorage.save(path, contentType, Buffer.from(response.data), metadata)
+}
 
 /** 모든 이미지 파일들 gcp 버킷에 저장 */
 async function uploadAllImagesToStorageBucket(): Promise<void> {
@@ -187,20 +189,22 @@ async function uploadAllImagesToStorageBucket(): Promise<void> {
   console.log('Finish uploadImagesToStorageBucket')
 }
 
-async function uploadDataToGCP() {
+async function databaseMigrationAnduploadImagesToGCP() {
+  /** db 데이터 삽입 & 이미지들 다운로드 */
   await createDefaultJobs()
   await insertCompanyDataToNewDB()
   await insertJobNoticeDataToNewDB()
 
+  /** autoincrement 업데이트 & 확인 */
   await updateCompanyAndJobNoticeIdSequence()
   await checkSequenceUpdated()
 
+  /** 스토리지에 이미지 업로드 & 다운로드한 이미지들 삭제 */
   await uploadAllImagesToStorageBucket()
-
   await removeFolder(imageDirPath)
 }
 
-uploadDataToGCP()
+databaseMigrationAnduploadImagesToGCP()
   .catch(e => {
     console.error(e)
     process.exit(1)
