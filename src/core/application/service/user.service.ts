@@ -1,9 +1,9 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common'
-import { CurrentJobDetail, JobOfInterest, User } from '@prisma/client'
+import { CurrentJobDetail, User } from '@prisma/client'
 import { ErrorMessages } from 'src/common/exception/error.messages'
 import { UserRepository } from 'src/core/adapter/repository/user.repository'
-import { UserInfoDto } from './dto/user/response'
 import { AddUserInfoCommand, UpdateUserCommand } from 'src/core/adapter/web/command/user'
+import { UserInfoDto } from './dto/user/response'
 
 @Injectable()
 export class UserService {

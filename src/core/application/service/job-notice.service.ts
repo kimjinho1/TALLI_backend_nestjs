@@ -1,7 +1,8 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common'
-import { BookmarkedJobNotice, Company, JobNotice, Prisma, User } from '@prisma/client'
+import { BookmarkedJobNotice, JobNotice, Prisma } from '@prisma/client'
+import { ErrorMessages } from 'src/common/exception/error.messages'
+import { CompanyRepository } from 'src/core/adapter/repository/company.repository'
 import { JobNoticeRepository } from 'src/core/adapter/repository/job-notice.repository'
-import { JobNoticeDto, JobNoticeInfoDto, JobNoticeListDto } from './dto/job-notice/response'
 import {
   CreateJobNoticeCommand,
   FilterDto,
@@ -11,9 +12,8 @@ import {
   createBookmarkedJobNoticeCommand
 } from 'src/core/adapter/web/command/job-notice'
 import { CompanyService } from './company.service'
-import { ErrorMessages } from 'src/common/exception/error.messages'
+import { JobNoticeDto, JobNoticeInfoDto, JobNoticeListDto } from './dto/job-notice/response'
 import { UserService } from './user.service'
-import { CompanyRepository } from 'src/core/adapter/repository/company.repository'
 
 @Injectable()
 export class JobNoticeService {

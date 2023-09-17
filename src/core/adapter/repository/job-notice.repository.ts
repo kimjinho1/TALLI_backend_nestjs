@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common'
 import { BookmarkedJobNotice, JobNotice, Prisma } from '@prisma/client'
 import { PrismaService } from 'prisma/prisma.service'
-import { FilteredJobNoticeListDto } from './dto/job-notice'
 import { CreateJobNoticeCommand, UpdateJobNoticeCommand } from '../web/command/job-notice'
+import { FilteredJobNoticeListDto } from './dto/job-notice'
 
 @Injectable()
 export class JobNoticeRepository {

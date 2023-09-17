@@ -9,6 +9,7 @@ import {
   ApiParam,
   ApiTags
 } from '@nestjs/swagger'
+import { JobNoticeDto, JobNoticeInfoDto, JobNoticeListDto } from 'src/core/application/service/dto/job-notice/response'
 import { JobNoticeService } from 'src/core/application/service/job-notice.service'
 import {
   CreateJobNoticeCommand,
@@ -18,7 +19,6 @@ import {
   UpdateJobNoticeCommand,
   createBookmarkedJobNoticeCommand
 } from './command/job-notice'
-import { JobNoticeDto, JobNoticeInfoDto, JobNoticeListDto } from 'src/core/application/service/dto/job-notice/response'
 
 @ApiTags('채용 공고 API')
 @Controller('job-notice')
