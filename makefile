@@ -1,18 +1,16 @@
 all:
-	npx prisma migrate dev --name init
-	npm run seed
-	npm run start:dev
+	npm run start
 
 docker:
-	docker-compose up
+	docker-compose up --build
 
-nest:
+dev:
 	npm run start:dev
 
 migrate:
 	npx prisma migrate dev --name init
 
-seed:
+seed: migrate
 	npm run seed
 
 studio:
@@ -24,8 +22,8 @@ format:
 
 clean:
 	sudo docker-compose down
+
+fclean:
+	sudo docker-compose down -v --rmi all
 	docker network prune --force
 	docker volume prune --force
-
-fclean:	clean
-	sudo rm -rf db
