@@ -1,6 +1,7 @@
 import { BigQuery } from '@google-cloud/bigquery'
 import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common'
 import { ErrorMessages } from 'src/common/exception/error.messages'
+import { PositionDto } from './dto/response'
 
 @Injectable()
 export class BigQueryService {
@@ -26,7 +27,7 @@ export class BigQueryService {
   }
 
   /** BigQuery에 캐싱된 모든 채용 공고 데이터 반환 */
-  async getPositions(): Promise<any[]> {
+  async getPositions(): Promise<PositionDto[]> {
     const query = `
       SELECT *
       FROM \`${this.bigQueryPositionTable}\`
@@ -36,7 +37,7 @@ export class BigQueryService {
   }
 
   /** BigQuery에 캐싱된 특정 채용 공고 데이터 반환 */
-  async getPosition(id: string): Promise<any> {
+  async getPosition(id: string): Promise<PositionDto> {
     const query = `
             SELECT *
             FROM \`${this.bigQueryPositionTable}\`
@@ -48,11 +49,11 @@ export class BigQueryService {
       throw new NotFoundException(ErrorMessages.JOB_NOTICE_NOT_FOUND)
     }
 
-    return position
+    return position[0]
   }
 
   /** BigQuery에 캐싱된 특정 채용 공고 데이터 삭제 */
-  async deletePosition(id: string): Promise<any> {
+  async deletePosition(id: string): Promise<PositionDto> {
     const query = `
       DELETE FROM \`${this.bigQueryPositionTable}\`
       WHERE id = '${id}'
