@@ -4,6 +4,7 @@ images/
 
 # env
 .env
+key/
 
 # database
 db/
