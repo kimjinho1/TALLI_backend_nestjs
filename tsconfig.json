@@ -25,6 +25,10 @@
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+
+    "esModuleInterop": true,
+
+    "typeRoots": ["./node_modules/@types", "./typings"]
   }
 }
