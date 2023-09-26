@@ -18,13 +18,13 @@ export class CompanyService {
       throw new BadRequestException(ErrorMessages.INVALID_SEARCH_RANGE_INPUT)
     }
 
-    /** response 생성 */
     const selectedCompany = await this.repository.getCompanyList(index, difference)
-    const response = {
+    const result = {
       numTotal: totalCompanyCount,
       resultList: selectedCompany
     }
-    return response
+
+    return result
   }
 
   /** 개별 회사 정보 보기 */
