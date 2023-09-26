@@ -22,11 +22,19 @@ export class AuthController {
 
   @Get('callback')
   @UseGuards(AuthGuard('kakao'))
-  async kakaoAuthCallback(@Req() req: KakaoRequest, @Res({ passthrough: true }) res: Response): Promise<any> {
+  // async kakaoAuthCallback(@Req() req: KakaoRequest, @Res({ passthrough: true }) res: Response): Promise<any> {
+  async kakaoAuthCallback(@Req() req: KakaoRequest, @Res() res: Response): Promise<any> {
     const kakaoAccessToken = req.user.accessToken
-    return this.authService.kakaoLogin(kakaoAccessToken, res)
-    // return this.authService.kakaoPassportLogin(req, res)
+    console.log(kakaoAccessToken)
 
-    // res.status(301).redirect(`${process.env.BACKEND_URL}`)
+    // const accessToken = await this.authService.kakaoLogin(kakaoAccessToken)
+    const accessToken = await this.authService.kakaoPassportLogin(req)
+
+    /* 쿠키 설정 */
+    res.cookie('accessToken', accessToken, {
+      httpOnly: true
+    })
+
+    res.status(301).redirect(`${process.env.BACKEND_URL}`)
   }
 }
