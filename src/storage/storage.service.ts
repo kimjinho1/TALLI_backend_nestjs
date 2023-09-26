@@ -1,5 +1,6 @@
 import { DownloadResponse, Storage } from '@google-cloud/storage'
 import { Injectable } from '@nestjs/common'
+import { ConfigService } from '@nestjs/config'
 
 class StorageFile {
   buffer: Buffer
@@ -12,19 +13,19 @@ export class StorageService {
   private storage: Storage
   private bucket: string
 
-  constructor() {
-    const private_key = process.env.PRIVATE_KEY || ''
+  constructor(private readonly configService: ConfigService) {
+    const private_key = this.configService.get<string>('PRIVATE_KEY', '')
     const new_private_key = private_key.split(String.raw`\n`).join('\n')
 
     this.storage = new Storage({
-      projectId: process.env.PROJECT_ID,
+      projectId: this.configService.get<string>('PROJECT_ID'),
       credentials: {
-        client_email: process.env.CLIENT_EMAIL,
+        client_email: this.configService.get<string>('CLIENT_EMAIL'),
         private_key: new_private_key
       }
     })
 
-    this.bucket = process.env.STORAGE_MEDIA_BUCKET || 'talli_bucket'
+    this.bucket = this.configService.get<string>('STORAGE_MEDIA_BUCKET', 'talli_bucket')
   }
 
   async save(path: string, contentType: string, media: Buffer, metadata: { [key: string]: string }[]) {

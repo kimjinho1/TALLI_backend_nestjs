@@ -1,15 +1,20 @@
 import { BigQuery } from '@google-cloud/bigquery'
 import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common'
+import { ConfigService } from '@nestjs/config'
 import { ErrorMessages } from 'src/common/exception/error.messages'
 import { PositionDto } from './dto/response'
 
 @Injectable()
 export class BigQueryService {
-  private bigQueryPositionTable = `${process.env.PROJECT_ID}.${process.env.DATASET_ID}.position`
+  constructor(private configService: ConfigService) {}
+
+  private bigQueryPositionTable = `${this.configService.get<string>('PROJECT_ID')}.${this.configService.get<string>(
+    'DATASET_ID'
+  )}.position`
 
   private readonly bigquery = new BigQuery({
-    keyFilename: process.env.KEY_PATH,
-    projectId: process.env.PROJECT_ID
+    keyFilename: this.configService.get<string>('KEY_PATH'),
+    projectId: this.configService.get<string>('projectId')
   })
 
   async runQuery(query: string) {
