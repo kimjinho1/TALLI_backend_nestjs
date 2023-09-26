@@ -9,6 +9,7 @@ import { UserController } from './adapter/web/user.controller'
 import { CompanyService } from './application/service/company.service'
 import { JobNoticeService } from './application/service/job-notice.service'
 import { UserService } from './application/service/user.service'
+import { StorageService } from 'src/storage/storage.service'
 
 @Module({
   controllers: [UserController, CompanyController, JobNoticeController],
@@ -19,7 +20,8 @@ import { UserService } from './application/service/user.service'
     CompanyService,
     CompanyRepository,
     JobNoticeService,
-    JobNoticeRepository
+    JobNoticeRepository,
+    StorageService
   ]
 })
 export class CoreModule {}
