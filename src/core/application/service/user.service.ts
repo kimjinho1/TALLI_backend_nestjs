@@ -4,16 +4,18 @@ import { ErrorMessages } from 'src/common/exception/error.messages'
 import { UserRepository } from 'src/core/adapter/repository/user.repository'
 import { AddUserInfoCommand, UpdateUserCommand } from 'src/core/adapter/web/command/user'
 import { UserInfoDto } from './dto/user/response'
+import { StorageService } from 'src/storage/storage.service'
 
 @Injectable()
 export class UserService {
-  constructor(private readonly repository: UserRepository) {}
+  constructor(private readonly repository: UserRepository, private readonly storageService: StorageService) {}
 
   /** 전체 회원 닉네임 목록 보기 */
   async getUserNicknames(): Promise<string[]> {
     const nicknames = await this.repository.getUserNicknames()
 
     const result = nicknames.map(nickname => nickname.nickname)
+
     return result
   }
 
@@ -33,6 +35,7 @@ export class UserService {
       currentJobDetail: currentJobDetail,
       jobOfInterestList: jobOfInterestList.map(job => job.title)
     }
+
     return result
   }
 
@@ -60,12 +63,13 @@ export class UserService {
     await this.repository.createJobOfInterestList(createdUser.userId, jobIds)
     const createdJobOfInterestList = await this.repository.getJobOfInterest(createdUser.userId)
 
-    /** post 결과 반환 */
-    return {
+    const result = {
       ...createdUser,
       currentJobDetail: createdCurrentJobDetail,
       jobOfInterestList: createdJobOfInterestList.map(job => job.title)
     }
+
+    return result
   }
 
   /** 회원 정보 수정 */
@@ -80,6 +84,7 @@ export class UserService {
     const updatedUser = await this.repository.updateUser(userId, dto)
     userInfo.nickname = updatedUser.nickname
     userInfo.imageUrl = updatedUser.imageUrl
+
     return userInfo
   }
 
@@ -98,6 +103,7 @@ export class UserService {
 
     await this.repository.deleteJobOfInterestList(userId, jobTitlesToRemove)
     await this.repository.createJobOfInterestList(userId, jobIdsToAdd)
+
     const jobOfInterestList = await this.repository.getJobOfInterestList(userId)
     userInfo.jobOfInterestList = jobOfInterestList.map(job => job.title)
 
@@ -107,7 +113,10 @@ export class UserService {
   /** 회원 정보 삭제 */
   async deleteUser(userId: string): Promise<void> {
     /** 존재하는 유저인지 확인 -> 에러일 시 404 에러 코드 반환 */
-    await this.getUser(userId)
+    const user = await this.getUser(userId)
+    if (user.imageUrl) {
+      await this.storageService.delete(user.imageUrl)
+    }
 
     await this.repository.deleteUser(userId)
   }
