@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client'
 import axios from 'axios'
-import * as csv from 'csv-parser'
+import csv from 'csv-parser'
 import { createReadStream, existsSync, mkdirSync, readFile, readdirSync, statSync } from 'fs'
 import { rm, writeFile } from 'fs/promises'
 import { join, relative } from 'path'
