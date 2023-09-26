@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post } from '@nestjs/common'
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Req, UseGuards } from '@nestjs/common'
 import {
   ApiBadRequestResponse,
   ApiBody,
@@ -9,6 +9,8 @@ import {
   ApiParam,
   ApiTags
 } from '@nestjs/swagger'
+import { Request } from 'express'
+import { JwtAuthGuard } from 'src/auth/jwt/jwt-auth.guard'
 import { JobNoticeDto, JobNoticeInfoDto, JobNoticeListDto } from 'src/core/application/service/dto/job-notice/response'
 import { JobNoticeService } from 'src/core/application/service/job-notice.service'
 import {
@@ -56,7 +58,6 @@ export class JobNoticeController {
   }
 
   @ApiOperation({ summary: '채용 공고 북마크 추가' })
-  @ApiBody({ type: createBookmarkedJobNoticeCommand })
   @ApiCreatedResponse({
     description: '성공 시, 201 Created를 응답합니다.',
     type: createBookmarkedJobNoticeCommand
@@ -65,11 +66,13 @@ export class JobNoticeController {
     description: '이미 북마크된 채용 공고인 경우, 400 Bad Request 를 응답합니다.'
   })
   @HttpCode(HttpStatus.CREATED)
-  @Post('bookmark')
+  @Post('bookmark/:jobId')
+  @UseGuards(JwtAuthGuard)
   async createBookmarkedJobNotice(
-    @Body() dto: createBookmarkedJobNoticeCommand
+    @Req() req: Request,
+    @Param('jobId') jobId: number
   ): Promise<createBookmarkedJobNoticeCommand> {
-    return await this.jobNoticeService.createBookmarkedJobNotice(dto.jobId, dto.userId)
+    return await this.jobNoticeService.createBookmarkedJobNotice(jobId, req.user.userId)
   }
 
   @ApiOperation({ summary: '채용 공고 북마크 삭제' })
@@ -78,11 +81,13 @@ export class JobNoticeController {
     description: '성공 시, 200 Ok를 응답합니다.',
     type: createBookmarkedJobNoticeCommand
   })
-  @Delete('bookmark')
+  @Delete('bookmark/:jobId')
+  @UseGuards(JwtAuthGuard)
   async deleteBookmarkedJobNotice(
-    @Body() dto: createBookmarkedJobNoticeCommand
+    @Req() req: Request,
+    @Param('jobId') jobId: number
   ): Promise<createBookmarkedJobNoticeCommand> {
-    return await this.jobNoticeService.deleteBookmarkedJobNotice(dto.jobId, dto.userId)
+    return await this.jobNoticeService.deleteBookmarkedJobNotice(jobId, req.user.userId)
   }
 
   @ApiOperation({ summary: '채용 공고 추가' })
@@ -123,9 +128,9 @@ export class JobNoticeController {
     description: '성공 시, 200 Ok를 응답합니다.',
     type: JobNoticeDto
   })
-  @Delete()
-  async DeleteJobNotice(@Body() dto: DeleteJobNoticeCommand): Promise<JobNoticeDto> {
-    return await this.jobNoticeService.deleteJobNotice(dto.jobId)
+  @Delete('/:jobId')
+  async DeleteJobNotice(@Param('jobId') jobId: number): Promise<JobNoticeDto> {
+    return await this.jobNoticeService.deleteJobNotice(jobId)
   }
 
   @ApiOperation({ summary: '채용 공고 검색' })

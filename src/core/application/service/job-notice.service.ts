@@ -48,15 +48,18 @@ export class JobNoticeService {
 
     /** jobNotice의 hits 카운트 올리기 */
     await this.repository.updateJobNoticeHits(jobId)
+    const { jobNoticeId, ...tempJobNotice } = jobNotice
 
-    const response = {
+    const result = {
       jobNotice: {
-        ...jobNotice,
+        ...tempJobNotice,
+        jobId: jobNoticeId,
         hits: jobNotice.hits + 1
       },
       companyInfo: company
     }
-    return response
+
+    return result
   }
 
   /** 채용 공고 검색 */
@@ -89,6 +92,7 @@ export class JobNoticeService {
       jobId: bookmarkedJobNotice.jobNoticeId,
       userId: bookmarkedJobNotice.userId
     }
+
     return result
   }
 
@@ -108,6 +112,7 @@ export class JobNoticeService {
       jobId: bookmarkedJobNotice.jobNoticeId,
       userId: bookmarkedJobNotice.userId
     }
+
     return result
   }
 
@@ -121,12 +126,13 @@ export class JobNoticeService {
 
     /** 채용 공고 생성 */
     const createdJobNotice = await this.repository.createJobNotice(dto)
+    const { jobNoticeId, ...tempJobNotice } = createdJobNotice
 
-    const response = {
-      jobNotice: createdJobNotice,
+    const result = {
+      jobNotice: { jobId: jobNoticeId, ...tempJobNotice },
       companyInfo: company
     }
-    return response
+    return result
   }
 
   /** 채용 공고 수정 */
@@ -144,20 +150,31 @@ export class JobNoticeService {
 
     /** JobNotice 업데이트 */
     const updateJobNotice = await this.repository.updateJobNotice(jobId, dto)
+    const { jobNoticeId, ...tempJobNotice } = updateJobNotice
 
-    const response = {
-      jobNotice: updateJobNotice,
+    const result = {
+      jobNotice: { jobId: jobNoticeId, ...tempJobNotice },
       companyInfo: company
     }
-    return response
+
+    return result
   }
 
   /** 채용 공고 삭제 */
   async deleteJobNotice(jobId: number): Promise<JobNoticeDto> {
     /** 존재하는 채용 공고인지 확인 -> 에러일 시 404 에러 코드 반환 */
-    await this.getJobNotice(jobId)
+    const jobNotice = await this.getJobNotice(jobId)
 
-    return await this.repository.deleteJobNotice(jobId)
+    const deletedJobNotice = await this.repository.deleteJobNotice(jobId)
+
+    const { jobNoticeId, ...tempJobNotice } = deletedJobNotice
+
+    const result = {
+      jobId: jobNoticeId,
+      ...tempJobNotice
+    }
+
+    return result
   }
 
   /** 검색 자동 완성 목록 보기 */
@@ -233,7 +250,6 @@ export class JobNoticeService {
         bookmarks: jobNotice.bookmarkedJobNotices.length
       }
     })
-    console.log(resultList[0])
     return {
       numTotal,
       resultList
