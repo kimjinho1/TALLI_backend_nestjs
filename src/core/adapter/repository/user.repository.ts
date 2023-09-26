@@ -58,6 +58,15 @@ export class UserRepository {
     })
   }
 
+  /** email로 User 찾기 */
+  async getUserByEmail(email: string): Promise<User | null> {
+    return await this.prisma.user.findFirst({
+      where: {
+        email
+      }
+    })
+  }
+
   /** nickname or email로 User 찾기 */
   async getUserByNicknameOrEmail(nickname: string, email: string): Promise<User | null> {
     return await this.prisma.user.findFirst({
