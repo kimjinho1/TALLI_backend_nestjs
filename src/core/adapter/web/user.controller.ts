@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post } from '@nestjs/common'
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Req, UseGuards } from '@nestjs/common'
 import {
   ApiBadRequestResponse,
   ApiBody,
@@ -9,6 +9,8 @@ import {
   ApiParam,
   ApiTags
 } from '@nestjs/swagger'
+import { Request } from 'express'
+import { JwtAuthGuard } from 'src/auth/jwt/jwt-auth.guard'
 import { UserInfoDto } from 'src/core/application/service/dto/user/response'
 import { UserService } from 'src/core/application/service/user.service'
 import { AddUserInfoCommand, DeleteUserCommand, UpdateUserCommand, updateJobOfInterestCommand } from './command/user'
@@ -45,9 +47,10 @@ export class UserController {
   @ApiNotFoundResponse({
     description: '존재하지 않는 유저 ID인 경우, 404 Not Found를 응답합니다.'
   })
-  @Get('/:userId')
-  async getUserInfo(@Param('userId') userId: string): Promise<UserInfoDto> {
-    return await this.userService.getUserInfo(userId)
+  @UseGuards(JwtAuthGuard)
+  @Get()
+  async getUserInfo(@Req() req: Request): Promise<UserInfoDto> {
+    return await this.userService.getUserInfo(req.user.userId)
   }
 
   @ApiOperation({
