@@ -221,7 +221,7 @@ export class JobNoticeService {
   private getResultList(numTotal: number, filteredJobNotices: any[]): JobNoticeListDto {
     const resultList = filteredJobNotices.map(jobNotice => {
       return {
-        jobId: jobNotice.jobId,
+        jobId: jobNotice.jobNoticeId,
         title: jobNotice.title,
         titleImageUrl: jobNotice.titleImageUrl,
         companyName: jobNotice.company.companyName,
@@ -233,6 +233,7 @@ export class JobNoticeService {
         bookmarks: jobNotice.bookmarkedJobNotices.length
       }
     })
+    console.log(resultList[0])
     return {
       numTotal,
       resultList
