@@ -28,6 +28,17 @@ export class StorageService {
     this.bucket = this.configService.get<string>('STORAGE_MEDIA_BUCKET', 'talli_bucket')
   }
 
+  async getFileCount(path: string): Promise<number> {
+    try {
+      const [files] = await this.storage.bucket(this.bucket).getFiles({ prefix: path })
+
+      return files.length
+    } catch (error) {
+      console.error(`Error getting file count: ${error}`)
+      throw error
+    }
+  }
+
   async save(path: string, contentType: string, media: Buffer, metadata: { [key: string]: string }[]) {
     const object = metadata.reduce((obj, item) => Object.assign(obj, item), {})
     const file = this.storage.bucket(this.bucket).file(path)
