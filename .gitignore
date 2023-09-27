@@ -1,6 +1,9 @@
+# data
+data/
+images/
+
 # env
 .env
-data/
 key/
 
 # database
