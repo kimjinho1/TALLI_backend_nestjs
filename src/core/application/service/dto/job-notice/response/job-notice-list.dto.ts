@@ -1,4 +1,4 @@
-class FilteredJobNotice {
+export class FilteredJobNotice {
   jobId: number
   title: string
   titleImageUrl: string | null

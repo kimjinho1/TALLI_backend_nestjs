@@ -20,15 +20,11 @@ export class JobNoticeRepository {
         experience: true,
         deadline: true,
         hits: true,
+        bookmarks: true,
         company: {
           select: {
             companyName: true,
             logoUrl: true
-          }
-        },
-        bookmarkedJobNotices: {
-          select: {
-            jobNoticeId: true
           }
         }
       }
@@ -45,7 +41,7 @@ export class JobNoticeRepository {
   }
 
   /** jobNotice의 hits 카운트 올리기 */
-  async updateJobNoticeHits(jobId: number): Promise<void> {
+  async incrementHits(jobId: number): Promise<void> {
     await this.prisma.jobNotice.update({
       where: {
         jobNoticeId: jobId
@@ -53,6 +49,34 @@ export class JobNoticeRepository {
       data: {
         hits: {
           increment: 1
+        }
+      }
+    })
+  }
+
+  /** jobNotice의 bookmarks 카운트 올리기 */
+  async incrementBookmarks(jobId: number): Promise<void> {
+    await this.prisma.jobNotice.update({
+      where: {
+        jobNoticeId: jobId
+      },
+      data: {
+        bookmarks: {
+          increment: 1
+        }
+      }
+    })
+  }
+
+  /** jobNotice의 bookmarks 카운트 올리기 */
+  async decrementBookmarks(jobId: number): Promise<void> {
+    await this.prisma.jobNotice.update({
+      where: {
+        jobNoticeId: jobId
+      },
+      data: {
+        bookmarks: {
+          decrement: 1
         }
       }
     })

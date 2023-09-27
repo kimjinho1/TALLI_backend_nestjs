@@ -11,7 +11,12 @@ import {
 } from '@nestjs/swagger'
 import { Request } from 'express'
 import { JwtAuthGuard } from 'src/auth/jwt/jwt-auth.guard'
-import { JobNoticeDto, JobNoticeInfoDto, JobNoticeListDto } from 'src/core/application/service/dto/job-notice/response'
+import {
+  FilteredJobNotice,
+  JobNoticeDto,
+  JobNoticeInfoDto,
+  JobNoticeListDto
+} from 'src/core/application/service/dto/job-notice/response'
 import { JobNoticeService } from 'src/core/application/service/job-notice.service'
 import {
   CreateJobNoticeCommand,
@@ -88,6 +93,23 @@ export class JobNoticeController {
     @Param('jobId') jobId: number
   ): Promise<createBookmarkedJobNoticeCommand> {
     return await this.jobNoticeService.deleteBookmarkedJobNotice(jobId, req.user.userId)
+  }
+
+  @ApiOperation({ summary: '북마크한 채용 공고 보기' })
+  @ApiParam({
+    name: 'order',
+    required: true,
+    description: '정렬 기준',
+    type: String
+  })
+  @ApiOkResponse({
+    description: '성공 시, 200 Ok를 응답합니다.',
+    type: [FilteredJobNotice]
+  })
+  @Get('bookmark/list/:order')
+  @UseGuards(JwtAuthGuard)
+  async getBookmarkedJobNotice(@Req() req: Request, @Param('order') order: string): Promise<FilteredJobNotice[]> {
+    return await this.jobNoticeService.getAllBookmarkedJobNotice(req.user.userId, order)
   }
 
   @ApiOperation({ summary: '채용 공고 추가' })
