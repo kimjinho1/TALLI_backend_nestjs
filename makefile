@@ -10,7 +10,7 @@ dev:
 migrate:
 	npx prisma migrate dev --name init
 
-seed: migrate
+seed:
 	npm run seed
 
 studio:
