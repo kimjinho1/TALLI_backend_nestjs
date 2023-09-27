@@ -1,17 +1,16 @@
 import { PrismaClient } from '@prisma/client'
 import axios from 'axios'
 import { join } from 'path'
+import { v4 as uuidv4 } from 'uuid'
 import { SeedStorage } from './seed-storage'
 import { legacy_company, legacy_position } from './type'
 import {
   checkSequenceUpdated,
-  downloadImage,
   ensureDirectoryExists,
   getAllFilesInDirectory,
   imageDirPath,
   readCSVFile,
   readImageFileAsBuffer,
-  removeFolder,
   transformPathPattern,
   updateCompanyAndJobNoticeIdSequence
 } from './utils'
@@ -57,16 +56,20 @@ async function insertCompanyDataToNewDB() {
   ensureDirectoryExists(imageSaveDir)
 
   for (const data of all_company_data.slice(1)) {
-    const companyId = parseInt(data.companyId)
-    const logoImagePath = data.logoUrl === '' ? null : join(imageSaveDir, `${companyId}.png`)
-    const logoImageRelativePath = data.logoUrl === '' ? null : join(imageType, `${companyId}.png`)
+    const uuid = uuidv4()
+    // const logoImagePath = data.logoUrl === '' ? null : join(imageSaveDir, `${uuid}.png`)
+    const logoImageRelativePath = data.logoUrl === '' ? null : join(imageType, `${uuid}.png`)
 
-    if (logoImagePath) {
-      await downloadImage(data.logoUrl, logoImagePath)
+    // if (logoImagePath) {
+    //   await downloadImage(data.logoUrl, logoImagePath)
+    // }
+
+    if (logoImageRelativePath) {
+      uploadImageToStorageBucket(data.logoUrl, logoImageRelativePath)
     }
 
     const company = {
-      companyId,
+      companyId: parseInt(data.companyId),
       companyName: data.companyName,
       logoUrl: logoImageRelativePath,
       companyType: data.companyType,
@@ -108,18 +111,28 @@ async function insertJobNoticeDataToNewDB() {
   ensureDirectoryExists(detailImageSaveDir)
 
   for (const data of all_position_data.slice(1)) {
-    const jobId = parseInt(data.jobId)
-    const titleImagePath = data.titleImageUrl === '' ? null : join(titleImageSaveDir, `${jobId}.png`)
-    const detailsImagePath = data.detailsImageUrl === '' ? null : join(detailImageSaveDir, `${jobId}.png`)
-    const titleImageRelativePath = data.titleImageUrl === '' ? null : join(titleImageType, `${jobId}.png`)
-    const detailsImageRelativePath = data.detailsImageUrl === '' ? null : join(detailImageType, `${jobId}.png`)
+    const titleUuid = uuidv4()
+    // const titleImagePath = data.titleImageUrl === '' ? null : join(titleImageSaveDir, `${titleUuid}.png`)
+    const titleImageRelativePath = data.titleImageUrl === '' ? null : join(titleImageType, `${titleUuid}.png`)
 
-    if (titleImagePath) {
-      await downloadImage(data.titleImageUrl, titleImagePath)
+    const detailsUuid = uuidv4()
+    // const detailsImagePath = data.detailsImageUrl === '' ? null : join(detailImageSaveDir, `${detailsUuid}.png`)
+    const detailsImageRelativePath = data.detailsImageUrl === '' ? null : join(detailImageType, `${detailsUuid}.png`)
+
+    // if (titleImagePath) {
+    //   await downloadImage(data.titleImageUrl, titleImagePath)
+    // }
+
+    // if (detailsImagePath) {
+    //   await downloadImage(data.detailsImageUrl, detailsImagePath)
+    // }
+
+    if (titleImageRelativePath) {
+      uploadImageToStorageBucket(data.titleImageUrl, titleImageRelativePath)
     }
 
-    if (detailsImagePath) {
-      await downloadImage(data.detailsImageUrl, detailsImagePath)
+    if (detailsImageRelativePath) {
+      uploadImageToStorageBucket(data.detailsImageUrl, detailsImageRelativePath)
     }
 
     const position = {
@@ -140,6 +153,7 @@ async function insertJobNoticeDataToNewDB() {
       detailsImageUrl: detailsImageRelativePath,
       jobWebsite: data.jobWebsite,
       hits: parseInt(data.hits),
+      bookmarks: 0,
       createdAt: new Date(data.createdAt),
       modifiedAt: data.modifiedAt === '' ? null : new Date(data.modifiedAt)
     }
@@ -162,14 +176,18 @@ async function insertJobNoticeDataToNewDB() {
 }
 
 /** 특정 이미지 파일 gcp 버킷에 저장 */
-async function uploadImageToStorageBucket(url: string, path: string): Promise<void> {
-  const response = await axios.get(url, {
-    responseType: 'arraybuffer'
-  })
-  const contentType = 'image/png'
-  const metadata = [{ imageId: transformPathPattern(path) }]
+async function uploadImageToStorageBucket(imageUrl: string, path: string): Promise<void> {
+  try {
+    const response = await axios.get(imageUrl, {
+      responseType: 'arraybuffer'
+    })
+    const contentType = 'image/png'
+    const metadata = [{ imageId: path }]
 
-  await seedStorage.save(path, contentType, Buffer.from(response.data), metadata)
+    await seedStorage.save(path, contentType, Buffer.from(response.data), metadata)
+  } catch (error) {
+    console.error(`잘못된 이미지 경로입니다. -> ${imageUrl}`)
+  }
 }
 
 /** 모든 이미지 파일들 gcp 버킷에 저장 */
@@ -200,8 +218,8 @@ async function databaseMigrationAnduploadImagesToGCP() {
   await checkSequenceUpdated()
 
   /** 스토리지에 이미지 업로드 & 다운로드한 이미지들 삭제 */
-  await uploadAllImagesToStorageBucket()
-  await removeFolder(imageDirPath)
+  // await uploadAllImagesToStorageBucket()
+  // await removeFolder(imageDirPath)
 }
 
 databaseMigrationAnduploadImagesToGCP()
