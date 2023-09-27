@@ -35,6 +35,7 @@ export class AuthController {
       httpOnly: true
     })
 
-    res.status(301).redirect(`http://localhost:3000`)
+    res.status(200).json({ message: "OK!"})
+    // res.status(301).redirect(`http://localhost:3000`)
   }
 }
