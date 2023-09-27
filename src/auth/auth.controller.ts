@@ -35,6 +35,6 @@ export class AuthController {
       httpOnly: true
     })
 
-    res.status(301).redirect(`${process.env.BACKEND_URL}`)
+    res.status(301).redirect(`http://localhost:3000`)
   }
 }
