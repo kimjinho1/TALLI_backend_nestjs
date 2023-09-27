@@ -1,5 +1,7 @@
 # env
 .env
+data/
+key/
 
 # database
 db/
