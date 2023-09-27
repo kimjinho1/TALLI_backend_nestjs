@@ -1,7 +1,9 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common'
-import { BookmarkedJobNotice, Company, JobNotice, Prisma, User } from '@prisma/client'
+import { BookmarkedJobNotice, JobNotice, Prisma } from '@prisma/client'
+import { ErrorMessages } from 'src/common/exception/error.messages'
+import { CompanyRepository } from 'src/core/adapter/repository/company.repository'
+import { FilteredJobNoticeListDto } from 'src/core/adapter/repository/dto/job-notice'
 import { JobNoticeRepository } from 'src/core/adapter/repository/job-notice.repository'
-import { JobNoticeDto, JobNoticeInfoDto, JobNoticeListDto } from './dto/job-notice/response'
 import {
   CreateJobNoticeCommand,
   FilterDto,
@@ -11,9 +13,8 @@ import {
   createBookmarkedJobNoticeCommand
 } from 'src/core/adapter/web/command/job-notice'
 import { CompanyService } from './company.service'
-import { ErrorMessages } from 'src/common/exception/error.messages'
+import { FilteredJobNotice, JobNoticeDto, JobNoticeInfoDto, JobNoticeListDto } from './dto/job-notice/response'
 import { UserService } from './user.service'
-import { CompanyRepository } from 'src/core/adapter/repository/company.repository'
 
 @Injectable()
 export class JobNoticeService {
@@ -47,16 +48,19 @@ export class JobNoticeService {
     const company = await this.companyService.getCompany(jobNotice.companyId)
 
     /** jobNotice의 hits 카운트 올리기 */
-    await this.repository.updateJobNoticeHits(jobId)
+    await this.repository.incrementHits(jobId)
+    const { jobNoticeId, ...tempJobNotice } = jobNotice
 
-    const response = {
+    const result = {
       jobNotice: {
-        ...jobNotice,
+        ...tempJobNotice,
+        jobId: jobNoticeId,
         hits: jobNotice.hits + 1
       },
       companyInfo: company
     }
-    return response
+
+    return result
   }
 
   /** 채용 공고 검색 */
@@ -85,10 +89,12 @@ export class JobNoticeService {
     await this.checkBookmarkedJobNoticeDuplicate(jobId, userId)
 
     const bookmarkedJobNotice = await this.repository.createBookmarkedJobNotice(jobId, userId)
+    this.repository.incrementBookmarks(jobId)
     const result = {
       jobId: bookmarkedJobNotice.jobNoticeId,
       userId: bookmarkedJobNotice.userId
     }
+
     return result
   }
 
@@ -104,11 +110,33 @@ export class JobNoticeService {
     const bookmarkedJobNotice = await this.getBookmarkedJobNotice(jobId, userId)
 
     await this.repository.deleteBookmarkedJobNotice(jobId, userId)
+    this.repository.decrementBookmarks(jobId)
     const result = {
       jobId: bookmarkedJobNotice.jobNoticeId,
       userId: bookmarkedJobNotice.userId
     }
+
     return result
+  }
+
+  /** 북마크한 채용 공고 보기 */
+  async getAllBookmarkedJobNotice(userId: string, order: string): Promise<FilteredJobNotice[]> {
+    /** 쿼리 생성 */
+    const query = this.getQueryByorder(order)
+    query.where = {
+      bookmarkedJobNotices: {
+        some: {
+          userId
+        }
+      }
+    }
+
+    /** 필터링된 jobNotice들 */
+    const JobNotices = await this.repository.getFilteredJobNotices(query)
+
+    const resultList = this.createResultList(JobNotices)
+
+    return resultList
   }
 
   /** 채용 공고 추가 */
@@ -121,12 +149,13 @@ export class JobNoticeService {
 
     /** 채용 공고 생성 */
     const createdJobNotice = await this.repository.createJobNotice(dto)
+    const { jobNoticeId, ...tempJobNotice } = createdJobNotice
 
-    const response = {
-      jobNotice: createdJobNotice,
+    const result = {
+      jobNotice: { jobId: jobNoticeId, ...tempJobNotice },
       companyInfo: company
     }
-    return response
+    return result
   }
 
   /** 채용 공고 수정 */
@@ -144,20 +173,31 @@ export class JobNoticeService {
 
     /** JobNotice 업데이트 */
     const updateJobNotice = await this.repository.updateJobNotice(jobId, dto)
+    const { jobNoticeId, ...tempJobNotice } = updateJobNotice
 
-    const response = {
-      jobNotice: updateJobNotice,
+    const result = {
+      jobNotice: { jobId: jobNoticeId, ...tempJobNotice },
       companyInfo: company
     }
-    return response
+
+    return result
   }
 
   /** 채용 공고 삭제 */
   async deleteJobNotice(jobId: number): Promise<JobNoticeDto> {
     /** 존재하는 채용 공고인지 확인 -> 에러일 시 404 에러 코드 반환 */
-    await this.getJobNotice(jobId)
+    const jobNotice = await this.getJobNotice(jobId)
 
-    return await this.repository.deleteJobNotice(jobId)
+    const deletedJobNotice = await this.repository.deleteJobNotice(jobId)
+
+    const { jobNoticeId, ...tempJobNotice } = deletedJobNotice
+
+    const result = {
+      jobId: jobNoticeId,
+      ...tempJobNotice
+    }
+
+    return result
   }
 
   /** 검색 자동 완성 목록 보기 */
@@ -201,6 +241,12 @@ export class JobNoticeService {
     }
   }
 
+  private getQueryByorder(order: string): Prisma.JobNoticeFindManyArgs {
+    return {
+      orderBy: this.getOrder(order)
+    }
+  }
+
   /** 정렬 기준을 정하기 */
   private getOrder(order: string): Prisma.JobNoticeOrderByWithRelationInput {
     switch (order) {
@@ -218,10 +264,10 @@ export class JobNoticeService {
   }
 
   /** 채용 공고 필터 response 생성 */
-  private getResultList(numTotal: number, filteredJobNotices: any[]): JobNoticeListDto {
-    const resultList = filteredJobNotices.map(jobNotice => {
+  private createResultList(JobNotices: FilteredJobNoticeListDto): FilteredJobNotice[] {
+    const resultList = JobNotices.map(jobNotice => {
       return {
-        jobId: jobNotice.jobId,
+        jobId: jobNotice.jobNoticeId,
         title: jobNotice.title,
         titleImageUrl: jobNotice.titleImageUrl,
         companyName: jobNotice.company.companyName,
@@ -230,9 +276,16 @@ export class JobNoticeService {
         experience: jobNotice.experience,
         deadline: jobNotice.deadline?.toISOString().split('T')[0] || '2999-12-31',
         hits: jobNotice.hits,
-        bookmarks: jobNotice.bookmarkedJobNotices.length
+        bookmarks: jobNotice.bookmarks
       }
     })
+    return resultList
+  }
+
+  /** 채용 공고 필터 response 생성 */
+  private getResultList(numTotal: number, filteredJobNotices: FilteredJobNoticeListDto): JobNoticeListDto {
+    const resultList = this.createResultList(filteredJobNotices)
+
     return {
       numTotal,
       resultList

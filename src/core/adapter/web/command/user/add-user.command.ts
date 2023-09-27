@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger'
+import { Type } from 'class-transformer'
 import {
   IsDateString,
   IsDefined,
@@ -6,12 +7,10 @@ import {
   IsIn,
   IsNotEmpty,
   IsString,
-  IsUUID,
   IsUrl,
   ValidateIf,
   ValidateNested
 } from 'class-validator'
-import { Type } from 'class-transformer'
 import { jobList } from 'src/core/application/service/dto/user/response'
 
 const sex = ['male', 'female']
