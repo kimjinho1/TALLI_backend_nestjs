@@ -16,51 +16,85 @@ export class AuthService {
     private readonly jwtService: JwtService
   ) {}
 
-  async kakaoLogin(kakaoAccessToken: string): Promise<any> {
+  /** accessToken 생성 */
+  private _generateAccessToken(userId: string): string {
+    const existedUserPayload = { sub: userId }
+    const accessToken = this.jwtService.sign(existedUserPayload)
+
+    return accessToken
+  }
+
+  async kakaoLogin(kakaoAccessToken: string, res: Response): Promise<void> {
+    /** oAuthLoginData.data 양식
+    {
+      profile_nickname_needs_agreement: false,
+      profile: { nickname: '김진호' },
+      has_email: true,
+      email_needs_agreement: false,
+      is_email_valid: true,
+      is_email_verified: true,
+      email: 'rlawlsgh8113@naver.com'
+    }
+    */
     const oAuthLoginData = await this.httpService.axiosRef.get('https://kapi.kakao.com/v2/user/me', {
       headers: { Authorization: `Bearer ${kakaoAccessToken}` }
     })
 
-    /** 존재하는 유저인지 확인 */
+    const { email } = oAuthLoginData.data.kakao_account
+
+    /**
+     * 이메일로 한 번이라도 로그인한 유저인지 확인
+     * 아닌 경우 -> 유저 default 데이터 생성 후, 회원 가입 페이지로 이동
+     */
     const existedUser = await this.userRepository.getUserByEmail(oAuthLoginData.data.kakao_account.email)
     if (!existedUser) {
-      throw new BadRequestException(ErrorMessages.SIGN_UP_REQUIRED)
+      const newUser = await this.userRepository.createDefaultUser(email)
+      const accessToken = this._generateAccessToken(newUser.userId)
+
+      /* 쿠키 설정 */
+      res.cookie('accessToken', accessToken, {
+        httpOnly: true
+      })
+
+      res.status(200).json({ status: 'SIGNIN' })
+      return
     }
 
-    /** 카카오 가입이 되어 있는 경우 accessToken 발급 */
-    const existedUserPayload = { sub: existedUser.userId }
+    /** accessToken 발급 */
+    const accessToken = this._generateAccessToken(existedUser.userId)
 
-    const accessToken = this.jwtService.sign(existedUserPayload)
+    /* 쿠키 설정 */
+    res.cookie('accessToken', accessToken, {
+      httpOnly: true
+    })
 
-    return accessToken
+    /** 회원 가입 도중 이탈하여 유저 정보가 없는 경우 -> 회원 가입 페이지로 이동 */
+    if (existedUser.nickname === '') {
+      res.status(200).json({ status: 'SIGNIN' })
+      return
+    }
+
+    res.status(200).json({ status: 'OK' })
+    // res.status(301).redirect(`http://localhost:3000`)
   }
 
   //   async kakaoLogin(req: KakaoRequest, res: Response): Promise<KakaoLoginAuthResponseDto> {
-  async kakaoPassportLogin(req: KakaoRequest): Promise<any> {
-    const email = req.user.email
-    // const {
-    //   user: { email, name, accessToken, refreshToken }
-    // } = req
+  // async kakaoPassportLogin(req: KakaoRequest): Promise<any> {
+  //   const email = req.user.email
+  //   // const {
+  //   //   user: { email, name, accessToken, refreshToken }
+  //   // } = req
 
-    /** 존재하는 유저인지 확인 */
-    const existedUser = await this.userRepository.getUserByEmail(email)
-    console.log('existedUser:', existedUser)
-    if (!existedUser) {
-      throw new BadRequestException(ErrorMessages.SIGN_UP_REQUIRED)
-    }
+  //   /** 존재하는 유저인지 확인 */
+  //   const existedUser = await this.userRepository.getUserByEmail(email)
+  //   if (!existedUser) {
+  //     throw new BadRequestException(ErrorMessages.SIGN_UP_REQUIRED)
+  //   }
 
-    /** 카카오 가입이 되어 있는 경우 accessToken 및 refreshToken 발급 */
-    const existedUserPayload = { sub: existedUser.userId }
+  //   /** 카카오 가입이 되어 있는 경우 accessToken 및 refreshToken 발급 */
+  //   const existedUserPayload = { sub: existedUser.userId }
+  //   const accessToken = this.jwtService.sign(existedUserPayload)
 
-    const accessToken = this.jwtService.sign(existedUserPayload)
-
-    // const refreshToken = this.jwtService.sign(existedUserPayload, {
-    //   secret: this.configService.get('JWT_REFRESH_TOKEN_SECRET_KEY'),
-    //   expiresIn: +this.configService.get('JWT_REFRESH_TOKEN_EXPIRATION_TIME')
-    // })
-    // console.log('accessToken:', accessToken)
-    // console.log('refreshToken:', refreshToken)
-
-    return accessToken
-  }
+  //   return accessToken
+  // }
 }
