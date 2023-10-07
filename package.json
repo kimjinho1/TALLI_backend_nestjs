@@ -21,10 +21,10 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
-    "@nestjs/cli": "^9.0.0",
     "@google-cloud/bigquery": "^7.2.0",
     "@google-cloud/storage": "^7.1.0",
     "@nestjs/axios": "^3.0.0",
+    "@nestjs/cli": "^9.0.0",
     "@nestjs/common": "^9.4.1",
     "@nestjs/config": "^3.1.1",
     "@nestjs/core": "^9.4.1",
