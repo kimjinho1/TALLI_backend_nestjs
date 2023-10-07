@@ -72,6 +72,36 @@ export class UserService {
     return result
   }
 
+  /** 회원 정보 추가 */
+  async updateUserInfo(id: string, dto: AddUserInfoCommand): Promise<UserInfoDto> {
+    /** request body에서 현재 직업, 관심 직군, 유저 정보를 분리 */
+    const { currentJobDetail, jobOfInterestList, ...userData } = dto
+
+    /** 유저 정보 업데이트 */
+    const updatedUser = await this.repository.updateUser(id, userData)
+
+    /** 유저 상세 정보 생성 */
+    const createdCurrentJobDetailWithUserId = await this.repository.createCurrentJobDetail(
+      updatedUser.userId,
+      currentJobDetail
+    )
+    const { currentJobDetailId, userId, ...createdCurrentJobDetail } = createdCurrentJobDetailWithUserId
+
+    /** 유저 관심 직군 생성 */
+    const jobs = await this.repository.getJobIdsByJobOfInterestList(jobOfInterestList)
+    const jobIds = jobs.map(job => job.jobId)
+    await this.repository.createJobOfInterestList(updatedUser.userId, jobIds)
+    const createdJobOfInterestList = await this.repository.getJobOfInterest(updatedUser.userId)
+
+    const result = {
+      ...updatedUser,
+      currentJobDetail: createdCurrentJobDetail,
+      jobOfInterestList: createdJobOfInterestList.map(job => job.title)
+    }
+
+    return result
+  }
+
   /** 회원 정보 수정 */
   async updateUser(userId: string, dto: UpdateUserCommand): Promise<UserInfoDto> {
     /** 닉네임 중복 처리 -> 에러일 시 400 에러 코드 반환 */

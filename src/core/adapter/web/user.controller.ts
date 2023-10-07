@@ -71,6 +71,12 @@ export class UserController {
     return await this.userService.addUserInfo(dto)
   }
 
+  @Patch('signup')
+  @UseGuards(JwtAuthGuard)
+  async updateUserInfo(@Req() req: Request, @Body() dto: AddUserInfoCommand): Promise<UserInfoDto> {
+    return await this.userService.updateUserInfo(req.user.userId, dto)
+  }
+
   @ApiOperation({
     summary: '회원 프로필 수정',
     description: '회원 프로필(닉네임, 프로필 사진)을 수정합니다.'
