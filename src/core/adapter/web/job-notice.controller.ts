@@ -1,4 +1,17 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Req, UseGuards } from '@nestjs/common'
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Patch,
+  Post,
+  Query,
+  Req,
+  UseGuards
+} from '@nestjs/common'
 import {
   ApiBadRequestResponse,
   ApiBody,
@@ -106,9 +119,9 @@ export class JobNoticeController {
     description: '성공 시, 200 Ok를 응답합니다.',
     type: [FilteredJobNotice]
   })
-  @Get('bookmark/list/:order')
+  @Get('bookmark/list')
   @UseGuards(JwtAuthGuard)
-  async getBookmarkedJobNotice(@Req() req: Request, @Param('order') order: string): Promise<FilteredJobNotice[]> {
+  async getBookmarkedJobNotice(@Req() req: Request, @Query('order') order: string): Promise<FilteredJobNotice[]> {
     return await this.jobNoticeService.getAllBookmarkedJobNotice(req.user.userId, order)
   }
 

@@ -252,12 +252,24 @@ export class JobNoticeService {
     switch (order) {
       case '최신 등록 순':
         return { createdAt: 'desc' }
+      case 'new':
+        return { createdAt: 'desc' }
+
       case '조회 많은 순':
         return { hits: 'desc' }
+      case 'popular':
+        return { hits: 'desc' }
+
       case '북마크 많은 순':
         return { bookmarkedJobNotices: { _count: 'desc' } }
+      case 'bookmark':
+        return { bookmarkedJobNotices: { _count: 'desc' } }
+
       case '마감일 빠른 순':
         return { deadline: 'asc' }
+      case 'deadline':
+        return { deadline: 'asc' }
+
       default:
         return { createdAt: 'desc' }
     }
