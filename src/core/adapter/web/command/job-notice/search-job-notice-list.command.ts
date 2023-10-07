@@ -1,6 +1,6 @@
+import { ApiProperty } from '@nestjs/swagger'
 import { Type } from 'class-transformer'
 import { IsDefined, IsIn, IsInt, IsNotEmpty, IsString, Min, ValidateNested } from 'class-validator'
-import { ApiProperty } from '@nestjs/swagger'
 import { FilterDto } from './get-job-notice-list.command'
 
 const order = ['최신 등록 순', '조회 많은 순', '북마크 많은 순', '마감일 빠른 순']

@@ -1,13 +1,13 @@
-import { CreateJobNoticeCommand } from 'src/core/adapter/web/command/job-notice'
-import { CompanyDto } from '../../company/response'
 import { ApiProperty } from '@nestjs/swagger'
 import { IsNumber, IsPositive } from 'class-validator'
+import { CreateJobNoticeCommand } from 'src/core/adapter/web/command/job-notice'
+import { CompanyDto } from '../../company/response'
 
 export class JobNoticeDto extends CreateJobNoticeCommand {
   @ApiProperty({ description: '채용 공고 ID', example: '1' })
   @IsNumber()
   @IsPositive()
-  jobNoticeId: number
+  jobId: number
 }
 
 export class JobNoticeInfoDto {

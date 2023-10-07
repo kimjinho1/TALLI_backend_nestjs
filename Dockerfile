@@ -1,23 +1,29 @@
-# Use the official Node.js LTS image as the base image
+# Base image
 FROM node:18.16
 
-# Set the working directory
-WORKDIR /app
+# Create app directory
+WORKDIR /usr/src/app
 
-# Copy package.json and package-lock.json
+# A wildcard is used to ensure both package.json AND package-lock.json are copied
 COPY package*.json ./
 
 # Install dependencies
-RUN npm ci
+RUN npm install
 
-# Copy the rest of the application code
+# Bundle app source
 COPY . .
 
 # Generate Prisma Client
 RUN npx prisma generate
 
+# Run database migrations
+RUN npx prisma migrate deploy 
+
+# Build the application
+RUN npm run build
+
 # Expose the application's port
 EXPOSE 3000
 
-# Start the application
-CMD ["npm", "start"]
+# Start the server using the production build
+CMD [ "node", "dist/src/main.js" ]

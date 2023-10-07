@@ -1,17 +1,22 @@
 import { Module } from '@nestjs/common'
 import { AppController } from './app.controller'
-import { ServeStaticModule } from '@nestjs/serve-static'
-import { join } from 'path'
 import { CoreModule } from './core/core.module'
-
-export const assetsPath = join(process.cwd(), 'assets')
+import { StorageModule } from './storage/storage.module'
+import { BigQueryModule } from './big-query/big-query.module'
+import { AuthModule } from './auth/auth.module'
+import { ConfigModule } from '@nestjs/config'
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      envFilePath: '.env',
+      cache: true,
+      isGlobal: true
+    }),
     CoreModule,
-    ServeStaticModule.forRoot({
-      rootPath: assetsPath
-    })
+    StorageModule,
+    BigQueryModule,
+    AuthModule
   ],
   controllers: [AppController]
 })

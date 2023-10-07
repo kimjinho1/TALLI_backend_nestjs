@@ -9,15 +9,11 @@ export type FilteredJobNoticeListDto = Prisma.JobNoticeGetPayload<{
     experience: true
     deadline: true
     hits: true
+    bookmarks: true
     company: {
       select: {
         companyName: true
         logoUrl: true
-      }
-    }
-    bookmarkedJobNotices: {
-      select: {
-        jobNoticeId: true
       }
     }
   }

@@ -1,9 +1,9 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common'
-import { CompanyRepository } from 'src/core/adapter/repository/company.repository'
-import { CompanyDto, CompanyListDto } from './dto/company/response'
-import { ErrorMessages } from 'src/common/exception/error.messages'
 import { Company } from '@prisma/client'
+import { ErrorMessages } from 'src/common/exception/error.messages'
+import { CompanyRepository } from 'src/core/adapter/repository/company.repository'
 import { CreateCompanyCommand, UpdateCompanyCommand } from 'src/core/adapter/web/command/company'
+import { CompanyDto, CompanyListDto } from './dto/company/response'
 
 @Injectable()
 export class CompanyService {
@@ -18,13 +18,13 @@ export class CompanyService {
       throw new BadRequestException(ErrorMessages.INVALID_SEARCH_RANGE_INPUT)
     }
 
-    /** response 생성 */
     const selectedCompany = await this.repository.getCompanyList(index, difference)
-    const response = {
+    const result = {
       numTotal: totalCompanyCount,
       resultList: selectedCompany
     }
-    return response
+
+    return result
   }
 
   /** 개별 회사 정보 보기 */

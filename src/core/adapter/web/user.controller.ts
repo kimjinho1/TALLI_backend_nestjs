@@ -1,14 +1,16 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post } from '@nestjs/common'
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Patch, Post, Req, UseGuards } from '@nestjs/common'
 import {
-  ApiTags,
-  ApiOperation,
-  ApiBody,
-  ApiOkResponse,
-  ApiNotFoundResponse,
-  ApiParam,
   ApiBadRequestResponse,
-  ApiCreatedResponse
+  ApiBody,
+  ApiCreatedResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiParam,
+  ApiTags
 } from '@nestjs/swagger'
+import { Request } from 'express'
+import { JwtAuthGuard } from 'src/auth/jwt/jwt-auth.guard'
 import { UserInfoDto } from 'src/core/application/service/dto/user/response'
 import { UserService } from 'src/core/application/service/user.service'
 import { AddUserInfoCommand, DeleteUserCommand, UpdateUserCommand, updateJobOfInterestCommand } from './command/user'
@@ -45,9 +47,10 @@ export class UserController {
   @ApiNotFoundResponse({
     description: '존재하지 않는 유저 ID인 경우, 404 Not Found를 응답합니다.'
   })
-  @Get('/:userId')
-  async getUserInfo(@Param('userId') userId: string): Promise<UserInfoDto> {
-    return await this.userService.getUserInfo(userId)
+  @UseGuards(JwtAuthGuard)
+  @Get()
+  async getUserInfo(@Req() req: Request): Promise<UserInfoDto> {
+    return await this.userService.getUserInfo(req.user.userId)
   }
 
   @ApiOperation({
@@ -83,9 +86,10 @@ export class UserController {
   @ApiNotFoundResponse({
     description: '존재하지 않는 유저 ID인 경우, 404 Not Found를 응답합니다.'
   })
-  @Patch('/profile/:userId')
-  async updateUser(@Param('userId') userId: string, @Body() dto: UpdateUserCommand): Promise<UserInfoDto> {
-    return await this.userService.updateUser(userId, dto)
+  @Patch('/profile')
+  @UseGuards(JwtAuthGuard)
+  async updateUser(@Req() req: Request, @Body() dto: UpdateUserCommand): Promise<UserInfoDto> {
+    return await this.userService.updateUser(req.user.userId, dto)
   }
 
   @ApiOperation({
@@ -100,12 +104,10 @@ export class UserController {
   @ApiNotFoundResponse({
     description: '존재하지 않는 유저 ID인 경우, 404 Not Found를 응답합니다.'
   })
-  @Patch('/interest/:userId')
-  async updateJobOfInterest(
-    @Param('userId') userId: string,
-    @Body() dto: updateJobOfInterestCommand
-  ): Promise<UserInfoDto> {
-    return await this.userService.updateJobOfInterest(userId, dto.jobOfInterestList)
+  @Patch('/interest')
+  @UseGuards(JwtAuthGuard)
+  async updateJobOfInterest(@Req() req: Request, @Body() dto: updateJobOfInterestCommand): Promise<UserInfoDto> {
+    return await this.userService.updateJobOfInterest(req.user.userId, dto.jobOfInterestList)
   }
 
   @ApiOperation({
@@ -120,8 +122,9 @@ export class UserController {
     description: '존재하지 않는 유저 ID인 경우, 404 Not Found를 응답합니다.'
   })
   @Delete()
-  async deleteUser(@Body() dto: DeleteUserCommand): Promise<null> {
-    await this.userService.deleteUser(dto.userId)
+  @UseGuards(JwtAuthGuard)
+  async deleteUser(@Req() req: Request): Promise<null> {
+    await this.userService.deleteUser(req.user.userId)
     return null
   }
 }
