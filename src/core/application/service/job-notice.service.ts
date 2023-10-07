@@ -274,7 +274,7 @@ export class JobNoticeService {
         logoUrl: jobNotice.company.logoUrl,
         jobLocation: jobNotice.jobLocation,
         experience: jobNotice.experience,
-        deadline: jobNotice.deadline?.toISOString().split('T')[0] || '2999-12-31',
+        deadline: jobNotice.deadline || new Date('2999-12-31'),
         hits: jobNotice.hits,
         bookmarks: jobNotice.bookmarks
       }

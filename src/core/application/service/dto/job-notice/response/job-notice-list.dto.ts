@@ -6,7 +6,7 @@ export class FilteredJobNotice {
   logoUrl: string | null
   jobLocation: string
   experience: string
-  deadline: string
+  deadline: Date
   hits: number
   bookmarks: number
 }
