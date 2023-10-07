@@ -65,7 +65,10 @@ async function insertCompanyDataToNewDB() {
     // }
 
     if (logoImageRelativePath) {
-      uploadImageToStorageBucket(data.logoUrl, logoImageRelativePath)
+      const success = await uploadImageToStorageBucket(data.logoUrl, logoImageRelativePath)
+      if (success === false) {
+        continue
+      }
     }
 
     const company = {
@@ -128,11 +131,17 @@ async function insertJobNoticeDataToNewDB() {
     // }
 
     if (titleImageRelativePath) {
-      uploadImageToStorageBucket(data.titleImageUrl, titleImageRelativePath)
+      const success = await uploadImageToStorageBucket(data.titleImageUrl, titleImageRelativePath)
+      if (success === false) {
+        continue
+      }
     }
 
     if (detailsImageRelativePath) {
-      uploadImageToStorageBucket(data.detailsImageUrl, detailsImageRelativePath)
+      const success = await uploadImageToStorageBucket(data.detailsImageUrl, detailsImageRelativePath)
+      if (success === false) {
+        continue
+      }
     }
 
     const position = {
@@ -176,7 +185,7 @@ async function insertJobNoticeDataToNewDB() {
 }
 
 /** 특정 이미지 파일 gcp 버킷에 저장 */
-async function uploadImageToStorageBucket(imageUrl: string, path: string): Promise<void> {
+async function uploadImageToStorageBucket(imageUrl: string, path: string): Promise<boolean> {
   try {
     const response = await axios.get(imageUrl, {
       responseType: 'arraybuffer'
@@ -185,8 +194,10 @@ async function uploadImageToStorageBucket(imageUrl: string, path: string): Promi
     const metadata = [{ imageId: path }]
 
     await seedStorage.save(path, contentType, Buffer.from(response.data), metadata)
+    return true
   } catch (error) {
     console.error(`잘못된 이미지 경로입니다. -> ${imageUrl}`)
+    return false
   }
 }
 
