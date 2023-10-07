@@ -85,6 +85,21 @@ export class UserRepository {
     })
   }
 
+  /** Default User 생성 */
+  async createDefaultUser(email: string): Promise<User> {
+    return await this.prisma.user.create({
+      data: {
+        name: null,
+        nickname: '',
+        sex: null,
+        age: null,
+        email,
+        imageUrl: null,
+        currentJob: ''
+      }
+    })
+  }
+
   /** CurrentJobDetail 생성 */
   async createCurrentJobDetail(userId: string, currentJobDetail: CurrentJobDetailDto): Promise<CurrentJobDetail> {
     return await this.prisma.currentJobDetail.create({
