@@ -218,6 +218,60 @@ async function uploadAllImagesToStorageBucket(): Promise<void> {
   console.log('Finish uploadImagesToStorageBucket')
 }
 
+/** 올바른 이미지만 스토리지에 백업 */
+async function saveCorrectImages() {
+  const paths = getAllFilesInDirectory(imageDirPath)
+  const imagePaths = paths.filter(path => {
+    return path.endsWith('.jpg') || path.endsWith('.png')
+  })
+  const contentType = 'image/png'
+
+  const users = await prisma.user.findMany({
+    select: {
+      imageUrl: true
+    }
+  })
+  const Companies = await prisma.company.findMany({
+    select: {
+      logoUrl: true
+    }
+  })
+  const JobNoticeTitles = await prisma.jobNotice.findMany({
+    select: {
+      titleImageUrl: true
+    }
+  })
+  const JobNoticeDetails = await prisma.jobNotice.findMany({
+    select: {
+      detailsImageUrl: true
+    }
+  })
+  const userImageUrls = users.map(user => user.imageUrl).filter(Boolean)
+  const companyImageUrls = Companies.map(company => company.logoUrl).filter(Boolean)
+  const jobNoticeTitlesImageUrls = JobNoticeTitles.map(jobNotice => jobNotice.titleImageUrl).filter(Boolean)
+  const jobNoticeDetailsImageUrls = JobNoticeDetails.map(jobNotice => jobNotice.detailsImageUrl).filter(Boolean)
+
+  const dbImagePaths = userImageUrls.concat(companyImageUrls, jobNoticeTitlesImageUrls, jobNoticeDetailsImageUrls)
+  const dbImageCnt = dbImagePaths.length
+  let uploadCnt = 0
+
+  console.log('local image count: ', imagePaths.length)
+  console.log('db image count: ', dbImageCnt)
+
+  await Promise.all(
+    imagePaths.map(async path => {
+      const media = await readImageFileAsBuffer(join(imageDirPath, path))
+      const metadata = [{ imageId: transformPathPattern(path) }]
+      if (dbImagePaths.includes(path)) {
+        uploadCnt += 1
+        await seedStorage.save(path, contentType, media, metadata)
+      }
+    })
+  )
+  console.log('upload image count: ', uploadCnt)
+  console.log('Finish saveCorrectImages')
+}
+
 async function databaseMigrationAnduploadImagesToGCP() {
   /** db 데이터 삽입 & 이미지들 다운로드 */
   await createDefaultJobs()
