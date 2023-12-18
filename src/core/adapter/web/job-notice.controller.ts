@@ -187,7 +187,7 @@ export class JobNoticeController {
     description: '성공 시, 200 Ok를 응답합니다.',
     type: [String]
   })
-  @Get('/search/autocomplte')
+  @Get('/search/autocomplete')
   async getAutoComplete(): Promise<string[]> {
     return await this.jobNoticeService.getAutoComplete()
   }

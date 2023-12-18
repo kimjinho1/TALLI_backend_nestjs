@@ -27,16 +27,22 @@ export class JobNoticeService {
 
   /** 전체 채용 공고 보기 */
   async getAllJobNotice(dto: GetJobNoticeListCommand): Promise<JobNoticeListDto> {
-    /** 쿼리 생성 */
     const { index, difference, category, order, filter } = dto
+
+    /** 쿼리 생성 */
     const jobNoticeFilter = this.getFilter(filter)
     const query = this.getQueryByCategory(order, category, jobNoticeFilter)
 
-    /** 필터링된 jobNotice들 */
     const tempJobNotices = await this.repository.getFilteredJobNotices(query)
-    const filteredJobNotices = tempJobNotices.slice(index, difference)
+    const totalJobNoticeCount = tempJobNotices.length
+    const filteredJobNotices = tempJobNotices.slice(index, index + difference)
 
-    return this.getResultList(tempJobNotices.length, filteredJobNotices)
+    /** 범위 입력이 올바른지 확인 -> 에러일 시 400 에러 코드 반환 */
+    if (index < 0 || index >= totalJobNoticeCount || difference < 1) {
+      throw new BadRequestException(ErrorMessages.INVALID_SEARCH_RANGE_INPUT)
+    }
+
+    return this.getResultList(totalJobNoticeCount, filteredJobNotices)
   }
 
   /** 개별 채용 공고 보기 */
@@ -65,16 +71,22 @@ export class JobNoticeService {
 
   /** 채용 공고 검색 */
   async searchJobNoticeList(dto: SearchJobNoticeListCommand): Promise<JobNoticeListDto> {
-    /** 쿼리 생성 */
     const { index, difference, searchWord, order, filter } = dto
+
+    /** 쿼리 생성 */
     const jobNoticeFilter = this.getFilter(filter)
     const query = this.getQueryBySearchWord(order, searchWord, jobNoticeFilter)
 
-    /** 필터링된 jobNotice들 */
     const tempJobNotices = await this.repository.getFilteredJobNotices(query)
-    const filteredJobNotices = tempJobNotices.slice(index, difference)
+    const totalJobNoticeCount = tempJobNotices.length
+    const filteredJobNotices = tempJobNotices.slice(index, index + difference)
 
-    return this.getResultList(tempJobNotices.length, filteredJobNotices)
+    /** 범위 입력이 올바른지 확인 -> 에러일 시 400 에러 코드 반환 */
+    if (index < 0 || index >= totalJobNoticeCount || difference < 1) {
+      throw new BadRequestException(ErrorMessages.INVALID_SEARCH_RANGE_INPUT)
+    }
+
+    return this.getResultList(totalJobNoticeCount, filteredJobNotices)
   }
 
   /** 채용 공고 북마크 추가 */
@@ -217,11 +229,17 @@ export class JobNoticeService {
   /** 필터 생성 */
   private getFilter(filter: FilterDto): Prisma.JobNoticeWhereInput {
     const { location, experience, education, certificate, companyType, jobType } = filter
+    const locationFilter = location.map(v => ({ jobLocation: { startsWith: v } }))
+    const requirementFilter = certificate.map(v => ({ requirements: { contains: v } }))
+    const preferenceFilter = certificate.map(v => ({ preferences: { contains: v } }))
+
     return {
-      jobLocation: location.length > 0 ? { in: location } : undefined,
+      AND: [
+        { OR: [...requirementFilter.values(), ...preferenceFilter.values()] },
+        { OR: [...locationFilter.values()] }
+      ],
       experience: experience.length > 0 ? { in: experience } : undefined,
       education: education.length > 0 ? { in: education } : undefined,
-      requirements: certificate.length > 0 ? { in: certificate } : undefined,
       company: {
         companyType: companyType.length > 0 ? { in: companyType } : undefined
       },
@@ -252,12 +270,12 @@ export class JobNoticeService {
     switch (order) {
       case '최신 등록 순':
         return { createdAt: 'desc' }
-      case 'new':
+      case 'latest':
         return { createdAt: 'desc' }
 
       case '조회 많은 순':
         return { hits: 'desc' }
-      case 'popular':
+      case 'hits':
         return { hits: 'desc' }
 
       case '북마크 많은 순':

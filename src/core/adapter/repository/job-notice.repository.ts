@@ -8,6 +8,11 @@ import { FilteredJobNoticeListDto } from './dto/job-notice'
 export class JobNoticeRepository {
   constructor(private prisma: PrismaService) {}
 
+  /** 전체 채용 공고 개수 반환 */
+  async getTotalJobNoticeCount(): Promise<number> {
+    return await this.prisma.jobNotice.count()
+  }
+
   /** jobNotice 필터링 */
   async getFilteredJobNotices(query: Prisma.JobNoticeFindManyArgs): Promise<FilteredJobNoticeListDto> {
     return await this.prisma.jobNotice.findMany({
