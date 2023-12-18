@@ -1,4 +1,4 @@
-import { Storage } from '@google-cloud/storage'
+import { Storage, File } from '@google-cloud/storage'
 
 export class SeedStorage {
   private storage: Storage
@@ -17,6 +17,17 @@ export class SeedStorage {
     })
 
     this.bucket = process.env.STORAGE_MEDIA_BUCKET || 'talli_bucket'
+  }
+
+  async getAllImages(): Promise<File[]> {
+    const [files] = await this.storage.bucket(this.bucket).getFiles()
+
+    const imageFiles = files.filter(file => {
+      const contentType = file.metadata.contentType
+      return contentType && contentType.startsWith('image/')
+    })
+
+    return imageFiles
   }
 
   async save(path: string, contentType: string, media: Buffer, metadata: { [key: string]: string }[]) {

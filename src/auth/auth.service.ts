@@ -75,7 +75,6 @@ export class AuthService {
     }
 
     res.status(200).json({ status: 'OK' })
-    // res.status(301).redirect(`http://localhost:3000`)
   }
 
   //   async kakaoLogin(req: KakaoRequest, res: Response): Promise<KakaoLoginAuthResponseDto> {

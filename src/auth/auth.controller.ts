@@ -24,7 +24,7 @@ export class AuthController {
   async kakaoLogin(@Body() token: Token, @Res() res: Response) {
     const kakaoAccessToken = token.kakaoAccessToken
     if (!kakaoAccessToken) {
-      throw new NotFoundException('Not found kakao access token')
+      throw new NotFoundException('not found token')
     }
     await this.authService.kakaoLogin(kakaoAccessToken, res)
   }
