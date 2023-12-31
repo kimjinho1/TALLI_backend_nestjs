@@ -45,22 +45,22 @@ export class AuthController {
     res.json('SIGN_IN').status(200)
   }
 
-  @Get('login')
-  @UseGuards(AuthGuard('kakao'))
-  async kakaoLogin1(@Req() req: Request) {}
+  // @Get('login')
+  // @UseGuards(AuthGuard('kakao'))
+  // async kakaoLogin1(@Req() req: Request) {}
 
-  @Get('callback')
-  @UseGuards(AuthGuard('kakao'))
-  // async kakaoAuthCallback(@Req() req: KakaoRequest, @Res({ passthrough: true }) res: Response): Promise<any> {
-  async kakaoAuthCallback(@Req() req: KakaoRequest, @Res() res: Response): Promise<any> {
-    const kakaoAccessToken = req.user.accessToken
+  // @Get('callback')
+  // @UseGuards(AuthGuard('kakao'))
+  // // async kakaoAuthCallback(@Req() req: KakaoRequest, @Res({ passthrough: true }) res: Response): Promise<any> {
+  // async kakaoAuthCallback(@Req() req: KakaoRequest, @Res() res: Response): Promise<any> {
+  //   const kakaoAccessToken = req.user.accessToken
 
-    // await this.authService.kakaoLogin(kakaoAccessToken, res)
-    const accessToken = await this.authService.kakaoPassportLogin(req)
+  //   // await this.authService.kakaoLogin(kakaoAccessToken, res)
+  //   const accessToken = await this.authService.kakaoPassportLogin(req)
 
-    res.cookie('accessToken', accessToken, {
-      httpOnly: true
-    })
-    res.json('SIGN_IN').status(200)
-  }
+  //   res.cookie('accessToken', accessToken, {
+  //     httpOnly: true
+  //   })
+  //   res.json('SIGN_IN').status(200)
+  // }
 }
