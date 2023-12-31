@@ -16,7 +16,7 @@ export class CreateJobNoticeCommand {
   @ApiProperty({ description: '공고 이미지 URL', example: null, oneOf: [{ type: 'string' }, { type: 'null' }] })
   @IsString()
   @IsNotEmpty()
-  @ValidateIf((object, value) => value !== null)
+  @ValidateIf((object, value) => value !== null && value !== undefined)
   titleImageUrl: string | null
 
   @ApiProperty({ description: '직종', example: '임상연구' })
@@ -26,7 +26,7 @@ export class CreateJobNoticeCommand {
 
   @ApiProperty({ description: '마감일', example: '2024-03-01 10:10:10', oneOf: [{ type: 'date' }, { type: 'null' }] })
   @Transform(({ value }) => (value ? new Date(value) : null))
-  @ValidateIf((object, value) => value !== null)
+  @ValidateIf((object, value) => value !== null && value !== undefined)
   @Type(() => Date)
   @IsDate()
   @IsNotEmpty()
@@ -45,19 +45,19 @@ export class CreateJobNoticeCommand {
   @ApiProperty({ description: '필수자격', example: null, oneOf: [{ type: 'string' }, { type: 'null' }] })
   @IsString()
   @IsNotEmpty()
-  @ValidateIf((object, value) => value !== null)
+  @ValidateIf((object, value) => value !== null && value !== undefined)
   requirements: string | null
 
   @ApiProperty({ description: '우대조건', example: null, oneOf: [{ type: 'string' }, { type: 'null' }] })
   @IsString()
   @IsNotEmpty()
-  @ValidateIf((object, value) => value !== null)
+  @ValidateIf((object, value) => value !== null && value !== undefined)
   preferences: string | null
 
   @ApiProperty({ description: '급여', example: null, oneOf: [{ type: 'string' }, { type: 'null' }] })
   @IsString()
   @IsNotEmpty()
-  @ValidateIf((object, value) => value !== null)
+  @ValidateIf((object, value) => value !== null && value !== undefined)
   salary: string | null
 
   @ApiProperty({ description: '고용형태', example: '프리랜서' })
@@ -73,13 +73,13 @@ export class CreateJobNoticeCommand {
   @ApiProperty({ description: '상세 모집 정보', example: null, oneOf: [{ type: 'string' }, { type: 'null' }] })
   @IsString()
   @IsNotEmpty()
-  @ValidateIf((object, value) => value !== null)
+  @ValidateIf((object, value) => value !== null && value !== undefined)
   details: string | null
 
   @ApiProperty({ description: '상세 이미지 URL', example: null, oneOf: [{ type: 'string' }, { type: 'null' }] })
   @IsString()
   @IsNotEmpty()
-  @ValidateIf((object, value) => value !== null)
+  @ValidateIf((object, value) => value !== null && value !== undefined)
   detailsImageUrl: string | null
 
   @ApiProperty({ description: '채용 공고 홈페이지', example: 'jobwebsite' })

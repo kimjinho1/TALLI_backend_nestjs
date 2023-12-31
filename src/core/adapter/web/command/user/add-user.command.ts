@@ -13,13 +13,14 @@ import {
 } from 'class-validator'
 import { jobList } from 'src/core/application/service/dto/user/response'
 
-const sex = ['male', 'female']
+const SEX = ['male', 'female']
+const ROLES = ['USER']
 
 export class UserDto {
   @ApiProperty({ description: '이름', example: '김진호', oneOf: [{ type: 'string' }, { type: 'null' }] })
   @IsString()
   @IsNotEmpty()
-  @ValidateIf((object, value) => value !== null)
+  @ValidateIf((object, value) => value !== null && value !== undefined)
   name: string | null
 
   @ApiProperty({ description: '닉네임', example: 'jinhokim' })
@@ -28,15 +29,15 @@ export class UserDto {
   nickname: string
 
   @ApiProperty({ description: '성별', example: 'male', oneOf: [{ type: 'string' }, { type: 'null' }] })
-  @IsIn(sex)
+  @IsIn(SEX)
   @IsNotEmpty()
-  @ValidateIf((object, value) => value !== null)
+  @ValidateIf((object, value) => value !== null && value !== undefined)
   sex: string | null
 
   @ApiProperty({ description: '생년월일', example: '26', oneOf: [{ type: 'string' }, { type: 'null' }] })
   @IsDateString()
   @IsNotEmpty()
-  @ValidateIf((object, value) => value !== null)
+  @ValidateIf((object, value) => value !== null && value !== undefined)
   age: string | null
 
   @ApiProperty({ description: '이메일', example: 'rlawlsgh8113@naver.com' })
@@ -47,12 +48,18 @@ export class UserDto {
 
   @ApiProperty({ description: '프로필 사진', example: null, oneOf: [{ type: 'string' }, { type: 'null' }] })
   @IsUrl()
-  @ValidateIf((object, value) => value !== null)
+  @ValidateIf((object, value) => value !== null && value !== undefined)
   imageUrl: string | null
 
   @ApiProperty({ description: '현재 직업', example: '임상 간호사' })
   @IsString()
   currentJob: string
+
+  @ApiProperty({ description: '유저 레벨', example: 'USER', oneOf: [{ type: 'string' }, { type: 'null' }] })
+  @IsIn(ROLES)
+  @IsNotEmpty()
+  @ValidateIf((object, value) => value !== null && value !== undefined)
+  role: string
 }
 
 export class CurrentJobDetailDto {

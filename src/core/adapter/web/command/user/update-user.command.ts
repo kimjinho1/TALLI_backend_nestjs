@@ -10,6 +10,6 @@ export class UpdateUserCommand {
   @ApiProperty({ description: '프로필 사진 URL', example: null, oneOf: [{ type: 'string' }, { type: 'null' }] })
   @IsString()
   @IsNotEmpty()
-  @ValidateIf((object, value) => value !== null)
+  @ValidateIf((object, value) => value !== null && value !== undefined)
   imageUrl!: string | null
 }
