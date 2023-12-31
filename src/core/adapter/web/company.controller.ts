@@ -1,4 +1,16 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Query } from '@nestjs/common'
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Patch,
+  Post,
+  Query,
+  UseGuards
+} from '@nestjs/common'
 import {
   ApiBadRequestResponse,
   ApiBody,
@@ -14,6 +26,9 @@ import {
 import { CompanyService } from 'src/core/application/service/company.service'
 import { CompanyDto, CompanyListDto } from 'src/core/application/service/dto/company/response'
 import { CreateCompanyCommand, DeleteCompanyCommand, UpdateCompanyCommand } from './command/company'
+import { JwtAuthGuard } from 'src/auth/jwt/jwt-auth.guard'
+import { RolesGuard } from 'src/auth/role/role.guard'
+import { Roles } from 'src/auth/role/roles.decorator'
 
 @ApiTags('회사 API')
 @Controller('company')
@@ -73,6 +88,8 @@ export class CompanyController {
     description: '회사 이름이 중복인 경우, 400 Bad Request 응답합니다.'
   })
   @HttpCode(HttpStatus.CREATED)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
   @Post()
   async createCompany(@Body() dto: CreateCompanyCommand): Promise<CompanyDto> {
     return await this.companyService.createCompany(dto)
@@ -96,6 +113,8 @@ export class CompanyController {
   @ApiNotFoundResponse({
     description: 'companyId에 매칭되는 회사가 없는 경우, 404 Not Found 응답합니다.'
   })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
   @Patch('/:companyId')
   async updateCompany(@Param('companyId') companyId: number, @Body() dto: UpdateCompanyCommand): Promise<CompanyDto> {
     return await this.companyService.updateCompany(companyId, dto)
@@ -112,6 +131,8 @@ export class CompanyController {
   @ApiNotFoundResponse({
     description: 'companyId에 매칭되는 회사가 없는 경우, 404 Not Found 응답합니다.'
   })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
   @Delete()
   async deleteCompany(@Body() dto: DeleteCompanyCommand): Promise<CompanyDto> {
     return await this.companyService.deleteCompany(dto.companyId)

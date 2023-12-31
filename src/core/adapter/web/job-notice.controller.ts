@@ -39,6 +39,8 @@ import {
   UpdateJobNoticeCommand,
   createBookmarkedJobNoticeCommand
 } from './command/job-notice'
+import { RolesGuard } from 'src/auth/role/role.guard'
+import { Roles } from 'src/auth/role/roles.decorator'
 
 @ApiTags('채용 공고 API')
 @Controller('job-notice')
@@ -135,6 +137,8 @@ export class JobNoticeController {
     description: '중복된 채용 공고인 경우, 400 Bad Request 를 응답합니다.'
   })
   @HttpCode(HttpStatus.CREATED)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
   @Post()
   async createJobNotice(@Body() dto: CreateJobNoticeCommand): Promise<JobNoticeInfoDto> {
     return await this.jobNoticeService.createJobNotice(dto)
@@ -152,6 +156,8 @@ export class JobNoticeController {
     description: '성공 시, 200 Ok를 응답합니다.',
     type: JobNoticeInfoDto
   })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
   @Patch('/:jobId')
   async UpdateJobNotice(@Param('jobId') jobId: number, @Body() dto: UpdateJobNoticeCommand): Promise<JobNoticeInfoDto> {
     return await this.jobNoticeService.updateJobNotice(jobId, dto)
@@ -163,6 +169,8 @@ export class JobNoticeController {
     description: '성공 시, 200 Ok를 응답합니다.',
     type: JobNoticeDto
   })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
   @Delete('/:jobId')
   async DeleteJobNotice(@Param('jobId') jobId: number): Promise<JobNoticeDto> {
     return await this.jobNoticeService.deleteJobNotice(jobId)

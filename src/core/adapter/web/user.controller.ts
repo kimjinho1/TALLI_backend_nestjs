@@ -14,6 +14,8 @@ import { JwtAuthGuard } from 'src/auth/jwt/jwt-auth.guard'
 import { UserInfoDto } from 'src/core/application/service/dto/user/response'
 import { UserService } from 'src/core/application/service/user.service'
 import { AddUserInfoCommand, DeleteUserCommand, UpdateUserCommand, updateJobOfInterestCommand } from './command/user'
+import { Roles } from 'src/auth/role/roles.decorator'
+import { RolesGuard } from 'src/auth/role/role.guard'
 
 @ApiTags('User')
 @Controller('user')
