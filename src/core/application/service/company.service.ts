@@ -14,7 +14,7 @@ export class CompanyService {
     const totalCompanyCount = await this.repository.getTotalCompanyCount()
 
     /** 범위 입력이 올바른지 확인 -> 에러일 시 400 에러 코드 반환 */
-    if (index < 0 || index >= totalCompanyCount || difference < 1) {
+    if (index < 0 || difference < 1) {
       throw new BadRequestException(ErrorMessages.INVALID_SEARCH_RANGE_INPUT)
     }
 
