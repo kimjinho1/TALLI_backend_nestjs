@@ -64,12 +64,12 @@ async function insertCompanyDataToNewDB() {
     //   await downloadImage(data.logoUrl, logoImagePath)
     // }
 
-    if (logoImageRelativePath) {
-      const success = await uploadImageToStorageBucket(data.logoUrl, logoImageRelativePath)
-      if (success === false) {
-        continue
-      }
-    }
+    // if (logoImageRelativePath) {
+    //   const success = await uploadImageToStorageBucket(data.logoUrl, logoImageRelativePath)
+    //   if (success === false) {
+    //     continue
+    //   }
+    // }
 
     const company = {
       companyId: parseInt(data.companyId),
@@ -130,19 +130,19 @@ async function insertJobNoticeDataToNewDB() {
     //   await downloadImage(data.detailsImageUrl, detailsImagePath)
     // }
 
-    if (titleImageRelativePath) {
-      const success = await uploadImageToStorageBucket(data.titleImageUrl, titleImageRelativePath)
-      if (success === false) {
-        continue
-      }
-    }
+    // if (titleImageRelativePath) {
+    //   const success = await uploadImageToStorageBucket(data.titleImageUrl, titleImageRelativePath)
+    //   if (success === false) {
+    //     continue
+    //   }
+    // }
 
-    if (detailsImageRelativePath) {
-      const success = await uploadImageToStorageBucket(data.detailsImageUrl, detailsImageRelativePath)
-      if (success === false) {
-        continue
-      }
-    }
+    // if (detailsImageRelativePath) {
+    //   const success = await uploadImageToStorageBucket(data.detailsImageUrl, detailsImageRelativePath)
+    //   if (success === false) {
+    //     continue
+    //   }
+    // }
 
     const position = {
       jobNoticeId: parseInt(data.jobId),
