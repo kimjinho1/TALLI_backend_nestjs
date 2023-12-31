@@ -77,7 +77,17 @@ export class AuthService {
     res.status(200).json({ status: 'OK' })
   }
 
-  //   async kakaoLogin(req: KakaoRequest, res: Response): Promise<KakaoLoginAuthResponseDto> {
+  async adminLogin(email: string, password: string): Promise<string> {
+    try {
+      const existedAdminUser = await this.userRepository.getAdminUser(email, password)
+      const accessToken = this._generateAccessToken(existedAdminUser.userId)
+
+      return accessToken
+    } catch (error) {
+      throw new BadRequestException(ErrorMessages.ADMIN_USER_NOT_FOUND)
+    }
+  }
+
   // async kakaoPassportLogin(req: KakaoRequest): Promise<any> {
   //   const email = req.user.email
   //   // const {
@@ -90,7 +100,7 @@ export class AuthService {
   //     throw new BadRequestException(ErrorMessages.SIGN_UP_REQUIRED)
   //   }
 
-  //   /** 카카오 가입이 되어 있는 경우 accessToken 및 refreshToken 발급 */
+  //   /** 카카오 가입이 되어 있는 경우 accessToken 발급 */
   //   const existedUserPayload = { sub: existedUser.userId }
   //   const accessToken = this.jwtService.sign(existedUserPayload)
 

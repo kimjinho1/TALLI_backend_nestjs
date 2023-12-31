@@ -67,6 +67,28 @@ export class UserRepository {
     })
   }
 
+  /** email, password로 admin user 찾기 */
+  async getAdminUser(email: string, password: string): Promise<User> {
+    return await this.prisma.user.findFirstOrThrow({
+      where: {
+        email,
+        password
+      }
+    })
+  }
+
+  /** User Level 조회 */
+  async getUserLevel(userId: string): Promise<Pick<User, 'role'>> {
+    return await this.prisma.user.findFirstOrThrow({
+      where: {
+        userId
+      },
+      select: {
+        role: true
+      }
+    })
+  }
+
   /** nickname or email로 User 찾기 */
   async getUserByNicknameOrEmail(nickname: string, email: string): Promise<User | null> {
     return await this.prisma.user.findFirst({
@@ -95,6 +117,7 @@ export class UserRepository {
         age: null,
         email,
         imageUrl: null,
+        role: 'USER',
         currentJob: ''
       }
     })

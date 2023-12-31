@@ -14,6 +14,11 @@ type Token = {
   kakaoAccessToken: string
 }
 
+type AdminLoginCommand = {
+  email: string
+  password: string
+}
+
 export type KakaoRequest = Request & { user: KakaoUser }
 
 @Controller('auth')
@@ -29,9 +34,20 @@ export class AuthController {
     await this.authService.kakaoLogin(kakaoAccessToken, res)
   }
 
-  // @Get('login')
-  // @UseGuards(AuthGuard('kakao'))
-  // async kakaoLogin(@Req() req: Request) {}
+  @Post('admin-login')
+  async adminLogin(@Body() body: AdminLoginCommand, @Res() res: Response) {
+    const { email, password } = body
+    const accessToken = await this.authService.adminLogin(email, password)
+
+    res.cookie('accessToken', accessToken, {
+      httpOnly: true
+    })
+    res.json('SIGN_IN').status(200)
+  }
+
+  @Get('login')
+  @UseGuards(AuthGuard('kakao'))
+  async kakaoLogin1(@Req() req: Request) {}
 
   @Get('callback')
   @UseGuards(AuthGuard('kakao'))
@@ -39,7 +55,12 @@ export class AuthController {
   async kakaoAuthCallback(@Req() req: KakaoRequest, @Res() res: Response): Promise<any> {
     const kakaoAccessToken = req.user.accessToken
 
-    await this.authService.kakaoLogin(kakaoAccessToken, res)
-    // const accessToken = await this.authService.kakaoPassportLogin(req)
+    // await this.authService.kakaoLogin(kakaoAccessToken, res)
+    const accessToken = await this.authService.kakaoPassportLogin(req)
+
+    res.cookie('accessToken', accessToken, {
+      httpOnly: true
+    })
+    res.json('SIGN_IN').status(200)
   }
 }
