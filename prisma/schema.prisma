@@ -14,6 +14,8 @@ model User {
   sex        String? @db.VarChar(255)
   age        String? @db.VarChar(255)
   email      String  @unique @db.VarChar(255)
+  role       String  @default("USER") @db.VarChar(10)
+  password   String? @db.VarChar(20)
   imageUrl   String? @map("image_url") @db.VarChar(255)
   currentJob String  @map("current_job") @db.VarChar(255)
 

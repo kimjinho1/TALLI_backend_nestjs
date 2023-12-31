@@ -6,6 +6,8 @@ CREATE TABLE "User" (
     "sex" VARCHAR(255),
     "age" VARCHAR(255),
     "email" VARCHAR(255) NOT NULL,
+    "role" VARCHAR(10) NOT NULL DEFAULT 'USER',
+    "password" VARCHAR(20),
     "image_url" VARCHAR(255),
     "current_job" VARCHAR(255) NOT NULL,
 
