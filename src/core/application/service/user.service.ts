@@ -77,8 +77,12 @@ export class UserService {
     /** request body에서 현재 직업, 관심 직군, 유저 정보를 분리 */
     const { currentJobDetail, jobOfInterestList, ...userData } = dto
 
+    /** 닉네임 중복 처리 -> 에러일 시 400 에러 코드 반환 */
+    await this.checkUserDuplicateByNicknameOrEmail(userData.nickname, userData.email)
+
     /** 유저 정보 업데이트 */
     const updatedUser = await this.repository.updateUser(id, userData)
+    console.log({ updatedUser })
 
     /** 유저 상세 정보 생성 */
     const createdCurrentJobDetailWithUserId = await this.repository.createCurrentJobDetail(
@@ -87,11 +91,15 @@ export class UserService {
     )
     const { currentJobDetailId, userId, ...createdCurrentJobDetail } = createdCurrentJobDetailWithUserId
 
+    console.log({ createdCurrentJobDetail })
+
     /** 유저 관심 직군 생성 */
     const jobs = await this.repository.getJobIdsByJobOfInterestList(jobOfInterestList)
     const jobIds = jobs.map(job => job.jobId)
     await this.repository.createJobOfInterestList(updatedUser.userId, jobIds)
     const createdJobOfInterestList = await this.repository.getJobOfInterest(updatedUser.userId)
+
+    console.log({ createdJobOfInterestList })
 
     const result = {
       ...updatedUser,
