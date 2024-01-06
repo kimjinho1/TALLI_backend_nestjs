@@ -68,8 +68,13 @@ export class UserController {
     description: '닉네임과 이메일이 이미 존재하는 경우, 400 Bad Request 를 응답합니다.'
   })
   @HttpCode(HttpStatus.CREATED)
-  @Post()
+  @Patch()
   async addUserInfo(@Body() dto: AddUserInfoCommand): Promise<UserInfoDto> {
+    return await this.userService.addUserInfo(dto)
+  }
+
+  @Post('admin')
+  async addAdminUserInfo(@Body() dto: any): Promise<UserInfoDto> {
     return await this.userService.addUserInfo(dto)
   }
 
