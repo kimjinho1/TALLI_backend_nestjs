@@ -180,7 +180,18 @@ export class UserRepository {
   }
 
   /** 회원 프로필 수정 */
-  async updateUser(userId: string, dto: UpdateUserCommand): Promise<User> {
+  async updateUser(userId: string, dto: UserDto): Promise<User> {
+    return await this.prisma.user.update({
+      where: {
+        userId
+      },
+      data: {
+        ...dto
+      }
+    })
+  }
+
+  async updateUserProfile(userId: string, dto: UpdateUserCommand): Promise<User> {
     return await this.prisma.user.update({
       where: {
         userId

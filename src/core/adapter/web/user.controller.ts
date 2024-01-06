@@ -67,22 +67,23 @@ export class UserController {
   @ApiBadRequestResponse({
     description: '닉네임과 이메일이 이미 존재하는 경우, 400 Bad Request 를 응답합니다.'
   })
-  @HttpCode(HttpStatus.CREATED)
   @Patch()
-  async addUserInfo(@Body() dto: AddUserInfoCommand): Promise<UserInfoDto> {
-    return await this.userService.addUserInfo(dto)
-  }
-
-  @Post('admin')
-  async addAdminUserInfo(@Body() dto: any): Promise<UserInfoDto> {
-    return await this.userService.addUserInfo(dto)
-  }
-
-  @Patch('signup')
   @UseGuards(JwtAuthGuard)
-  async updateUserInfo(@Req() req: Request, @Body() dto: AddUserInfoCommand): Promise<UserInfoDto> {
+  async addUserInfo(@Req() req: Request, @Body() dto: AddUserInfoCommand): Promise<UserInfoDto> {
+    // return await this.userService.addUserInfo(req.user.userId, dto)
     return await this.userService.updateUserInfo(req.user.userId, dto)
   }
+
+  // @Post('admin')
+  // async addAdminUserInfo(@Body() dto: any): Promise<UserInfoDto> {
+  //   return await this.userService.addUserInfo(dto)
+  // }
+
+  // @Patch('signup')
+  // @UseGuards(JwtAuthGuard)
+  // async updateUserInfo(@Req() req: Request, @Body() dto: AddUserInfoCommand): Promise<UserInfoDto> {
+  //   return await this.userService.updateUserInfo(req.user.userId, dto)
+  // }
 
   @ApiOperation({
     summary: '회원 프로필 수정',

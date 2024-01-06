@@ -111,7 +111,7 @@ export class UserService {
     let userInfo = await this.getUserInfo(userId)
 
     /** 회원 정보 업데이트 */
-    const updatedUser = await this.repository.updateUser(userId, dto)
+    const updatedUser = await this.repository.updateUserProfile(userId, dto)
     userInfo.nickname = updatedUser.nickname
     userInfo.imageUrl = updatedUser.imageUrl
 

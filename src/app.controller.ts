@@ -51,14 +51,12 @@ export class AppController {
 
     const uuid = uuidv4()
     const imagePath = `${path}/${uuid}.png`
-    console.log(imagePath)
 
     await this.storageService.save(imagePath, file.mimetype, file.buffer, [{ imageId: imagePath }])
 
     const result = {
       imageUrl: imagePath
     }
-    console.log(result)
 
     return result
   }
