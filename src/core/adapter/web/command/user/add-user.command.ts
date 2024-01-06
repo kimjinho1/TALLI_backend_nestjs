@@ -47,7 +47,6 @@ export class UserDto {
   email: string
 
   @ApiProperty({ description: '프로필 사진', example: null, oneOf: [{ type: 'string' }, { type: 'null' }] })
-  @IsUrl()
   @ValidateIf((object, value) => value !== null && value !== undefined)
   imageUrl: string | null
 
