@@ -31,7 +31,7 @@ export class AppController {
     FileInterceptor('image', {
       limits: {
         files: 1,
-        fileSize: 1024 * 1024
+        fileSize: 5000 * 5000
       }
     })
   )
@@ -39,7 +39,7 @@ export class AppController {
     @Param('path') path: string,
     @UploadedFile(
       new ParseFilePipe({
-        validators: [new MaxFileSizeValidator({ maxSize: 1024 * 1024 }), new FileTypeValidator({ fileType: 'image/*' })]
+        validators: [new MaxFileSizeValidator({ maxSize: 5000 * 5000 }), new FileTypeValidator({ fileType: 'image/*' })]
       })
     )
     file: Express.Multer.File
@@ -51,12 +51,14 @@ export class AppController {
 
     const uuid = uuidv4()
     const imagePath = `${path}/${uuid}.png`
+    console.log(imagePath)
 
     await this.storageService.save(imagePath, file.mimetype, file.buffer, [{ imageId: imagePath }])
 
     const result = {
       imageUrl: imagePath
     }
+    console.log(result)
 
     return result
   }
