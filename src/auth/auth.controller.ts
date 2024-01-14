@@ -1,4 +1,14 @@
-import { Body, Controller, Get, NotFoundException, Post, Req, Res, UseGuards } from '@nestjs/common'
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Get,
+  NotFoundException,
+  Post,
+  Req,
+  Res,
+  UseGuards
+} from '@nestjs/common'
 import { AuthGuard } from '@nestjs/passport'
 import { Response } from 'express'
 import { AuthService } from './auth.service'
@@ -11,7 +21,8 @@ type KakaoUser = {
 }
 
 type Token = {
-  kakaoAccessToken: string
+  provider: string
+  accessToken: string
 }
 
 type AdminLoginCommand = {
@@ -27,11 +38,16 @@ export class AuthController {
 
   @Post('login')
   async kakaoLogin(@Body() token: Token, @Res() res: Response) {
-    const kakaoAccessToken = token.kakaoAccessToken
-    if (!kakaoAccessToken) {
+    const { provider, accessToken } = token
+    if (!accessToken) {
       throw new NotFoundException('not found token')
     }
-    await this.authService.kakaoLogin(kakaoAccessToken, res)
+
+    if (provider === 'kakao') {
+      await this.authService.kakaoLogin(accessToken, res)
+    }
+
+    throw new BadRequestException('올바르지 않은 provider입니다')
   }
 
   @Post('admin-login')
