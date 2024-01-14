@@ -78,7 +78,7 @@ export class UserService {
     const { currentJobDetail, jobOfInterestList, ...userData } = dto
 
     /** 닉네임 중복 처리 -> 에러일 시 400 에러 코드 반환 */
-    await this.checkUserDuplicateByNicknameOrEmail(userData.nickname, userData.email)
+    // await this.checkUserDuplicateByNicknameOrEmail(userData.nickname, userData.email)
 
     /** 유저 정보 업데이트 */
     const updatedUser = await this.repository.updateUser(id, userData)

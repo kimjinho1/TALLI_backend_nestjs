@@ -93,7 +93,7 @@ export class UserRepository {
   async getUserByNicknameOrEmail(nickname: string, email: string): Promise<User | null> {
     return await this.prisma.user.findFirst({
       where: {
-        OR: [{ nickname }, { email }]
+        AND: [{ nickname }, { email }]
       }
     })
   }
