@@ -24,7 +24,7 @@ export class AuthService {
     return accessToken
   }
 
-  async kakaoLogin(kakaoAccessToken: string, res: Response): Promise<void> {
+  async kakaoLogin(kakaoAccessToken: string, provider: string, res: Response): Promise<void> {
     /** oAuthLoginData.data 양식
     {
       profile_nickname_needs_agreement: false,
@@ -46,9 +46,10 @@ export class AuthService {
      * 이메일로 한 번이라도 로그인한 유저인지 확인
      * 아닌 경우 -> 유저 default 데이터 생성 후, 회원 가입 페이지로 이동
      */
-    const existedUser = await this.userRepository.getUserByEmail(oAuthLoginData.data.kakao_account.email)
+    // const existedUser = await this.userRepository.getKakaoUser(email)
+    const existedUser = await this.userRepository.getKakaoUser(email)
     if (!existedUser) {
-      const newUser = await this.userRepository.createDefaultUser(email)
+      const newUser = await this.userRepository.createDefaultUser(email, provider)
       const accessToken = this._generateAccessToken(newUser.userId)
 
       /* 쿠키 설정 */

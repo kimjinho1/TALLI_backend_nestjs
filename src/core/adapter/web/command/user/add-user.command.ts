@@ -15,6 +15,7 @@ import { jobList } from 'src/core/application/service/dto/user/response'
 
 const SEX = ['male', 'female']
 const ROLES = ['USER']
+const PROVIDERS = ['none', 'kakao']
 
 export class UserDto {
   @ApiProperty({ description: '이름', example: '김진호', oneOf: [{ type: 'string' }, { type: 'null' }] })
@@ -59,6 +60,11 @@ export class UserDto {
   @IsNotEmpty()
   @ValidateIf((object, value) => value !== null && value !== undefined)
   role: string
+
+  @ApiProperty({ description: '소셜 로그인 타입', example: 'kakao' })
+  @IsString()
+  @IsIn(PROVIDERS)
+  provider: string
 }
 
 export class CurrentJobDetailDto {

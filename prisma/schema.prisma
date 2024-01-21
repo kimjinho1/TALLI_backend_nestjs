@@ -15,6 +15,7 @@ model User {
   age        String? @db.VarChar(255)
   email      String  @unique @db.VarChar(255)
   role       String  @default("USER") @db.VarChar(10)
+  provider   String  @db.VarChar(20)
   password   String? @db.VarChar(20)
   imageUrl   String? @map("image_url") @db.VarChar(255)
   currentJob String  @map("current_job") @db.VarChar(255)
@@ -22,7 +23,34 @@ model User {
   currentJobDetail     CurrentJobDetail?
   jobOfInterest        JobOfInterest[]
   bookmarkedJobNotices BookmarkedJobNotice[]
+
+  @@map("user")
 }
+
+// model Partner {
+//   partnerId           String @id @default(uuid()) @map("partner_id") @db.Uuid
+//   imageUrl            String @map("image_url") @db.VarChar(255)
+//   nickname            String @unique @db.VarChar(255)
+//   job                 String @db.VarChar(255)
+//   escapedPeriod       Int    @map("escaped_period")
+//   activePeriod        Int    @map("active_period")
+//   license             String @db.VarChar(255)
+//   introductionTitle   String @map("introduction_title") @db.VarChar(255)
+//   introductionContent String @map("introduction_content")
+//   receivedQuestions   Int    @map("received_questions")
+//   responseRate        Float  @map("response_rate")
+
+//   @@map("partner")
+// }
+
+// model Recommendation {
+//   userId    String @map("user_id") @db.Uuid
+//   partnerId String @map("partner_id") @db.Uuid
+//   str       String @db.VarChar(255)
+
+//   @@id([userId, partnerId])
+//   @@map("recommendation")
+// }
 
 model CurrentJobDetail {
   currentJobDetailId String @id @default(uuid()) @map("current_job_detail_id") @db.Uuid
@@ -36,13 +64,17 @@ model CurrentJobDetail {
   userId String @unique @map("user_id") @db.Uuid
 
   user User @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  @@map("current_job_detail")
 }
 
 model Job {
   jobId Int    @id @default(autoincrement()) @map("job_id")
-  title String @db.VarChar(255)
+  title String @unique @db.VarChar(255)
 
   jobOfInterest JobOfInterest[]
+
+  @@map("job")
 }
 
 model JobOfInterest {
@@ -53,6 +85,7 @@ model JobOfInterest {
   job  Job  @relation(fields: [jobId], references: [jobId], onDelete: Cascade)
 
   @@id([userId, jobId])
+  @@map("job_of_interest")
 }
 
 model Company {
@@ -66,6 +99,8 @@ model Company {
   companyWebsite  String?   @map("company_website") @db.VarChar(255)
 
   jobNotice JobNotice[]
+
+  @@map("company")
 }
 
 model JobNotice {
@@ -93,6 +128,8 @@ model JobNotice {
 
   company              Company               @relation(fields: [companyId], references: [companyId], onDelete: Cascade)
   bookmarkedJobNotices BookmarkedJobNotice[]
+
+  @@map("job_notcie")
 }
 
 model BookmarkedJobNotice {
@@ -103,6 +140,7 @@ model BookmarkedJobNotice {
   jobNotice JobNotice @relation(fields: [jobNoticeId], references: [jobNoticeId], onDelete: Cascade)
 
   @@id([userId, jobNoticeId])
+  @@map("bookmarked_job_notice")
 }
 
 // model Content {

@@ -37,14 +37,14 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('login')
-  async kakaoLogin(@Body() token: Token, @Res() res: Response) {
+  async login(@Body() token: Token, @Res() res: Response) {
     const { provider, accessToken } = token
     if (!accessToken) {
       throw new NotFoundException('not found token')
     }
 
     if (provider === 'kakao') {
-      await this.authService.kakaoLogin(accessToken, res)
+      return await this.authService.kakaoLogin(accessToken, provider, res)
     }
 
     throw new BadRequestException('올바르지 않은 provider입니다')

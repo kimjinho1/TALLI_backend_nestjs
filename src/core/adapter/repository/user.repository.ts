@@ -59,10 +59,11 @@ export class UserRepository {
   }
 
   /** email로 User 찾기 */
-  async getUserByEmail(email: string): Promise<User | null> {
+  async getKakaoUser(email: string): Promise<User | null> {
     return await this.prisma.user.findFirst({
       where: {
-        email
+        email,
+        provider: 'kakao'
       }
     })
   }
@@ -108,7 +109,7 @@ export class UserRepository {
   }
 
   /** Default User 생성 */
-  async createDefaultUser(email: string): Promise<User> {
+  async createDefaultUser(email: string, provider: string): Promise<User> {
     return await this.prisma.user.create({
       data: {
         name: null,
@@ -118,7 +119,8 @@ export class UserRepository {
         email,
         imageUrl: null,
         role: 'USER',
-        currentJob: ''
+        currentJob: '',
+        provider
       }
     })
   }
