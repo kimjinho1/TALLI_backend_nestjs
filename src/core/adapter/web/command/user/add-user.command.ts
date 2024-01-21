@@ -7,7 +7,6 @@ import {
   IsIn,
   IsNotEmpty,
   IsString,
-  IsUrl,
   ValidateIf,
   ValidateNested
 } from 'class-validator'
