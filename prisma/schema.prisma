@@ -68,15 +68,15 @@ model Question {
   user    User    @relation(fields: [userId], references: [userId], onDelete: Cascade)
   partner Partner @relation(fields: [partnerId], references: [partnerId], onDelete: Cascade)
 
-  answer Answer[]
-  review Review[]
+  answer Answer?
+  review Review?
 
   @@map("question")
 }
 
 model Answer {
   answerId   Int       @id @default(autoincrement()) @map("answer_id")
-  questionId Int       @map("question_id")
+  questionId Int       @unique @map("question_id")
   answer     String
   createdAt  DateTime  @default(now()) @map("created_at")
   modifiedAt DateTime? @default(now()) @updatedAt @map("modified_at")
@@ -89,7 +89,7 @@ model Answer {
 model Review {
   userId     String    @map("user_id") @db.Uuid
   partnerId  String    @map("partner_id") @db.Uuid
-  questionId Int       @map("question_id")
+  questionId Int       @unique @map("question_id")
   review     String
   createdAt  DateTime  @default(now()) @map("created_at")
   modifiedAt DateTime? @default(now()) @updatedAt @map("modified_at")

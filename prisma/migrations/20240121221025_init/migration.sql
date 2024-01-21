@@ -158,6 +158,12 @@ CREATE UNIQUE INDEX "user_email_key" ON "user"("email");
 CREATE UNIQUE INDEX "partner_nickname_key" ON "partner"("nickname");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "answer_question_id_key" ON "answer"("question_id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "review_question_id_key" ON "review"("question_id");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "current_job_detail_user_id_key" ON "current_job_detail"("user_id");
 
 -- CreateIndex
