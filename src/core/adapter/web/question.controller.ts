@@ -9,13 +9,13 @@ import {
   ApiParam,
   ApiTags
 } from '@nestjs/swagger'
-import { Partner } from '@prisma/client'
+import { Partner, Question } from '@prisma/client'
 import { Request } from 'express'
 import { JwtAuthGuard } from 'src/auth/jwt/jwt-auth.guard'
 import { RolesGuard } from 'src/auth/role/role.guard'
 import { Roles } from 'src/auth/role/roles.decorator'
 import { QuestionService } from 'src/core/application/service/question.service'
-import { AddPartnerCommandDto } from './command/question'
+import { AddPartnerCommandDto, RegisterQuestionCommandDto } from './command/question'
 
 @ApiTags('Question')
 @Controller('question')
@@ -61,6 +61,25 @@ export class QuestionController {
   @Get('/partner/:partnerId')
   async getPartner(@Param('partnerId') partnerId: string): Promise<any> {
     return await this.questionService.getPartner(partnerId)
+  }
+
+  @ApiOperation({
+    summary: '물어보기 질문 등록',
+    description: '물어보기 질문을 등록합니다.'
+  })
+  @ApiBody({ type: AddPartnerCommandDto })
+  @ApiCreatedResponse({
+    description: '성공 시, 201 Created를 응답합니다.',
+    type: RegisterQuestionCommandDto
+  })
+  @ApiNotFoundResponse({
+    description: '존재하지 않는 현직자 ID인 경우, 404 Not Found를 응답합니다.'
+  })
+  @Post()
+  @UseGuards(JwtAuthGuard)
+  async registerQuestion(@Req() req: Request, @Body() dto: RegisterQuestionCommandDto): Promise<Question[]> {
+    const userId = req.user.userId
+    return await this.questionService.registerQuestions(userId, dto)
   }
 
   @ApiOperation({

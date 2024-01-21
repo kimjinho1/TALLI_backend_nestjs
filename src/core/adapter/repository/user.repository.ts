@@ -58,7 +58,7 @@ export class UserRepository {
     })
   }
 
-  /** email로 User 찾기 */
+  /** email로 Kakao User 찾기 */
   async getKakaoUser(email: string): Promise<User | null> {
     return await this.prisma.user.findFirst({
       where: {

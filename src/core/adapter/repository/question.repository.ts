@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { Partner } from '@prisma/client'
+import { Partner, Question } from '@prisma/client'
 import { PrismaService } from 'prisma/prisma.service'
 import { AddPartnerCommandDto } from '../web/command/question'
 
@@ -72,6 +72,17 @@ export class QuestionRepository {
             currentJob: true
           }
         }
+      }
+    })
+  }
+
+  /** 질문 등록 */
+  async registerQuestion(userId: string, partnerId: string, question: string): Promise<Question> {
+    return await this.prisma.question.create({
+      data: {
+        userId,
+        partnerId,
+        question
       }
     })
   }

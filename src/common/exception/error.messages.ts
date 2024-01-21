@@ -14,5 +14,6 @@ export const ErrorMessages = {
   JOB_NOTICE_ALREADY_EXISTS: '이미 존재하는 채용 공고입니다.',
   BOOKMARKEND_JOB_NOTICE_NOT_FOUND: '존재하지 않는 북마크된 채용 공고입니다.',
   BOOKMARKEND_JOB_NOTICE_ALREADY_EXISTS: '이미 북마크된 채용 공고입니다.',
-  WRONG_CATEGORY: '잘못된 카테고리입니다.'
+  WRONG_CATEGORY: '잘못된 카테고리입니다.',
+  SHORT_QUESTION: '질문이 너무 짧습니다.'
 }

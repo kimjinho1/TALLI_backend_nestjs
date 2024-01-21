@@ -1,9 +1,9 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common'
-import { Partner } from '@prisma/client'
+import { Partner, Question } from '@prisma/client'
 import * as lo from 'lodash'
 import { ErrorMessages } from 'src/common/exception/error.messages'
 import { QuestionRepository } from 'src/core/adapter/repository/question.repository'
-import { AddPartnerCommandDto } from 'src/core/adapter/web/command/question'
+import { AddPartnerCommandDto, RegisterQuestionCommandDto } from 'src/core/adapter/web/command/question'
 
 const categories = [
   '보건관리자',
@@ -24,6 +24,7 @@ export class QuestionService {
 
   /** 모든 현직자 정보 보기 */
   async getPartners(category: string): Promise<Partner[]> {
+    /** 올바른 카테고리인지 확인 -> 에러일 시 400 에러 코드 반환 */
     if (!lo.includes(categories, category)) {
       throw new BadRequestException(ErrorMessages.WRONG_CATEGORY)
     }
@@ -33,6 +34,7 @@ export class QuestionService {
 
   /** 현직자 상세 정보 보기 */
   async getPartner(partnerId: string): Promise<any> {
+    /** 존재하는 파트너인지 확인 -> 에러일 시 404 에러 코드 반환 */
     const partner = await this.getPartnerOrThrow(partnerId)
 
     const latestReviews = await this.repository.getPartnerLatestReview(partnerId)
@@ -43,6 +45,19 @@ export class QuestionService {
     }
 
     return res
+  }
+
+  /** 물어보기 질문 등록 */
+  async registerQuestions(userId: string, dto: RegisterQuestionCommandDto): Promise<Question[]> {
+    const { partnerId, question1, question2 } = dto
+
+    /** 존재하는 파트너인지 확인 -> 에러일 시 404 에러 코드 반환 */
+    await this.getPartnerOrThrow(partnerId)
+
+    const q1 = await this.repository.registerQuestion(userId, partnerId, question1)
+    const q2 = await this.repository.registerQuestion(userId, partnerId, question1)
+
+    return [q1, q2]
   }
 
   /** 현직자 정보 추가 */
@@ -79,5 +94,10 @@ export class QuestionService {
     if (partner) {
       throw new BadRequestException(ErrorMessages.NICKNAME_ALREADY_EXISTS)
     }
+  }
+
+  /** 질문 등록 */
+  private async registerQuestion(userId: string, partnerId, question): Promise<Question> {
+    return await this.repository.registerQuestion(userId, partnerId, question)
   }
 }

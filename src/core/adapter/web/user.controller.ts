@@ -67,16 +67,10 @@ export class UserController {
   })
   @Patch()
   @UseGuards(JwtAuthGuard)
-  async addUserInfo(@Req() req: Request, @Body() dto: AddUserInfoCommand): Promise<UserInfoDto> {
-    // return await this.userService.addUserInfo(req.user.userId, dto)
+  async updateUserInfo(@Req() req: Request, @Body() dto: AddUserInfoCommand): Promise<UserInfoDto> {
+    // return await this.userService.addUserInfo(dto)
     return await this.userService.updateUserInfo(req.user.userId, dto)
   }
-
-  // @Patch('signup')
-  // @UseGuards(JwtAuthGuard)
-  // async updateUserInfo(@Req() req: Request, @Body() dto: AddUserInfoCommand): Promise<UserInfoDto> {
-  //   return await this.userService.updateUserInfo(req.user.userId, dto)
-  // }
 
   @ApiOperation({
     summary: '회원 프로필 수정',
