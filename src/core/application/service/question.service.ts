@@ -15,6 +15,16 @@ export type PartnerInfoResponse = Partner & {
   latestReviews: LatestReviews[]
 }
 
+export type UserQuestionInfoResponse = {
+  question: string
+  questionDate: string
+  partnerImageUrl: string | null
+  partnerNickname: string
+  partnerJob: string
+  answer: string | null
+  answerDate: string | null
+}
+
 const categories = [
   '보건관리자',
   '임상연구',
@@ -72,6 +82,25 @@ export class QuestionService {
     const q2 = await this.repository.registerQuestion(userId, partnerId, question1)
 
     return [q1, q2]
+  }
+
+  /** 질문 내역 보기 */
+  async getQuestion(userId: string): Promise<any> {
+    const userQuestionInfos = await this.repository.getUserQuestionInfos(userId)
+
+    const res = userQuestionInfos.map(question => ({
+      question: question.question,
+      questionDate: question.createdAt.toISOString(),
+      partnerImageUrl: question.partner.imageUrl,
+      partnerNickname: question.partner.nickname,
+      partnerJob: question.partner.job,
+      answer: question.answer?.answer ?? null,
+      answerDate: question.answer?.createdAt.toISOString() ?? null
+    }))
+
+    console.log(res)
+
+    return res
   }
 
   /** 현직자 정보 추가 */

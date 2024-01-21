@@ -82,29 +82,20 @@ export class QuestionController {
     return await this.questionService.registerQuestions(userId, dto)
   }
 
-  // @ApiOperation({
-  //   summary: '현직자 상세 정보 조회',
-  //   description: '현직자 상세 정보를 조회합니다.'
-  // })
-  // @ApiParam({
-  //   name: 'partnerId',
-  //   required: true,
-  //   description: '현직자 ID',
-  //   type: String
-  // })
-  // @ApiOkResponse({
-  //   description: '성공 시, 200 Ok를 응답합니다.'
-  //   // type:
-  // })
-  // @ApiNotFoundResponse({
-  //   description: '존재하지 않는 현직자 ID인 경우, 404 Not Found를 응답합니다.'
-  // })
-  // @Get('/partner/:partnerId')
-  // @UseGuards(JwtAuthGuard)
-  // async getQuestion(@Req() req: Request): Promise<any> {
-  //   const userId = req.user.userId
-  //   return await this.questionService.getQuestion(userId)
-  // }
+  @ApiOperation({
+    summary: '질문 내역 보기',
+    description: '질문 내역 보기.'
+  })
+  @ApiOkResponse({
+    description: '성공 시, 200 Ok를 응답합니다.'
+    // type:
+  })
+  @Get()
+  @UseGuards(JwtAuthGuard)
+  async getQuestion(@Req() req: Request): Promise<any> {
+    const userId = req.user.userId
+    return await this.questionService.getQuestion(userId)
+  }
 
   @ApiOperation({
     summary: '현직자 정보 추가',

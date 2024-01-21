@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common'
 import { Partner, Question } from '@prisma/client'
 import { PrismaService } from 'prisma/prisma.service'
 import { AddPartnerCommandDto } from '../web/command/question'
-import { PartnerInfoDto } from './dto/question'
+import { PartnerInfosDto, UserQuestionInfosDto } from './dto/question'
 
 @Injectable()
 export class QuestionRepository {
@@ -56,7 +56,7 @@ export class QuestionRepository {
   }
 
   /** 현직자의 최신 리뷰 1개 조회 */
-  async getPartnerLatestReview(partnerId: string): Promise<PartnerInfoDto> {
+  async getPartnerLatestReview(partnerId: string): Promise<PartnerInfosDto> {
     return await this.prisma.review.findMany({
       where: {
         partnerId
@@ -84,6 +84,32 @@ export class QuestionRepository {
         userId,
         partnerId,
         question
+      }
+    })
+  }
+
+  /** 유저 질문 내역 조회 */
+  async getUserQuestionInfos(userId: string): Promise<UserQuestionInfosDto> {
+    return await this.prisma.question.findMany({
+      where: {
+        userId
+      },
+      select: {
+        question: true,
+        createdAt: true,
+        partner: {
+          select: {
+            imageUrl: true,
+            nickname: true,
+            job: true
+          }
+        },
+        answer: {
+          select: {
+            answer: true,
+            createdAt: true
+          }
+        }
       }
     })
   }
