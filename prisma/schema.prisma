@@ -37,11 +37,12 @@ model User {
 model Partner {
   partnerId           String  @id @default(uuid()) @map("partner_id") @db.Uuid
   imageUrl            String? @map("image_url") @db.VarChar(255)
-  nickname            String  @unique @db.VarChar(255)
-  job                 String  @db.VarChar(255)
+  nickname            String  @unique @db.VarChar(20)
+  category                 String  @db.VarChar(50)
+  job                 String  @db.VarChar(50)
   escapedPeriod       Int     @map("escaped_period")
   activePeriod        Int     @map("active_period")
-  license             String  @db.VarChar(255)
+  license             String  @db.VarChar(50)
   introductionTitle   String  @map("introduction_title") @db.VarChar(255)
   introductionContent String  @map("introduction_content")
   receivedQuestions   Int     @default(0) @map("received_questions")
@@ -58,7 +59,7 @@ model Question {
   questionId    Int            @id @default(autoincrement()) @map("question_id")
   userId        String         @map("user_id") @db.Uuid
   partnerId     String         @map("partner_id") @db.Uuid
-  question      String         @db.VarChar(255)
+  question      String         
   currentStatus QuestionStatus @map("current_status")
   createdAt     DateTime       @default(now()) @map("created_at")
   modifiedAt    DateTime?      @default(now()) @updatedAt @map("modified_at")
