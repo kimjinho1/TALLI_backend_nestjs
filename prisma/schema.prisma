@@ -7,6 +7,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum QuestionStatus {
+  ANSWERED
+  WAITING
+}
+
 model User {
   userId     String  @id @default(uuid()) @map("user_id") @db.Uuid
   name       String? @db.VarChar(255)
@@ -23,34 +28,77 @@ model User {
   currentJobDetail     CurrentJobDetail?
   jobOfInterest        JobOfInterest[]
   bookmarkedJobNotices BookmarkedJobNotice[]
+  question             Question[]
+  review               Review[]
 
   @@map("user")
 }
 
-// model Partner {
-//   partnerId           String @id @default(uuid()) @map("partner_id") @db.Uuid
-//   imageUrl            String @map("image_url") @db.VarChar(255)
-//   nickname            String @unique @db.VarChar(255)
-//   job                 String @db.VarChar(255)
-//   escapedPeriod       Int    @map("escaped_period")
-//   activePeriod        Int    @map("active_period")
-//   license             String @db.VarChar(255)
-//   introductionTitle   String @map("introduction_title") @db.VarChar(255)
-//   introductionContent String @map("introduction_content")
-//   receivedQuestions   Int    @map("received_questions")
-//   responseRate        Float  @map("response_rate")
+model Partner {
+  partnerId           String  @id @default(uuid()) @map("partner_id") @db.Uuid
+  imageUrl            String? @map("image_url") @db.VarChar(255)
+  nickname            String  @unique @db.VarChar(255)
+  job                 String  @db.VarChar(255)
+  escapedPeriod       Int     @map("escaped_period")
+  activePeriod        Int     @map("active_period")
+  license             String  @db.VarChar(255)
+  introductionTitle   String  @map("introduction_title") @db.VarChar(255)
+  introductionContent String  @map("introduction_content")
+  receivedQuestions   Int     @default(0) @map("received_questions")
+  responseRate        Float   @default(0.0) @map("response_rate")
+  recommendation      String
 
-//   @@map("partner")
-// }
+  question Question[]
+  review   Review[]
 
-// model Recommendation {
-//   userId    String @map("user_id") @db.Uuid
-//   partnerId String @map("partner_id") @db.Uuid
-//   str       String @db.VarChar(255)
+  @@map("partner")
+}
 
-//   @@id([userId, partnerId])
-//   @@map("recommendation")
-// }
+model Question {
+  questionId    Int            @id @default(autoincrement()) @map("question_id")
+  userId        String         @map("user_id") @db.Uuid
+  partnerId     String         @map("partner_id") @db.Uuid
+  question      String         @db.VarChar(255)
+  currentStatus QuestionStatus @map("current_status")
+  createdAt     DateTime       @default(now()) @map("created_at")
+  modifiedAt    DateTime?      @default(now()) @updatedAt @map("modified_at")
+
+  user    User    @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  partner Partner @relation(fields: [partnerId], references: [partnerId], onDelete: Cascade)
+
+  answer Answer[]
+  review Review[]
+
+  @@map("question")
+}
+
+model Answer {
+  answerId   Int       @id @default(autoincrement()) @map("answer_id")
+  questionId Int       @map("question_id")
+  answer     String
+  createdAt  DateTime  @default(now()) @map("created_at")
+  modifiedAt DateTime? @default(now()) @updatedAt @map("modified_at")
+
+  question Question @relation(fields: [questionId], references: [questionId], onDelete: Cascade)
+
+  @@map("answer")
+}
+
+model Review {
+  userId     String    @map("user_id") @db.Uuid
+  partnerId  String    @map("partner_id") @db.Uuid
+  questionId Int       @map("question_id")
+  review     String
+  createdAt  DateTime  @default(now()) @map("created_at")
+  modifiedAt DateTime? @default(now()) @updatedAt @map("modified_at")
+
+  user     User     @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  partner  Partner  @relation(fields: [partnerId], references: [partnerId], onDelete: Cascade)
+  question Question @relation(fields: [questionId], references: [questionId], onDelete: Cascade)
+
+  @@id([userId, partnerId, questionId])
+  @@map("review")
+}
 
 model CurrentJobDetail {
   currentJobDetailId String @id @default(uuid()) @map("current_job_detail_id") @db.Uuid
