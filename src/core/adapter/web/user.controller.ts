@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Patch, Post, Req, UseGuards } from '@nestjs/common'
+import { Body, Controller, Delete, Get, Patch, Post, Req, UseGuards } from '@nestjs/common'
 import {
   ApiBadRequestResponse,
   ApiBody,
@@ -9,18 +9,29 @@ import {
   ApiParam,
   ApiTags
 } from '@nestjs/swagger'
+import { Partner } from '@prisma/client'
 import { Request } from 'express'
 import { JwtAuthGuard } from 'src/auth/jwt/jwt-auth.guard'
+import { RolesGuard } from 'src/auth/role/role.guard'
+import { Roles } from 'src/auth/role/roles.decorator'
 import { UserInfoDto } from 'src/core/application/service/dto/user/response'
 import { UserService } from 'src/core/application/service/user.service'
-import { AddUserInfoCommand, DeleteUserCommand, UpdateUserCommand, updateJobOfInterestCommand } from './command/user'
-import { Roles } from 'src/auth/role/roles.decorator'
-import { RolesGuard } from 'src/auth/role/role.guard'
+import {
+  AddPartnerCommandDto,
+  AddUserInfoCommand,
+  DeleteUserCommand,
+  UpdateJobOfInterestCommand,
+  UpdateUserCommand
+} from './command/user'
 
 @ApiTags('User')
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
+
+  /**
+   ******* 사용자
+   */
 
   @ApiOperation({ summary: '전체 유저 닉네임 목록 보기', description: '모든 유저의 닉네임을 반환합니다.' })
   @ApiOkResponse({
@@ -74,11 +85,6 @@ export class UserController {
     return await this.userService.updateUserInfo(req.user.userId, dto)
   }
 
-  // @Post('admin')
-  // async addAdminUserInfo(@Body() dto: any): Promise<UserInfoDto> {
-  //   return await this.userService.addUserInfo(dto)
-  // }
-
   // @Patch('signup')
   // @UseGuards(JwtAuthGuard)
   // async updateUserInfo(@Req() req: Request, @Body() dto: AddUserInfoCommand): Promise<UserInfoDto> {
@@ -110,7 +116,7 @@ export class UserController {
     summary: '회원 관심 직군 수정',
     description: '회원 관심 직군을 수정합니다.'
   })
-  @ApiBody({ type: updateJobOfInterestCommand })
+  @ApiBody({ type: UpdateJobOfInterestCommand })
   @ApiOkResponse({
     description: '성공 시, 200 Ok를 응답합니다.',
     type: UserInfoDto
@@ -120,7 +126,7 @@ export class UserController {
   })
   @Patch('/interest')
   @UseGuards(JwtAuthGuard)
-  async updateJobOfInterest(@Req() req: Request, @Body() dto: updateJobOfInterestCommand): Promise<UserInfoDto> {
+  async updateJobOfInterest(@Req() req: Request, @Body() dto: UpdateJobOfInterestCommand): Promise<UserInfoDto> {
     return await this.userService.updateJobOfInterest(req.user.userId, dto.jobOfInterestList)
   }
 
@@ -140,5 +146,28 @@ export class UserController {
   async deleteUser(@Req() req: Request): Promise<null> {
     await this.userService.deleteUser(req.user.userId)
     return null
+  }
+
+  /**
+   ******* 파트너
+   */
+
+  @ApiOperation({
+    summary: '파트너 정보 추가',
+    description: '파트너 정보를 추가합니다.'
+  })
+  @ApiBody({ type: AddPartnerCommandDto })
+  @ApiCreatedResponse({
+    description: '성공 시, 201 Created를 응답합니다.',
+    type: AddPartnerCommandDto
+  })
+  @ApiBadRequestResponse({
+    description: '닉네임이 이미 존재하는 경우, 400 Bad Request를 응답합니다.'
+  })
+  @Post('/partner')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  async addPartner(@Req() req: Request, @Body() dto: AddPartnerCommandDto): Promise<Partner> {
+    return await this.userService.addPartner(dto)
   }
 }

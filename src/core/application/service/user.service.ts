@@ -2,9 +2,9 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { CurrentJobDetail, User } from '@prisma/client'
 import { ErrorMessages } from 'src/common/exception/error.messages'
 import { UserRepository } from 'src/core/adapter/repository/user.repository'
-import { AddUserInfoCommand, UpdateUserCommand } from 'src/core/adapter/web/command/user'
-import { UserInfoDto } from './dto/user/response'
+import { AddPartnerCommandDto, AddUserInfoCommand, UpdateUserCommand } from 'src/core/adapter/web/command/user'
 import { StorageService } from 'src/storage/storage.service'
+import { UserInfoDto } from './dto/user/response'
 
 @Injectable()
 export class UserService {
@@ -72,6 +72,17 @@ export class UserService {
     return result
   }
 
+  /** admin 회원 정보 추가 */
+  async addAdminUser(dto: any): Promise<any> {
+    const userData = dto
+    userData.provider = 'none'
+    /** 닉네임 중복 처리 -> 에러일 시 400 에러 코드 반환 */
+    await this.checkUserDuplicateByNicknameOrEmail(userData.nickname, userData.email)
+
+    /** admin 유저 정보 생성 */
+    return await this.repository.createUser(userData)
+  }
+
   /** 회원 정보 추가 */
   async updateUserInfo(id: string, dto: AddUserInfoCommand): Promise<UserInfoDto> {
     /** request body에서 현재 직업, 관심 직군, 유저 정보를 분리 */
@@ -91,15 +102,11 @@ export class UserService {
     )
     const { currentJobDetailId, userId, ...createdCurrentJobDetail } = createdCurrentJobDetailWithUserId
 
-    console.log({ createdCurrentJobDetail })
-
     /** 유저 관심 직군 생성 */
     const jobs = await this.repository.getJobIdsByJobOfInterestList(jobOfInterestList)
     const jobIds = jobs.map(job => job.jobId)
     await this.repository.createJobOfInterestList(updatedUser.userId, jobIds)
     const createdJobOfInterestList = await this.repository.getJobOfInterest(updatedUser.userId)
-
-    console.log({ createdJobOfInterestList })
 
     const result = {
       ...updatedUser,
@@ -159,6 +166,15 @@ export class UserService {
     await this.repository.deleteUser(userId)
   }
 
+  // /** partner 정보 추가 */
+  async addPartner(dto: AddPartnerCommandDto): Promise<any> {
+    /** 닉네임 중복 처리 -> 에러일 시 400 에러 코드 반환 */
+    await this.checkPartnerDuplicateByNickname(dto.nickname)
+
+    /** admin 유저 정보 생성 */
+    return await this.repository.createPartner(dto)
+  }
+
   /**
    * UTILS
    */
@@ -192,6 +208,13 @@ export class UserService {
   /** 닉네임 중복 처리 -> 에러일 시 400 에러 코드 반환 */
   private async checkUserDuplicateByNickname(nickname: string): Promise<void> {
     const user = await this.repository.getUserByNickname(nickname)
+    if (user) {
+      throw new BadRequestException(ErrorMessages.NICKNAME_ALREADY_EXISTS)
+    }
+  }
+  /** 닉네임 중복 처리 -> 에러일 시 400 에러 코드 반환 */
+  private async checkPartnerDuplicateByNickname(nickname: string): Promise<void> {
+    const user = await this.repository.getPartnerByNickname(nickname)
     if (user) {
       throw new BadRequestException(ErrorMessages.NICKNAME_ALREADY_EXISTS)
     }

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
-import { CurrentJobDetail, Job, Prisma, User } from '@prisma/client'
+import { CurrentJobDetail, Job, Partner, Prisma, User } from '@prisma/client'
 import { PrismaService } from 'prisma/prisma.service'
-import { CurrentJobDetailDto, UpdateUserCommand, UserDto } from '../web/command/user'
+import { AddPartnerCommandDto, CurrentJobDetailDto, UpdateUserCommand, UserDto } from '../web/command/user'
 
 @Injectable()
 export class UserRepository {
@@ -223,6 +223,26 @@ export class UserRepository {
     await this.prisma.user.delete({
       where: {
         userId
+      }
+    })
+  }
+
+  /** nickname으로 파트너 찾기 */
+  async getPartnerByNickname(nickname: string): Promise<Partner | null> {
+    return await this.prisma.partner.findFirst({
+      where: {
+        nickname
+      }
+    })
+  }
+
+  /** 파트너 생성 */
+  async createPartner(partnerData: AddPartnerCommandDto): Promise<Partner> {
+    const { recommendation, ...rest } = partnerData
+    return await this.prisma.partner.create({
+      data: {
+        ...rest,
+        recommendation: recommendation.join('|')
       }
     })
   }
