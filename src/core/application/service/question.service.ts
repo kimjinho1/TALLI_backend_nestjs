@@ -98,8 +98,6 @@ export class QuestionService {
       answerDate: question.answer?.createdAt.toISOString() ?? null
     }))
 
-    console.log(res)
-
     return res
   }
 

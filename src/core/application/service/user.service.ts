@@ -93,7 +93,6 @@ export class UserService {
 
     /** 유저 정보 업데이트 */
     const updatedUser = await this.repository.updateUser(id, userData)
-    console.log({ updatedUser })
 
     /** 유저 상세 정보 생성 */
     const createdCurrentJobDetailWithUserId = await this.repository.createCurrentJobDetail(
