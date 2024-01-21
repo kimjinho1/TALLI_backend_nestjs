@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Patch, Post, Req, UseGuards } from '@nestjs/common'
+import { Body, Controller, Delete, Get, Patch, Req, UseGuards } from '@nestjs/common'
 import {
   ApiBadRequestResponse,
   ApiBody,
@@ -9,29 +9,16 @@ import {
   ApiParam,
   ApiTags
 } from '@nestjs/swagger'
-import { Partner } from '@prisma/client'
 import { Request } from 'express'
 import { JwtAuthGuard } from 'src/auth/jwt/jwt-auth.guard'
-import { RolesGuard } from 'src/auth/role/role.guard'
-import { Roles } from 'src/auth/role/roles.decorator'
 import { UserInfoDto } from 'src/core/application/service/dto/user/response'
 import { UserService } from 'src/core/application/service/user.service'
-import {
-  AddPartnerCommandDto,
-  AddUserInfoCommand,
-  DeleteUserCommand,
-  UpdateJobOfInterestCommand,
-  UpdateUserCommand
-} from './command/user'
+import { AddUserInfoCommand, DeleteUserCommand, UpdateJobOfInterestCommand, UpdateUserCommand } from './command/user'
 
 @ApiTags('User')
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
-
-  /**
-   ******* 사용자
-   */
 
   @ApiOperation({ summary: '전체 유저 닉네임 목록 보기', description: '모든 유저의 닉네임을 반환합니다.' })
   @ApiOkResponse({
@@ -146,28 +133,5 @@ export class UserController {
   async deleteUser(@Req() req: Request): Promise<null> {
     await this.userService.deleteUser(req.user.userId)
     return null
-  }
-
-  /**
-   ******* 파트너
-   */
-
-  @ApiOperation({
-    summary: '파트너 정보 추가',
-    description: '파트너 정보를 추가합니다.'
-  })
-  @ApiBody({ type: AddPartnerCommandDto })
-  @ApiCreatedResponse({
-    description: '성공 시, 201 Created를 응답합니다.',
-    type: AddPartnerCommandDto
-  })
-  @ApiBadRequestResponse({
-    description: '닉네임이 이미 존재하는 경우, 400 Bad Request를 응답합니다.'
-  })
-  @Post('/partner')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('ADMIN')
-  async addPartner(@Req() req: Request, @Body() dto: AddPartnerCommandDto): Promise<Partner> {
-    return await this.userService.addPartner(dto)
   }
 }

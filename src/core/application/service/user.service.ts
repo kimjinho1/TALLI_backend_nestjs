@@ -2,7 +2,7 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { CurrentJobDetail, User } from '@prisma/client'
 import { ErrorMessages } from 'src/common/exception/error.messages'
 import { UserRepository } from 'src/core/adapter/repository/user.repository'
-import { AddPartnerCommandDto, AddUserInfoCommand, UpdateUserCommand } from 'src/core/adapter/web/command/user'
+import { AddUserInfoCommand, UpdateUserCommand } from 'src/core/adapter/web/command/user'
 import { StorageService } from 'src/storage/storage.service'
 import { UserInfoDto } from './dto/user/response'
 
@@ -166,15 +166,6 @@ export class UserService {
     await this.repository.deleteUser(userId)
   }
 
-  // /** partner 정보 추가 */
-  async addPartner(dto: AddPartnerCommandDto): Promise<any> {
-    /** 닉네임 중복 처리 -> 에러일 시 400 에러 코드 반환 */
-    await this.checkPartnerDuplicateByNickname(dto.nickname)
-
-    /** admin 유저 정보 생성 */
-    return await this.repository.createPartner(dto)
-  }
-
   /**
    * UTILS
    */
@@ -208,13 +199,6 @@ export class UserService {
   /** 닉네임 중복 처리 -> 에러일 시 400 에러 코드 반환 */
   private async checkUserDuplicateByNickname(nickname: string): Promise<void> {
     const user = await this.repository.getUserByNickname(nickname)
-    if (user) {
-      throw new BadRequestException(ErrorMessages.NICKNAME_ALREADY_EXISTS)
-    }
-  }
-  /** 닉네임 중복 처리 -> 에러일 시 400 에러 코드 반환 */
-  private async checkPartnerDuplicateByNickname(nickname: string): Promise<void> {
-    const user = await this.repository.getPartnerByNickname(nickname)
     if (user) {
       throw new BadRequestException(ErrorMessages.NICKNAME_ALREADY_EXISTS)
     }
