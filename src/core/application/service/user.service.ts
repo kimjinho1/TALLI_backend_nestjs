@@ -73,7 +73,7 @@ export class UserService {
   }
 
   /** admin 회원 정보 추가 */
-  async addAdminUser(dto: any): Promise<any> {
+  async addAdminUser(dto: any): Promise<User> {
     const userData = dto
     userData.provider = 'none'
     /** 닉네임 중복 처리 -> 에러일 시 400 에러 코드 반환 */
