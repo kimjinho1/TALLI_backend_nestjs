@@ -1,19 +1,46 @@
-import { BadRequestException, Injectable } from '@nestjs/common'
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common'
 import { Partner } from '@prisma/client'
+import * as lo from 'lodash'
 import { ErrorMessages } from 'src/common/exception/error.messages'
 import { QuestionRepository } from 'src/core/adapter/repository/question.repository'
 import { AddPartnerCommandDto } from 'src/core/adapter/web/command/question'
+
+const categories = [
+  '보건관리자',
+  '임상연구',
+  '보험심사',
+  '기획 / 마케팅',
+  '공공기관',
+  '공무원',
+  '메디컬라이터',
+  '영업직',
+  '정신건강간호사',
+  '손해사정사'
+]
 
 @Injectable()
 export class QuestionService {
   constructor(private readonly repository: QuestionRepository) {}
 
-  /** 모든 파트저 정보 보기 */
-  async getPartner(category: string): Promise<Partner[]> {
-    return await this.repository.getPartner(category)
+  /** 모든 현직자 정보 보기 */
+  async getPartners(category: string): Promise<Partner[]> {
+    if (!lo.includes(categories, category)) {
+      throw new BadRequestException(ErrorMessages.WRONG_CATEGORY)
+    }
+
+    return await this.repository.getAllPartner(category)
   }
 
-  /** partner 정보 추가 */
+  /** 현직자 정보 보기 */
+  async getPartner(partnerId: string): Promise<Partner> {
+    try {
+      return await this.repository.getPartner(partnerId)
+    } catch (error) {
+      throw new NotFoundException(ErrorMessages.PARTNER_NOT_FOUND)
+    }
+  }
+
+  /** 현직자 정보 추가 */
   async addPartner(dto: AddPartnerCommandDto): Promise<any> {
     /** 닉네임 중복 처리 -> 에러일 시 400 에러 코드 반환 */
     await this.checkPartnerDuplicateByNickname(dto.nickname)
@@ -26,10 +53,10 @@ export class QuestionService {
    * UTILS
    */
 
-  /** 닉네임 중복 처리 -> 에러일 시 400 에러 코드 반환 */
+  /** 현직자 닉네임 중복 처리 -> 에러일 시 400 에러 코드 반환 */
   private async checkPartnerDuplicateByNickname(nickname: string): Promise<void> {
-    const user = await this.repository.getPartnerByNickname(nickname)
-    if (user) {
+    const partner = await this.repository.getPartnerByNickname(nickname)
+    if (partner) {
       throw new BadRequestException(ErrorMessages.NICKNAME_ALREADY_EXISTS)
     }
   }

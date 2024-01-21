@@ -7,7 +7,7 @@ import { AddPartnerCommandDto } from '../web/command/question'
 export class QuestionRepository {
   constructor(private prisma: PrismaService) {}
 
-  /** nickname으로 파트너 찾기 */
+  /** nickname으로 현직자 찾기 */
   async getPartnerByNickname(nickname: string): Promise<Partner | null> {
     return await this.prisma.partner.findFirst({
       where: {
@@ -16,8 +16,8 @@ export class QuestionRepository {
     })
   }
 
-  /** 모든 파트너 조회 */
-  async getPartner(category: string): Promise<Partner[]> {
+  /** 모든 현직자 조회 */
+  async getAllPartner(category: string): Promise<Partner[]> {
     return await this.prisma.partner.findMany({
       where: {
         category
@@ -25,7 +25,16 @@ export class QuestionRepository {
     })
   }
 
-  /** 파트너 생성 */
+  /** 현직자 조회 */
+  async getPartner(partnerId: string): Promise<Partner> {
+    return await this.prisma.partner.findUniqueOrThrow({
+      where: {
+        partnerId
+      }
+    })
+  }
+
+  /** 현직자 생성 */
   async createPartner(partnerData: AddPartnerCommandDto): Promise<Partner> {
     const { recommendation, ...rest } = partnerData
     return await this.prisma.partner.create({

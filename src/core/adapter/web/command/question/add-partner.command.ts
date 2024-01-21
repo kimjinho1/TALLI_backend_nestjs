@@ -2,7 +2,6 @@ import { ApiProperty } from '@nestjs/swagger'
 import { IsArray, IsIn, IsInt, IsNotEmpty, IsString, ValidateIf } from 'class-validator'
 
 const category = [
-  '전체',
   '보건관리자',
   '임상연구',
   '보험심사',
@@ -15,13 +14,13 @@ const category = [
   '손해사정사'
 ]
 export class AddPartnerCommandDto {
-  @ApiProperty({ description: '파트너 닉네임', example: 'jinhokim' })
+  @ApiProperty({ description: '현직자 닉네임', example: 'jinhokim' })
   @IsString()
   @IsNotEmpty()
   nickname: string
 
   @ApiProperty({
-    description: '파트너 프로필 사진',
+    description: '현직자 프로필 사진',
     example: 'http://talli.com/1.png',
     oneOf: [{ type: 'string' }, { type: 'null' }]
   })
@@ -34,7 +33,7 @@ export class AddPartnerCommandDto {
   @IsIn(category)
   category: string
 
-  @ApiProperty({ description: '파트너 직업', example: '국내 CRO' })
+  @ApiProperty({ description: '현직자 직업', example: '국내 CRO' })
   @IsString()
   @IsNotEmpty()
   job: string

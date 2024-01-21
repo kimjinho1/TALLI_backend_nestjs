@@ -15,32 +15,45 @@ import { Roles } from 'src/auth/role/roles.decorator'
 import { QuestionService } from 'src/core/application/service/question.service'
 import { AddPartnerCommandDto } from './command/question'
 
-@ApiTags('Quetsion')
-@Controller('quetsion')
+@ApiTags('Question')
+@Controller('question')
 export class QuestionController {
   constructor(private readonly questionService: QuestionService) {}
 
   @ApiOperation({
-    summary: '모든 파트너 정보 조회',
-    description: '모든 파트너 정보를 조회합니다.'
+    summary: '모든 현직자 정보 조회',
+    description: '모든 현직자 정보를 조회합니다.'
   })
   @ApiOkResponse({
-    description: '성공 시, 200 Ok를 응답합니다.',
-    type: AddPartnerCommandDto
+    description: '성공 시, 200 Ok를 응답합니다.'
+    // type: AddPartnerCommandDto[]
   })
-  @Get('/partner/:category')
-  async getPartner(@Param('category') category: string): Promise<Partner[]> {
-    return await this.questionService.getPartner(category)
+  @Get('/partners/:category')
+  async getPartners(@Param('category') category: string): Promise<Partner[]> {
+    return await this.questionService.getPartners(category)
   }
 
   @ApiOperation({
-    summary: '파트너 정보 추가',
-    description: '파트너 정보를 추가합니다.'
+    summary: '현직자 정보 조회',
+    description: '현직자 정보를 조회합니다.'
+  })
+  @ApiOkResponse({
+    description: '성공 시, 200 Ok를 응답합니다.'
+    // type: AddPartnerCommandDto
+  })
+  @Get('/partner/:partnerId')
+  async getPartner(@Param('partnerId') partnerId: string): Promise<Partner> {
+    return await this.questionService.getPartner(partnerId)
+  }
+
+  @ApiOperation({
+    summary: '현직자 정보 추가',
+    description: '현직자 정보를 추가합니다.'
   })
   @ApiBody({ type: AddPartnerCommandDto })
   @ApiCreatedResponse({
-    description: '성공 시, 201 Created를 응답합니다.',
-    type: AddPartnerCommandDto
+    description: '성공 시, 201 Created를 응답합니다.'
+    // type: AddPartnerCommandDto
   })
   @ApiBadRequestResponse({
     description: '닉네임이 이미 존재하는 경우, 400 Bad Request를 응답합니다.'
