@@ -43,7 +43,7 @@ CREATE TABLE "question" (
     "user_id" UUID NOT NULL,
     "partner_id" UUID NOT NULL,
     "question" TEXT NOT NULL,
-    "current_status" "QuestionStatus" NOT NULL,
+    "is_answered" BOOLEAN NOT NULL DEFAULT false,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "modified_at" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
 

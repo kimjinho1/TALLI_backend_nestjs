@@ -2,7 +2,19 @@ import { ApiProperty } from '@nestjs/swagger'
 import { Type } from 'class-transformer'
 import { IsArray, IsDefined, IsIn, IsInt, IsNotEmpty, IsString, Min, ValidateNested } from 'class-validator'
 
-const category = ['전체', '보건관리자', '임상연구', '보험심사']
+const category = [
+  '전체',
+  '보건관리자',
+  '임상연구',
+  '보험심사',
+  '기획 / 마케팅',
+  '공공기관',
+  '공무원',
+  '메디컬라이터',
+  '영업직',
+  '정신건강간호사',
+  '손해사정사'
+]
 const order = ['최신 등록 순', '조회 많은 순', '북마크 많은 순', '마감일 빠른 순']
 
 export class FilterDto {

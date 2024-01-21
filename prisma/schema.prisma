@@ -38,7 +38,7 @@ model Partner {
   partnerId           String  @id @default(uuid()) @map("partner_id") @db.Uuid
   imageUrl            String? @map("image_url") @db.VarChar(255)
   nickname            String  @unique @db.VarChar(20)
-  category                 String  @db.VarChar(50)
+  category            String  @db.VarChar(50)
   job                 String  @db.VarChar(50)
   escapedPeriod       Int     @map("escaped_period")
   activePeriod        Int     @map("active_period")
@@ -56,13 +56,14 @@ model Partner {
 }
 
 model Question {
-  questionId    Int            @id @default(autoincrement()) @map("question_id")
-  userId        String         @map("user_id") @db.Uuid
-  partnerId     String         @map("partner_id") @db.Uuid
-  question      String         
-  currentStatus QuestionStatus @map("current_status")
-  createdAt     DateTime       @default(now()) @map("created_at")
-  modifiedAt    DateTime?      @default(now()) @updatedAt @map("modified_at")
+  questionId Int       @id @default(autoincrement()) @map("question_id")
+  userId     String    @map("user_id") @db.Uuid
+  partnerId  String    @map("partner_id") @db.Uuid
+  question   String
+  // TODO isAnswered 필요?
+  isAnswered Boolean   @default(false) @map("is_answered")
+  createdAt  DateTime  @default(now()) @map("created_at")
+  modifiedAt DateTime? @default(now()) @updatedAt @map("modified_at")
 
   user    User    @relation(fields: [userId], references: [userId], onDelete: Cascade)
   partner Partner @relation(fields: [partnerId], references: [partnerId], onDelete: Cascade)
