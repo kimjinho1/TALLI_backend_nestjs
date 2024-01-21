@@ -9,8 +9,8 @@ export class QuestionService {
   constructor(private readonly repository: QuestionRepository) {}
 
   /** 모든 파트저 정보 보기 */
-  async getPartner(): Promise<Partner[]> {
-    return await this.repository.getPartner()
+  async getPartner(category: string): Promise<Partner[]> {
+    return await this.repository.getPartner(category)
   }
 
   /** partner 정보 추가 */

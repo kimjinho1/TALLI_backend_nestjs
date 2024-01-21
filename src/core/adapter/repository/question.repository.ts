@@ -17,8 +17,12 @@ export class QuestionRepository {
   }
 
   /** 모든 파트너 조회 */
-  async getPartner(): Promise<Partner[]> {
-    return await this.prisma.partner.findMany()
+  async getPartner(category: string): Promise<Partner[]> {
+    return await this.prisma.partner.findMany({
+      where: {
+        category
+      }
+    })
   }
 
   /** 파트너 생성 */

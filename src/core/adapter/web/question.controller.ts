@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common'
+import { Body, Controller, Get, Param, Post, Req, UseGuards } from '@nestjs/common'
 import {
   ApiBadRequestResponse,
   ApiBody,
@@ -21,18 +21,18 @@ export class QuestionController {
   constructor(private readonly questionService: QuestionService) {}
 
   @ApiOperation({
-    summary: '파트너 정보 조회',
+    summary: '모든 파트너 정보 조회',
     description: '모든 파트너 정보를 조회합니다.'
   })
   @ApiOkResponse({
     description: '성공 시, 200 Ok를 응답합니다.',
     type: AddPartnerCommandDto
   })
-  @Get('/partner')
+  @Get('/partner/:category')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('ADMIN')
-  async getPartner(): Promise<Partner[]> {
-    return await this.questionService.getPartner()
+  async getPartner(@Param('category') category: string): Promise<Partner[]> {
+    return await this.questionService.getPartner(category)
   }
 
   @ApiOperation({
