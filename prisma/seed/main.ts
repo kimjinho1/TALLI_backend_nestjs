@@ -14,9 +14,36 @@ import {
   transformPathPattern,
   updateCompanyAndJobNoticeIdSequence
 } from './utils'
+import { BadRequestException } from '@nestjs/common'
 
 const prisma = new PrismaClient()
 const seedStorage = new SeedStorage()
+
+/** admin 유저 생성 */
+async function createDefaultAdminUser() {
+  const nickname = process.env.ADMIN_NICKNAME
+  const email = process.env.ADMIN_EMAIL
+  const password = process.env.ADMIN_PASSWORD
+
+  if (!nickname || !email || !password) {
+    throw new BadRequestException('어드민 유저 정보가 없습니다.')
+  }
+
+  const data = {
+    nickname,
+    email,
+    password,
+    role: 'ADMIN',
+    currentJob: 'ADMIN',
+    provider: 'NONE'
+  }
+
+  await prisma.user.create({
+    data
+  })
+
+  console.log('Finish createDefaultAdminUser')
+}
 
 /** 유저 직군 데이터 삽입 */
 async function createDefaultJobs() {
@@ -274,6 +301,7 @@ async function saveCorrectImages() {
 
 async function databaseMigrationAnduploadImagesToGCP() {
   /** db 데이터 삽입 & 이미지들 다운로드 */
+  await createDefaultAdminUser()
   await createDefaultJobs()
   await insertCompanyDataToNewDB()
   await insertJobNoticeDataToNewDB()

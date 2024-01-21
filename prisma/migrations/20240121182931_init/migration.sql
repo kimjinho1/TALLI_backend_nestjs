@@ -1,3 +1,6 @@
+-- CreateEnum
+CREATE TYPE "QuestionStatus" AS ENUM ('ANSWERED', 'WAITING');
+
 -- CreateTable
 CREATE TABLE "user" (
     "user_id" UUID NOT NULL,
@@ -13,6 +16,60 @@ CREATE TABLE "user" (
     "current_job" VARCHAR(255) NOT NULL,
 
     CONSTRAINT "user_pkey" PRIMARY KEY ("user_id")
+);
+
+-- CreateTable
+CREATE TABLE "partner" (
+    "partner_id" UUID NOT NULL,
+    "image_url" VARCHAR(255),
+    "nickname" VARCHAR(255) NOT NULL,
+    "job" VARCHAR(255) NOT NULL,
+    "escaped_period" INTEGER NOT NULL,
+    "active_period" INTEGER NOT NULL,
+    "license" VARCHAR(255) NOT NULL,
+    "introduction_title" VARCHAR(255) NOT NULL,
+    "introduction_content" TEXT NOT NULL,
+    "received_questions" INTEGER NOT NULL DEFAULT 0,
+    "response_rate" DOUBLE PRECISION NOT NULL DEFAULT 0.0,
+    "recommendation" TEXT NOT NULL,
+
+    CONSTRAINT "partner_pkey" PRIMARY KEY ("partner_id")
+);
+
+-- CreateTable
+CREATE TABLE "question" (
+    "question_id" SERIAL NOT NULL,
+    "user_id" UUID NOT NULL,
+    "partner_id" UUID NOT NULL,
+    "question" VARCHAR(255) NOT NULL,
+    "current_status" "QuestionStatus" NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "modified_at" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "question_pkey" PRIMARY KEY ("question_id")
+);
+
+-- CreateTable
+CREATE TABLE "answer" (
+    "answer_id" SERIAL NOT NULL,
+    "question_id" INTEGER NOT NULL,
+    "answer" TEXT NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "modified_at" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "answer_pkey" PRIMARY KEY ("answer_id")
+);
+
+-- CreateTable
+CREATE TABLE "review" (
+    "user_id" UUID NOT NULL,
+    "partner_id" UUID NOT NULL,
+    "question_id" INTEGER NOT NULL,
+    "review" TEXT NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "modified_at" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "review_pkey" PRIMARY KEY ("user_id","partner_id","question_id")
 );
 
 -- CreateTable
@@ -97,6 +154,9 @@ CREATE TABLE "bookmarked_job_notice" (
 CREATE UNIQUE INDEX "user_email_key" ON "user"("email");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "partner_nickname_key" ON "partner"("nickname");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "current_job_detail_user_id_key" ON "current_job_detail"("user_id");
 
 -- CreateIndex
@@ -104,6 +164,24 @@ CREATE UNIQUE INDEX "job_title_key" ON "job"("title");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "company_company_name_key" ON "company"("company_name");
+
+-- AddForeignKey
+ALTER TABLE "question" ADD CONSTRAINT "question_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "user"("user_id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "question" ADD CONSTRAINT "question_partner_id_fkey" FOREIGN KEY ("partner_id") REFERENCES "partner"("partner_id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "answer" ADD CONSTRAINT "answer_question_id_fkey" FOREIGN KEY ("question_id") REFERENCES "question"("question_id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "review" ADD CONSTRAINT "review_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "user"("user_id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "review" ADD CONSTRAINT "review_partner_id_fkey" FOREIGN KEY ("partner_id") REFERENCES "partner"("partner_id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "review" ADD CONSTRAINT "review_question_id_fkey" FOREIGN KEY ("question_id") REFERENCES "question"("question_id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "current_job_detail" ADD CONSTRAINT "current_job_detail_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "user"("user_id") ON DELETE CASCADE ON UPDATE CASCADE;
