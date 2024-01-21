@@ -5,6 +5,16 @@ import { ErrorMessages } from 'src/common/exception/error.messages'
 import { QuestionRepository } from 'src/core/adapter/repository/question.repository'
 import { AddPartnerCommandDto, RegisterQuestionCommandDto } from 'src/core/adapter/web/command/question'
 
+type LatestReviews = {
+  nickname: string
+  job: string
+  review: string
+}
+
+export type PartnerInfoResponse = Partner & {
+  latestReviews: LatestReviews[]
+}
+
 const categories = [
   '보건관리자',
   '임상연구',
@@ -33,15 +43,19 @@ export class QuestionService {
   }
 
   /** 현직자 상세 정보 보기 */
-  async getPartner(partnerId: string): Promise<any> {
+  async getPartner(partnerId: string): Promise<PartnerInfoResponse> {
     /** 존재하는 파트너인지 확인 -> 에러일 시 404 에러 코드 반환 */
     const partner = await this.getPartnerOrThrow(partnerId)
 
-    const latestReviews = await this.repository.getPartnerLatestReview(partnerId)
+    const latestReviews = (await this.repository.getPartnerLatestReview(partnerId)).map(review => ({
+      nickname: review.user.nickname,
+      job: review.user.currentJob,
+      review: review.review
+    }))
 
     const res = {
       ...partner,
-      latestReviews: latestReviews
+      latestReviews
     }
 
     return res

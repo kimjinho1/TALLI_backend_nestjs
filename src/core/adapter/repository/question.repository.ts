@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common'
 import { Partner, Question } from '@prisma/client'
 import { PrismaService } from 'prisma/prisma.service'
 import { AddPartnerCommandDto } from '../web/command/question'
+import { PartnerInfoDto } from './dto/question'
 
 @Injectable()
 export class QuestionRepository {
@@ -55,7 +56,7 @@ export class QuestionRepository {
   }
 
   /** 현직자의 최신 리뷰 1개 조회 */
-  async getPartnerLatestReview(partnerId: string): Promise<any | null> {
+  async getPartnerLatestReview(partnerId: string): Promise<PartnerInfoDto> {
     return await this.prisma.review.findMany({
       where: {
         partnerId
