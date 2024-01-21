@@ -1,10 +1,12 @@
-import { Body, Controller, Get, Param, Post, Req, UseGuards } from '@nestjs/common'
+import { Body, Controller, Delete, Get, Param, Post, Req, UseGuards } from '@nestjs/common'
 import {
   ApiBadRequestResponse,
   ApiBody,
   ApiCreatedResponse,
+  ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiParam,
   ApiTags
 } from '@nestjs/swagger'
 import { Partner } from '@prisma/client'
@@ -24,6 +26,12 @@ export class QuestionController {
     summary: '모든 현직자 정보 조회',
     description: '모든 현직자 정보를 조회합니다.'
   })
+  @ApiParam({
+    name: 'category',
+    required: true,
+    description: '카테고리',
+    type: String
+  })
   @ApiOkResponse({
     description: '성공 시, 200 Ok를 응답합니다.'
     // type: AddPartnerCommandDto[]
@@ -37,9 +45,18 @@ export class QuestionController {
     summary: '현직자 정보 조회',
     description: '현직자 정보를 조회합니다.'
   })
+  @ApiParam({
+    name: 'partnerId',
+    required: true,
+    description: '현직자 ID',
+    type: String
+  })
   @ApiOkResponse({
     description: '성공 시, 200 Ok를 응답합니다.'
     // type: AddPartnerCommandDto
+  })
+  @ApiNotFoundResponse({
+    description: '존재하지 않는 현직자 ID인 경우, 404 Not Found를 응답합니다.'
   })
   @Get('/partner/:partnerId')
   async getPartner(@Param('partnerId') partnerId: string): Promise<Partner> {
@@ -63,5 +80,29 @@ export class QuestionController {
   @Roles('ADMIN')
   async addPartner(@Req() req: Request, @Body() dto: AddPartnerCommandDto): Promise<Partner> {
     return await this.questionService.addPartner(dto)
+  }
+
+  @ApiOperation({
+    summary: '현직자 정보 삭제',
+    description: '현직자 정보를 삭제합니다.'
+  })
+  @ApiParam({
+    name: 'partnerId',
+    required: true,
+    description: '현직자 ID',
+    type: String
+  })
+  @ApiOkResponse({
+    description: '성공 시, 200 Ok를 응답합니다.'
+    // type: AddPartnerCommandDto
+  })
+  @ApiNotFoundResponse({
+    description: '존재하지 않는 현직자 ID인 경우, 404 Not Found를 응답합니다.'
+  })
+  @Delete('/partner/:partnerId')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  async deletePartner(@Param('partnerId') partnerId: string): Promise<Partner> {
+    return await this.questionService.deletePartner(partnerId)
   }
 }

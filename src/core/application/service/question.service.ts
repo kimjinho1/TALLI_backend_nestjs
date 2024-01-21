@@ -41,12 +41,19 @@ export class QuestionService {
   }
 
   /** 현직자 정보 추가 */
-  async addPartner(dto: AddPartnerCommandDto): Promise<any> {
+  async addPartner(dto: AddPartnerCommandDto): Promise<Partner> {
     /** 닉네임 중복 처리 -> 에러일 시 400 에러 코드 반환 */
     await this.checkPartnerDuplicateByNickname(dto.nickname)
 
     /** admin 유저 정보 생성 */
     return await this.repository.createPartner(dto)
+  }
+
+  /** 현직자 정보 삭제 */
+  async deletePartner(partnerId: string): Promise<Partner> {
+    await this.getPartner(partnerId)
+
+    return await this.repository.deletePartner(partnerId)
   }
 
   /**

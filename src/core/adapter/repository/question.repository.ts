@@ -44,4 +44,13 @@ export class QuestionRepository {
       }
     })
   }
+
+  /** 현직자 삭제 */
+  async deletePartner(partnerId: string): Promise<Partner> {
+    return await this.prisma.partner.delete({
+      where: {
+        partnerId
+      }
+    })
+  }
 }
