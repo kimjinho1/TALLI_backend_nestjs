@@ -29,8 +29,6 @@ export class QuestionController {
     type: AddPartnerCommandDto
   })
   @Get('/partner/:category')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('ADMIN')
   async getPartner(@Param('category') category: string): Promise<Partner[]> {
     return await this.questionService.getPartner(category)
   }
