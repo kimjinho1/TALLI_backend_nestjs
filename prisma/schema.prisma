@@ -129,7 +129,7 @@ model JobNotice {
   company              Company               @relation(fields: [companyId], references: [companyId], onDelete: Cascade)
   bookmarkedJobNotices BookmarkedJobNotice[]
 
-  @@map("job_notcie")
+  @@map("job_notice")
 }
 
 model BookmarkedJobNotice {

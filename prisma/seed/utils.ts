@@ -84,16 +84,16 @@ export async function updateCompanyAndJobNoticeIdSequence() {
   )`
   */
   await prisma.$executeRaw`SELECT setval(
-  pg_get_serial_sequence('"Company"', 'company_id'),
+  pg_get_serial_sequence('"company"', 'company_id'),
   coalesce(max(company_id) + 1, 1),
   false
-) FROM "Company"`
+) FROM "company"`
 
   await prisma.$executeRaw`SELECT setval(
-  pg_get_serial_sequence('"JobNotice"', 'job_notice_id'),
+  pg_get_serial_sequence('"job_notice"', 'job_notice_id'),
   coalesce(max(job_notice_id) + 1, 1),
   false
-) FROM "JobNotice"`
+) FROM "job_notice"`
 
   console.log('Update company_id and job_notice_id sequence')
 }
