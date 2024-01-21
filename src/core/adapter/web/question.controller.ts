@@ -42,8 +42,8 @@ export class QuestionController {
   }
 
   @ApiOperation({
-    summary: '현직자 정보 조회',
-    description: '현직자 정보를 조회합니다.'
+    summary: '현직자 상세 정보 조회',
+    description: '현직자 상세 정보를 조회합니다.'
   })
   @ApiParam({
     name: 'partnerId',
@@ -59,7 +59,7 @@ export class QuestionController {
     description: '존재하지 않는 현직자 ID인 경우, 404 Not Found를 응답합니다.'
   })
   @Get('/partner/:partnerId')
-  async getPartner(@Param('partnerId') partnerId: string): Promise<Partner> {
+  async getPartner(@Param('partnerId') partnerId: string): Promise<any> {
     return await this.questionService.getPartner(partnerId)
   }
 

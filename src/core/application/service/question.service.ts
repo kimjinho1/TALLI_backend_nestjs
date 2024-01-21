@@ -31,13 +31,18 @@ export class QuestionService {
     return await this.repository.getAllPartner(category)
   }
 
-  /** 현직자 정보 보기 */
-  async getPartner(partnerId: string): Promise<Partner> {
-    try {
-      return await this.repository.getPartner(partnerId)
-    } catch (error) {
-      throw new NotFoundException(ErrorMessages.PARTNER_NOT_FOUND)
+  /** 현직자 상세 정보 보기 */
+  async getPartner(partnerId: string): Promise<any> {
+    const partner = await this.getPartnerOrThrow(partnerId)
+
+    const latestReviews = await this.repository.getPartnerLatestReview(partnerId)
+
+    const res = {
+      ...partner,
+      latestReviews: latestReviews
     }
+
+    return res
   }
 
   /** 현직자 정보 추가 */
@@ -59,6 +64,14 @@ export class QuestionService {
   /**
    * UTILS
    */
+  /** 존재하는 파트너인지 확인 -> 에러일 시 404 에러 코드 반환 */
+  private async getPartnerOrThrow(partnerId: string): Promise<Partner> {
+    try {
+      return await this.repository.getPartner(partnerId)
+    } catch (error) {
+      throw new NotFoundException(ErrorMessages.PARTNER_NOT_FOUND)
+    }
+  }
 
   /** 현직자 닉네임 중복 처리 -> 에러일 시 400 에러 코드 반환 */
   private async checkPartnerDuplicateByNickname(nickname: string): Promise<void> {

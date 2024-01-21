@@ -53,4 +53,26 @@ export class QuestionRepository {
       }
     })
   }
+
+  /** 현직자의 최신 리뷰 1개 조회 */
+  async getPartnerLatestReview(partnerId: string): Promise<any | null> {
+    return await this.prisma.review.findMany({
+      where: {
+        partnerId
+      },
+      orderBy: {
+        createdAt: 'desc'
+      },
+      take: 3,
+      select: {
+        review: true,
+        user: {
+          select: {
+            nickname: true,
+            currentJob: true
+          }
+        }
+      }
+    })
+  }
 }
