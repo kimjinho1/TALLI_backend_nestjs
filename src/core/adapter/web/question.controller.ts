@@ -97,9 +97,9 @@ export class QuestionController {
   })
   @Get()
   @UseGuards(JwtAuthGuard)
-  async getQuestion(@Req() req: Request): Promise<UserQuestionInfoResponse[]> {
+  async getUserQuestion(@Req() req: Request): Promise<UserQuestionInfoResponse[]> {
     const userId = req.user.userId
-    return await this.questionService.getQuestion(userId)
+    return await this.questionService.getUserQuestion(userId)
   }
 
   /**
@@ -119,6 +119,21 @@ export class QuestionController {
   @Roles('ADMIN')
   async getQuestions(): Promise<Question[]> {
     return await this.questionService.getQuestions()
+  }
+
+  @ApiOperation({
+    summary: '개별 질문 내용 보기',
+    description: '개별 질문 내용을 조회합니다.'
+  })
+  @ApiOkResponse({
+    description: '성공 시, 200 Ok를 응답합니다.'
+    // type: AddPartnerCommandDto
+  })
+  @Get('/:questionId')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  async getQuestion(@Param('questionId') questionId: number): Promise<Question> {
+    return await this.questionService.getQuestion(questionId)
   }
 
   @ApiOperation({

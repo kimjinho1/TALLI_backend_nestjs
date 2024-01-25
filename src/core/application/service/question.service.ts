@@ -85,7 +85,7 @@ export class QuestionService {
   }
 
   /** 질문 내역 보기 */
-  async getQuestion(userId: string): Promise<UserQuestionInfoResponse[]> {
+  async getUserQuestion(userId: string): Promise<UserQuestionInfoResponse[]> {
     const userQuestionInfos = await this.repository.getUserQuestionInfos(userId)
 
     const res = userQuestionInfos.map(question => ({
@@ -104,6 +104,11 @@ export class QuestionService {
   /** 전체 질문 내역 보기 */
   async getQuestions(): Promise<Question[]> {
     return await this.repository.getQuestions()
+  }
+
+  /** 개별 질문 내역 보기 */
+  async getQuestion(questionId: number): Promise<Question> {
+    return await this.repository.getQuestion(questionId)
   }
 
   /** 현직자 정보 추가 */
@@ -125,6 +130,7 @@ export class QuestionService {
   /**
    * UTILS
    */
+
   /** 존재하는 파트너인지 확인 -> 에러일 시 404 에러 코드 반환 */
   private async getPartnerOrThrow(partnerId: string): Promise<Partner> {
     try {
@@ -139,6 +145,15 @@ export class QuestionService {
     const partner = await this.repository.getPartnerByNickname(nickname)
     if (partner) {
       throw new BadRequestException(ErrorMessages.NICKNAME_ALREADY_EXISTS)
+    }
+  }
+
+  /** 존재하는 질문인지 확인 -> 에러일 시 404 에러 코드 반환 */
+  private async getQuestionOrThrow(questionId: number): Promise<Question> {
+    try {
+      return await this.repository.getQuestion(questionId)
+    } catch (error) {
+      throw new NotFoundException(ErrorMessages.QUESTION_NOT_FOUND)
     }
   }
 }

@@ -124,4 +124,13 @@ export class QuestionRepository {
   async getQuestions(): Promise<Question[]> {
     return await this.prisma.question.findMany()
   }
+
+  /** 개별 질문 내역 조회 */
+  async getQuestion(questionId: number): Promise<Question> {
+    return await this.prisma.question.findUniqueOrThrow({
+      where: {
+        questionId
+      }
+    })
+  }
 }
