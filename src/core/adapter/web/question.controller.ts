@@ -129,6 +129,22 @@ export class QuestionController {
     return await this.questionService.addReview(userId, dto)
   }
 
+  @ApiOperation({
+    summary: '전체 사용자 리뷰 조회',
+    description: '전체 사용자 리뷰를 조회합니다.'
+  })
+  @ApiOkResponse({
+    description: '성공 시, 200 Ok를 응답합니다.'
+    // type:
+  })
+  @ApiBadRequestResponse({
+    description: '잘못된 입력 범위인 경우, 400 Bad Request를 응답합니다.'
+  })
+  @Get('review/list')
+  async getReviews(@Query('number') number: number): Promise<any> {
+    return await this.questionService.getReviews(number)
+  }
+
   /**
    * ADMIN
    */

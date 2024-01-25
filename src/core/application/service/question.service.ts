@@ -62,7 +62,7 @@ export class QuestionService {
     /** 존재하는 파트너인지 확인 -> 에러일 시 404 에러 코드 반환 */
     const partner = await this.getPartnerOrThrow(partnerId)
 
-    const latestReviews = (await this.repository.getPartnerLatestReview(partnerId)).map(review => ({
+    const latestReviews = (await this.repository.getPartnerLatestReview(partnerId, 3)).map(review => ({
       nickname: review.user.nickname,
       job: review.user.currentJob,
       review: review.review
@@ -138,6 +138,21 @@ export class QuestionService {
     await this.repository.setQuestionAsReviewed(questionId)
 
     return createdReview
+  }
+
+  /** 전체 사용자 리뷰 조회 */
+  async getReviews(number: number): Promise<any> {
+    if (number < 0) {
+      throw new BadRequestException(ErrorMessages.ALREADY_REVIEWED_QUESTION)
+    }
+
+    const res = (await this.repository.getReviewsIncludeUserInfo(number)).map(review => ({
+      nickname: review.user.nickname,
+      job: review.user.currentJob,
+      review: review.review
+    }))
+
+    return res
   }
 
   /** 전체 질문 내역 보기 */

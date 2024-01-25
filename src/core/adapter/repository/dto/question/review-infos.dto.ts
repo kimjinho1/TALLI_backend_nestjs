@@ -1,6 +1,6 @@
 import { Prisma } from '@prisma/client'
 
-export type PartnerInfosDto = Prisma.ReviewGetPayload<{
+export type ReviewInfosDto = Prisma.ReviewGetPayload<{
   select: {
     review: true
     user: {
