@@ -15,7 +15,11 @@ import { Request } from 'express'
 import { JwtAuthGuard } from 'src/auth/jwt/jwt-auth.guard'
 import { RolesGuard } from 'src/auth/role/role.guard'
 import { Roles } from 'src/auth/role/roles.decorator'
-import { PartnerInfoResponse, QuestionService } from 'src/core/application/service/question.service'
+import {
+  PartnerInfoResponse,
+  QuestionService,
+  UserQuestionInfoResponse
+} from 'src/core/application/service/question.service'
 import { AddPartnerCommandDto, RegisterQuestionCommandDto } from './command/question'
 
 @ApiTags('Question')
@@ -93,9 +97,28 @@ export class QuestionController {
   })
   @Get()
   @UseGuards(JwtAuthGuard)
-  async getQuestion(@Req() req: Request): Promise<any> {
+  async getQuestion(@Req() req: Request): Promise<UserQuestionInfoResponse[]> {
     const userId = req.user.userId
     return await this.questionService.getQuestion(userId)
+  }
+
+  /**
+   * ADMIN
+   */
+
+  @ApiOperation({
+    summary: '전체 질문 내용 보기',
+    description: '전체 질문 내용을 조회합니다.'
+  })
+  @ApiOkResponse({
+    description: '성공 시, 200 Ok를 응답합니다.'
+    // type: AddPartnerCommandDto
+  })
+  @Get('/list')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  async getQuestions(): Promise<Question[]> {
+    return await this.questionService.getQuestions()
   }
 
   @ApiOperation({

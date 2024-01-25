@@ -119,4 +119,9 @@ export class QuestionRepository {
       }
     })
   }
+
+  /** 전체 질문 내역 조회 */
+  async getQuestions(): Promise<Question[]> {
+    return await this.prisma.question.findMany()
+  }
 }

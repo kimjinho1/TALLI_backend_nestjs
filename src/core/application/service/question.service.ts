@@ -85,7 +85,7 @@ export class QuestionService {
   }
 
   /** 질문 내역 보기 */
-  async getQuestion(userId: string): Promise<any> {
+  async getQuestion(userId: string): Promise<UserQuestionInfoResponse[]> {
     const userQuestionInfos = await this.repository.getUserQuestionInfos(userId)
 
     const res = userQuestionInfos.map(question => ({
@@ -99,6 +99,11 @@ export class QuestionService {
     }))
 
     return res
+  }
+
+  /** 전체 질문 내역 보기 */
+  async getQuestions(): Promise<Question[]> {
+    return await this.repository.getQuestions()
   }
 
   /** 현직자 정보 추가 */
