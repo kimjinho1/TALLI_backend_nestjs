@@ -45,6 +45,7 @@ CREATE TABLE "question" (
     "question" TEXT NOT NULL,
     "current_status" TEXT NOT NULL,
     "is_answered" BOOLEAN NOT NULL DEFAULT false,
+    "is_reviewed" BOOLEAN NOT NULL DEFAULT false,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "modified_at" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
 
