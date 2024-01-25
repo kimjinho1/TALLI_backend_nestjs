@@ -78,11 +78,17 @@ export class QuestionRepository {
   }
 
   /** 질문 등록 */
-  async registerQuestion(userId: string, partnerId: string, question: string): Promise<Question> {
+  async registerQuestion(
+    userId: string,
+    currentStatus: string,
+    partnerId: string,
+    question: string
+  ): Promise<Question> {
     return await this.prisma.question.create({
       data: {
         userId,
         partnerId,
+        currentStatus,
         question
       }
     })

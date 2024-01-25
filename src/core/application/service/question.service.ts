@@ -73,13 +73,13 @@ export class QuestionService {
 
   /** 물어보기 질문 등록 */
   async registerQuestions(userId: string, dto: RegisterQuestionCommandDto): Promise<Question[]> {
-    const { partnerId, question1, question2 } = dto
+    const { partnerId, currentStatus, question1, question2 } = dto
 
     /** 존재하는 파트너인지 확인 -> 에러일 시 404 에러 코드 반환 */
     await this.getPartnerOrThrow(partnerId)
 
-    const q1 = await this.repository.registerQuestion(userId, partnerId, question1)
-    const q2 = await this.repository.registerQuestion(userId, partnerId, question1)
+    const q1 = await this.repository.registerQuestion(userId, currentStatus, partnerId, question1)
+    const q2 = await this.repository.registerQuestion(userId, currentStatus, partnerId, question2)
 
     return [q1, q2]
   }
@@ -135,10 +135,5 @@ export class QuestionService {
     if (partner) {
       throw new BadRequestException(ErrorMessages.NICKNAME_ALREADY_EXISTS)
     }
-  }
-
-  /** 질문 등록 */
-  private async registerQuestion(userId: string, partnerId, question): Promise<Question> {
-    return await this.repository.registerQuestion(userId, partnerId, question)
   }
 }
