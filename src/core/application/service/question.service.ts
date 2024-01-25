@@ -25,18 +25,18 @@ export type UserQuestionInfoResponse = {
   answerDate: string | null
 }
 
-const categories = [
-  '보건관리자',
-  '임상연구',
-  '보험심사',
-  '기획 / 마케팅',
-  '공공기관',
-  '공무원',
-  '메디컬라이터',
-  '영업직',
-  '정신건강간호사',
-  '손해사정사'
-]
+const categories = {
+  health_manager: '보건관리자',
+  research_nurse: '임상연구',
+  insurance: '보험심사',
+  planner: '기획 / 마케팅',
+  public_institution: '공공기관',
+  public_official: '공무원',
+  medical_writer: '메디컬라이터',
+  salesman: '영업직',
+  mental_health_nurse: '정신건강간호사',
+  claim_adjuster: '손해사정사'
+}
 
 @Injectable()
 export class QuestionService {
@@ -45,11 +45,11 @@ export class QuestionService {
   /** 모든 현직자 정보 보기 */
   async getPartners(category: string): Promise<Partner[]> {
     /** 올바른 카테고리인지 확인 -> 에러일 시 400 에러 코드 반환 */
-    if (!lo.includes(categories, category)) {
+    if (!lo.has(categories, category)) {
       throw new BadRequestException(ErrorMessages.WRONG_CATEGORY)
     }
 
-    return await this.repository.getAllPartner(category)
+    return await this.repository.getAllPartner(categories[category])
   }
 
   /** 현직자 상세 정보 보기 */

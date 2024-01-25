@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Req, UseGuards } from '@nestjs/common'
+import { Body, Controller, Delete, Get, Param, Post, Query, Req, UseGuards } from '@nestjs/common'
 import {
   ApiBadRequestResponse,
   ApiBody,
@@ -7,6 +7,7 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiParam,
+  ApiQuery,
   ApiTags
 } from '@nestjs/swagger'
 import { Partner, Question } from '@prisma/client'
@@ -26,7 +27,7 @@ export class QuestionController {
     summary: '모든 현직자 정보 조회',
     description: '모든 현직자 정보를 조회합니다.'
   })
-  @ApiParam({
+  @ApiQuery({
     name: 'category',
     required: true,
     description: '카테고리',
@@ -36,8 +37,8 @@ export class QuestionController {
     description: '성공 시, 200 Ok를 응답합니다.'
     // type: AddPartnerCommandDto[]
   })
-  @Get('/partners/:category')
-  async getPartners(@Param('category') category: string): Promise<Partner[]> {
+  @Get('/partner/list')
+  async getPartners(@Query('category') category: string): Promise<Partner[]> {
     return await this.questionService.getPartners(category)
   }
 
