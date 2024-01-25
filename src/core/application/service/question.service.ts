@@ -68,8 +68,15 @@ export class QuestionService {
       review: review.review
     }))
 
+    const partnerQuestions = await this.repository.getPartnerQuestions(partnerId)
+    const receivedQuestions = partnerQuestions.length
+    const answeredCount = lo.size(lo.filter(partnerQuestions, { isAnswered: true }))
+    const responseRate = (answeredCount / receivedQuestions) * 100
+
     const res = {
       ...partner,
+      receivedQuestions,
+      responseRate,
       latestReviews
     }
 

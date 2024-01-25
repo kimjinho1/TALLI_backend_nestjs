@@ -77,6 +77,15 @@ export class QuestionRepository {
     })
   }
 
+  /** 파트너에게 할당된 질문들 조회 */
+  async getPartnerQuestions(partnerId: string): Promise<Question[]> {
+    return await this.prisma.question.findMany({
+      where: {
+        partnerId
+      }
+    })
+  }
+
   /** 질문 등록 */
   async registerQuestion(
     userId: string,
