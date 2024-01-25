@@ -17,5 +17,7 @@ export const ErrorMessages = {
   WRONG_CATEGORY: '잘못된 카테고리입니다.',
   SHORT_QUESTION: '질문이 너무 짧습니다.',
   QUESTION_NOT_FOUND: '존재하지 않는 질문입니다.',
-  ALREADY_ANSWERED_QUESTION: '이미 답변 완료된 질문입니다.'
+  ALREADY_ANSWERED_QUESTION: '이미 답변 완료된 질문입니다.',
+  NOT_ANSWERED_QUESTION: '답변 완료된 질문이 아닙니다.',
+  ALREADY_REVIEWED_QUESTION: '이미 리뷰가 진행된 질문입니다.'
 }

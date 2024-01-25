@@ -1,11 +1,12 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common'
-import { Answer, Partner, Question } from '@prisma/client'
+import { Answer, Partner, Question, Review } from '@prisma/client'
 import * as lo from 'lodash'
 import { ErrorMessages } from 'src/common/exception/error.messages'
 import { QuestionRepository } from 'src/core/adapter/repository/question.repository'
 import {
   AddAnswerCommandDto,
   AddPartnerCommandDto,
+  AddReviewCommandDto,
   RegisterQuestionCommandDto
 } from 'src/core/adapter/web/command/question'
 
@@ -105,6 +106,33 @@ export class QuestionService {
     return res
   }
 
+  /** 사용자 리뷰 추가 */
+  async addReview(userId: string, dto: AddReviewCommandDto): Promise<Review> {
+    const { partnerId, questionId, review } = dto
+
+    /** 존재하는 파트너인지 확인 -> 에러일 시 404 에러 코드 반환 */
+    await this.getPartnerOrThrow(partnerId)
+
+    /** 존재하는 질문인지 확인 -> 에러일 시 404 에러 코드 반환 */
+    const question = await this.getQuestionOrThrow(questionId)
+
+    /** 답변이 완료된 질문인지 확인 -> 에러일 시 400 에러 코드 반환 */
+    if (!question.isAnswered) {
+      throw new BadRequestException(ErrorMessages.NOT_ANSWERED_QUESTION)
+    }
+
+    /** 리뷰가 없는 질문인지 확인 -> 에러일 시 400 에러 코드 반환 */
+    if (question.isReviewed) {
+      throw new BadRequestException(ErrorMessages.ALREADY_REVIEWED_QUESTION)
+    }
+
+    const createdReview = await this.repository.addReview(userId, partnerId, questionId, review)
+
+    await this.repository.setQuestionAsReviewed(questionId)
+
+    return createdReview
+  }
+
   /** 전체 질문 내역 보기 */
   async getQuestions(): Promise<Question[]> {
     return await this.repository.getQuestions()
@@ -125,7 +153,11 @@ export class QuestionService {
     /** 이미 답변된 질문인지 확인 -> 에러일 시 400 에러 코드 반환 */
     await this.checkAlreadyAnsweredQuestion(questionId)
 
-    return await this.repository.addAnswer(questionId, answer)
+    const createdAnswer = await this.repository.addAnswer(questionId, answer)
+
+    await this.repository.setQuestionAsAnswered(questionId)
+
+    return createdAnswer
   }
 
   /** 현직자 정보 추가 */
@@ -174,7 +206,7 @@ export class QuestionService {
     }
   }
 
-  /** 이미 답변된 질문인지 확인 -> 에러일 시 404 에러 코드 반환 */
+  /** 이미 답변된 질문인지 확인 -> 에러일 시 400 에러 코드 반환 */
   private async checkAlreadyAnsweredQuestion(questionId: number): Promise<void> {
     const answer = await this.repository.getAnswer(questionId)
     if (answer) {

@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { Answer, Partner, Question } from '@prisma/client'
+import { Answer, Partner, Question, Review } from '@prisma/client'
 import { PrismaService } from 'prisma/prisma.service'
 import { AddPartnerCommandDto } from '../web/command/question'
 import { PartnerInfosDto, UserQuestionInfosDto } from './dto/question'
@@ -120,6 +120,18 @@ export class QuestionRepository {
     })
   }
 
+  /** 리뷰 등록 */
+  async addReview(userId: string, partnerId: string, questionId: number, review: string): Promise<Review> {
+    return await this.prisma.review.create({
+      data: {
+        userId,
+        partnerId,
+        questionId,
+        review
+      }
+    })
+  }
+
   /** 전체 질문 내역 조회 */
   async getQuestions(): Promise<Question[]> {
     return await this.prisma.question.findMany()
@@ -149,6 +161,30 @@ export class QuestionRepository {
       data: {
         questionId,
         answer
+      }
+    })
+  }
+
+  /** 질문에 답변 완료 체크 */
+  async setQuestionAsAnswered(questionId: number): Promise<Question> {
+    return await this.prisma.question.update({
+      where: {
+        questionId
+      },
+      data: {
+        isAnswered: true
+      }
+    })
+  }
+
+  /** 질문에 리뷰 완료 체크 */
+  async setQuestionAsReviewed(questionId: number): Promise<Question> {
+    return await this.prisma.question.update({
+      where: {
+        questionId
+      },
+      data: {
+        isReviewed: true
       }
     })
   }

@@ -10,7 +10,7 @@ import {
   ApiQuery,
   ApiTags
 } from '@nestjs/swagger'
-import { Answer, Partner, Question } from '@prisma/client'
+import { Answer, Partner, Question, Review } from '@prisma/client'
 import { Request } from 'express'
 import { JwtAuthGuard } from 'src/auth/jwt/jwt-auth.guard'
 import { RolesGuard } from 'src/auth/role/role.guard'
@@ -20,7 +20,12 @@ import {
   QuestionService,
   UserQuestionInfoResponse
 } from 'src/core/application/service/question.service'
-import { AddAnswerCommandDto, AddPartnerCommandDto, RegisterQuestionCommandDto } from './command/question'
+import {
+  AddAnswerCommandDto,
+  AddPartnerCommandDto,
+  AddReviewCommandDto,
+  RegisterQuestionCommandDto
+} from './command/question'
 
 @ApiTags('Question')
 @Controller('question')
@@ -75,7 +80,7 @@ export class QuestionController {
   @ApiBody({ type: AddPartnerCommandDto })
   @ApiCreatedResponse({
     description: '성공 시, 201 Created를 응답합니다.',
-    type: RegisterQuestionCommandDto
+    type: AddPartnerCommandDto
   })
   @ApiNotFoundResponse({
     description: '존재하지 않는 현직자 ID인 경우, 404 Not Found를 응답합니다.'
@@ -100,6 +105,28 @@ export class QuestionController {
   async getUserQuestion(@Req() req: Request): Promise<UserQuestionInfoResponse[]> {
     const userId = req.user.userId
     return await this.questionService.getUserQuestion(userId)
+  }
+
+  @ApiOperation({
+    summary: '리뷰 추가',
+    description: '사용자 리뷰를 추가합니다.'
+  })
+  @ApiBody({ type: AddReviewCommandDto })
+  @ApiCreatedResponse({
+    description: '성공 시, 201 Created를 응답합니다.',
+    type: AddReviewCommandDto
+  })
+  @ApiNotFoundResponse({
+    description: '존재하지 않는 파트너 또는 질문인 경우, 404 Not Found를 응답합니다.'
+  })
+  @ApiBadRequestResponse({
+    description: '이미 리뷰가 진행된 질문인 경우, 400 Bad Request를 응답합니다.'
+  })
+  @Post('review')
+  @UseGuards(JwtAuthGuard)
+  async addReview(@Req() req: Request, @Body() dto: AddReviewCommandDto): Promise<Review> {
+    const userId = req.user.userId
+    return await this.questionService.addReview(userId, dto)
   }
 
   /**
@@ -144,6 +171,9 @@ export class QuestionController {
   @ApiCreatedResponse({
     description: '성공 시, 201 Created를 응답합니다.'
     // type: AddPartnerCommandDto
+  })
+  @ApiNotFoundResponse({
+    description: '존재하지 않는 질문인 경우, 404 Not Found를 응답합니다.'
   })
   @ApiBadRequestResponse({
     description: '답변이 이미 존재하는 경우, 400 Bad Request를 응답합니다.'
