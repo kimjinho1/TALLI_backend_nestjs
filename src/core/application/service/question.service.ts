@@ -1,9 +1,13 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common'
-import { Partner, Question } from '@prisma/client'
+import { Answer, Partner, Question } from '@prisma/client'
 import * as lo from 'lodash'
 import { ErrorMessages } from 'src/common/exception/error.messages'
 import { QuestionRepository } from 'src/core/adapter/repository/question.repository'
-import { AddPartnerCommandDto, RegisterQuestionCommandDto } from 'src/core/adapter/web/command/question'
+import {
+  AddAnswerCommandDto,
+  AddPartnerCommandDto,
+  RegisterQuestionCommandDto
+} from 'src/core/adapter/web/command/question'
 
 type LatestReviews = {
   nickname: string
@@ -111,6 +115,19 @@ export class QuestionService {
     return await this.repository.getQuestion(questionId)
   }
 
+  /** 현직자 답변 추가 */
+  async addAnswer(questionId: number, dto: AddAnswerCommandDto): Promise<Answer> {
+    const { answer } = dto
+
+    /** 존재하는 질문인지 확인 -> 에러일 시 404 에러 코드 반환 */
+    await this.getQuestionOrThrow(questionId)
+
+    /** 이미 답변된 질문인지 확인 -> 에러일 시 400 에러 코드 반환 */
+    await this.checkAlreadyAnsweredQuestion(questionId)
+
+    return await this.repository.addAnswer(questionId, answer)
+  }
+
   /** 현직자 정보 추가 */
   async addPartner(dto: AddPartnerCommandDto): Promise<Partner> {
     /** 닉네임 중복 처리 -> 에러일 시 400 에러 코드 반환 */
@@ -154,6 +171,14 @@ export class QuestionService {
       return await this.repository.getQuestion(questionId)
     } catch (error) {
       throw new NotFoundException(ErrorMessages.QUESTION_NOT_FOUND)
+    }
+  }
+
+  /** 이미 답변된 질문인지 확인 -> 에러일 시 404 에러 코드 반환 */
+  private async checkAlreadyAnsweredQuestion(questionId: number): Promise<void> {
+    const answer = await this.repository.getAnswer(questionId)
+    if (answer) {
+      throw new BadRequestException(ErrorMessages.ALREADY_ANSWERED_QUESTION)
     }
   }
 }

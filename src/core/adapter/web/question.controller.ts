@@ -10,7 +10,7 @@ import {
   ApiQuery,
   ApiTags
 } from '@nestjs/swagger'
-import { Partner, Question } from '@prisma/client'
+import { Answer, Partner, Question } from '@prisma/client'
 import { Request } from 'express'
 import { JwtAuthGuard } from 'src/auth/jwt/jwt-auth.guard'
 import { RolesGuard } from 'src/auth/role/role.guard'
@@ -20,7 +20,7 @@ import {
   QuestionService,
   UserQuestionInfoResponse
 } from 'src/core/application/service/question.service'
-import { AddPartnerCommandDto, RegisterQuestionCommandDto } from './command/question'
+import { AddAnswerCommandDto, AddPartnerCommandDto, RegisterQuestionCommandDto } from './command/question'
 
 @ApiTags('Question')
 @Controller('question')
@@ -134,6 +134,25 @@ export class QuestionController {
   @Roles('ADMIN')
   async getQuestion(@Param('questionId') questionId: number): Promise<Question> {
     return await this.questionService.getQuestion(questionId)
+  }
+
+  @ApiOperation({
+    summary: '현직자 답변 추가',
+    description: '현직자 답변을 추가합니다.'
+  })
+  @ApiBody({ type: AddAnswerCommandDto })
+  @ApiCreatedResponse({
+    description: '성공 시, 201 Created를 응답합니다.'
+    // type: AddPartnerCommandDto
+  })
+  @ApiBadRequestResponse({
+    description: '답변이 이미 존재하는 경우, 400 Bad Request를 응답합니다.'
+  })
+  @Post('/answer/:questionId')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  async addAnswer(@Param('questionId') questionId: number, @Body() dto: AddAnswerCommandDto): Promise<Answer> {
+    return await this.questionService.addAnswer(questionId, dto)
   }
 
   @ApiOperation({

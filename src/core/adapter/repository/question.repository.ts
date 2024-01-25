@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { Partner, Question } from '@prisma/client'
+import { Answer, Partner, Question } from '@prisma/client'
 import { PrismaService } from 'prisma/prisma.service'
 import { AddPartnerCommandDto } from '../web/command/question'
 import { PartnerInfosDto, UserQuestionInfosDto } from './dto/question'
@@ -130,6 +130,25 @@ export class QuestionRepository {
     return await this.prisma.question.findUniqueOrThrow({
       where: {
         questionId
+      }
+    })
+  }
+
+  /** 답변 조회 */
+  async getAnswer(questionId: number): Promise<Answer | null> {
+    return await this.prisma.answer.findUnique({
+      where: {
+        questionId
+      }
+    })
+  }
+
+  /** 답변 추가 */
+  async addAnswer(questionId: number, answer: string): Promise<Answer> {
+    return await this.prisma.answer.create({
+      data: {
+        questionId,
+        answer
       }
     })
   }
