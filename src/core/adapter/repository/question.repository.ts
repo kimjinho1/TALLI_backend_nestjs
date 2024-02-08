@@ -18,10 +18,10 @@ export class QuestionRepository {
   }
 
   /** 모든 현직자 조회 */
-  async getAllPartner(category: string): Promise<Partner[]> {
+  async getAllPartner(category: string | undefined): Promise<Partner[]> {
     return await this.prisma.partner.findMany({
       where: {
-        category
+        category: category || undefined
       }
     })
   }
