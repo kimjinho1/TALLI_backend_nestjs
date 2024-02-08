@@ -62,7 +62,7 @@ export async function downloadImage(imageUrl: string, imageSavePath: string) {
 }
 
 /**
- * autoincrement 요소인 companyId에 값을 직적 대입을 한 상황
+ * autoincrement 요소인 companyId에 값을 직접 대입을 한 상황
  * 그 이후에 자연스럽게 비는 숫자에 알아서 id를 채울줄 알았지만 그렇지 않았음
  * EX) companyId에 총 330개, 마지막 companyId에: 332일 때
  * 새로운 데이터가 저장되었을 때 companyId에 333을 넣는게 아니라
@@ -84,16 +84,16 @@ export async function updateCompanyAndJobNoticeIdSequence() {
   )`
   */
   await prisma.$executeRaw`SELECT setval(
-  pg_get_serial_sequence('"company"', 'company_id'),
-  coalesce(max(company_id) + 1, 1),
-  false
-) FROM "company"`
+    pg_get_serial_sequence('"company"', 'company_id'),
+    coalesce(max(company_id) + 1, 1),
+    false
+  ) FROM "company"`
 
   await prisma.$executeRaw`SELECT setval(
-  pg_get_serial_sequence('"job_notice"', 'job_notice_id'),
-  coalesce(max(job_notice_id) + 1, 1),
-  false
-) FROM "job_notice"`
+    pg_get_serial_sequence('"job_notice"', 'job_notice_id'),
+    coalesce(max(job_notice_id) + 1, 1),
+    false
+  ) FROM "job_notice"`
 
   console.log('Update company_id and job_notice_id sequence')
 }

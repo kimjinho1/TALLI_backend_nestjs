@@ -1,3 +1,4 @@
+import { BadRequestException } from '@nestjs/common'
 import { PrismaClient } from '@prisma/client'
 import axios from 'axios'
 import { join } from 'path'
@@ -14,7 +15,6 @@ import {
   transformPathPattern,
   updateCompanyAndJobNoticeIdSequence
 } from './utils'
-import { BadRequestException } from '@nestjs/common'
 
 const prisma = new PrismaClient()
 const seedStorage = new SeedStorage()
