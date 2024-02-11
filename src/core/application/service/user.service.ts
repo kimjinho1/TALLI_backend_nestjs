@@ -263,7 +263,7 @@ export class UserService {
         if (resJoinUserType !== '직장가입자') {
           continue
         }
-        userCareerInfo.push({ companyName, startDate, endDate })
+        userCareerInfo.push({ companyName, startDate: startDate.toString(), endDate: endDate.toString() })
       }
 
       /** 성공 시 유저 경력 정보들 반환 */

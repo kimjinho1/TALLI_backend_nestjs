@@ -155,7 +155,7 @@ export class UserController {
   @ApiNotFoundResponse({
     description: '존재하지 않는 유저인 경우 400 Bad Request 를 응답합니다.'
   })
-  @Post('career/auth/first')
+  @Post('/career/auth/first')
   @UseGuards(JwtAuthGuard)
   async authenticateCodef(@Req() req: Request, @Body() dto: AuthenticateCodefFirstCommand): Promise<TwoWayInfo> {
     return await this.userService.authenticateCodefFirst(req.user.userId, dto)
@@ -176,7 +176,7 @@ export class UserController {
   @ApiNotFoundResponse({
     description: '존재하지 않는 유저인 경우 400 Bad Request 를 응답합니다.'
   })
-  @Post('career/auth/second')
+  @Post('/career/auth/second')
   @UseGuards(JwtAuthGuard)
   async getUserCareerInfoFromCodef(
     @Req() req: Request,
