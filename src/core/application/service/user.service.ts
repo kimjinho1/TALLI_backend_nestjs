@@ -1,14 +1,41 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common'
+import { ConfigService } from '@nestjs/config'
 import { CurrentJobDetail, User } from '@prisma/client'
 import { ErrorMessages } from 'src/common/exception/error.messages'
 import { UserRepository } from 'src/core/adapter/repository/user.repository'
-import { AddUserInfoCommand, UpdateUserCommand } from 'src/core/adapter/web/command/user'
+import {
+  AddUserInfoCommand,
+  AuthenticateCodefFirstCommand,
+  AuthenticateCodefSecondCommand,
+  TwoWayInfo,
+  UpdateUserCommand
+} from 'src/core/adapter/web/command/user'
 import { StorageService } from 'src/storage/storage.service'
-import { UserInfoDto } from './dto/user/response'
+import { CodefCareerResponseDto, UserInfoDto } from './dto/user/response'
+
+type codefAccessToken = {
+  token: string
+  timeStamp: number
+}
 
 @Injectable()
 export class UserService {
-  constructor(private readonly repository: UserRepository, private readonly storageService: StorageService) {}
+  private encodedAuthString: string
+  private codefAccessToken: codefAccessToken
+
+  constructor(
+    private readonly repository: UserRepository,
+    private readonly storageService: StorageService,
+    private readonly configService: ConfigService
+  ) {
+    const CODEF_ID = this.configService.get<string>('CODEF_ID')
+    const CODEF_PASSWORD = this.configService.get<string>('CODEF_PASSWORD')
+    this.encodedAuthString = btoa(`${CODEF_ID}:${CODEF_PASSWORD}`)
+    this.codefAccessToken = {
+      token: '',
+      timeStamp: 0
+    }
+  }
 
   /** 전체 회원 닉네임 목록 보기 */
   async getUserNicknames(): Promise<string[]> {
@@ -166,6 +193,87 @@ export class UserService {
   }
 
   /**
+   * Career
+   */
+
+  /** CODEF access token 갱신 => 7일 주기여서 6일 주기로 갱신시킴 */
+  async refreshCodefAccessToken(): Promise<void> {
+    // 비교 대상 시각 (6일 전)
+    const currentTime = new Date().getTime()
+    const sixDaysInMilliseconds = 6 * 24 * 60 * 60 * 1000
+    const targetTime = currentTime - sixDaysInMilliseconds
+
+    const { token } = this.codefAccessToken
+
+    // 초기여서 토큰이 없거나 6일 이상이 지났는지 비교
+    if (!token || this.codefAccessToken.timeStamp < targetTime) {
+      this.codefAccessToken.token = await this.getCodefAccessToken()
+      this.codefAccessToken.timeStamp = currentTime
+    }
+  }
+
+  /** codef 1차 인증 */
+  async authenticateCodefFirst(userId: string, dto: AuthenticateCodefFirstCommand): Promise<TwoWayInfo> {
+    /** 존재하는 유저인지 확인 -> 에러일 시 404 에러 코드 반환 */
+    const existedUser = await this.getUser(userId)
+
+    try {
+      const {
+        result: { code, message },
+        data
+      } = await this.fetchAuthenticateCodef(dto)
+
+      /** 실패인 경우 */
+      if (code !== 'CF-03002') {
+        const replacedMessage = message.replace(/\+/g, ' ').trim()
+        throw new BadRequestException(replacedMessage)
+      }
+
+      /** 성공 시 2차 인증 때 필요한 정보 반환 */
+      const { jobIndex, threadIndex, jti, twoWayTimestamp } = data
+      return { jobIndex, threadIndex, jti, twoWayTimestamp }
+    } catch (e) {
+      throw e
+    }
+  }
+
+  /** codef 1차 인증 */
+  async authenticateCodefSecond(
+    userId: string,
+    dto: AuthenticateCodefSecondCommand
+  ): Promise<CodefCareerResponseDto[]> {
+    /** 존재하는 유저인지 확인 -> 에러일 시 404 에러 코드 반환 */
+    const existedUser = await this.getUser(userId)
+
+    try {
+      const {
+        result: { code, message },
+        data
+      } = await this.fetchAuthenticateCodef(dto)
+
+      /** 실패인 경우 */
+      if (code !== 'CF-00000') {
+        const replacedMessage = message.replace(/\+/g, ' ').trim()
+        throw new BadRequestException(replacedMessage)
+      }
+
+      const userCareerInfo: CodefCareerResponseDto[] = []
+      for (const career of data) {
+        const { resJoinUserType, resCompanyNm: companyName, commStartDate: startDate, resIssueDate: endDate } = career
+        if (resJoinUserType !== '직장가입자') {
+          continue
+        }
+        userCareerInfo.push({ companyName, startDate, endDate })
+      }
+
+      /** 성공 시 유저 경력 정보들 반환 */
+      return userCareerInfo
+    } catch (e) {
+      throw e
+    }
+  }
+
+  /**
    * UTILS
    */
 
@@ -201,5 +309,59 @@ export class UserService {
     if (user) {
       throw new BadRequestException(ErrorMessages.NICKNAME_ALREADY_EXISTS)
     }
+  }
+
+  /** CODEF access token 저장 */
+  private async getCodefAccessToken(): Promise<string> {
+    const url = 'https://oauth.codef.io/oauth/token'
+    const options = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        Authorization: `Basic ${this.encodedAuthString}`
+      },
+      body: new URLSearchParams({
+        grant_type: 'client_credentials',
+        scope: 'read'
+      })
+    }
+
+    try {
+      const response = await fetch(url, options)
+      const data = await response.json()
+      const { access_token } = data
+      if (!access_token) {
+        throw new BadRequestException(ErrorMessages.ADMIN_USER_NOT_FOUND)
+      }
+      return access_token
+    } catch (error) {
+      throw error
+    }
+  }
+
+  /** Codef 인증 요청 POST */
+  private async fetchAuthenticateCodef(
+    dto: AuthenticateCodefFirstCommand | AuthenticateCodefSecondCommand
+  ): Promise<any> {
+    await this.refreshCodefAccessToken()
+
+    const { token: codefAccessToken } = this.codefAccessToken
+
+    const url = 'https://development.codef.io/v1/kr/public/pp/nhis-join/identify-confirmation'
+    const options = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${codefAccessToken}`
+      },
+      body: JSON.stringify(dto)
+    }
+
+    const response = await fetch(url, options)
+    const responseData = await response.text() // Response를 텍스트로 변환
+    const decodedData = decodeURIComponent(responseData) // URL 디코드
+    const res = JSON.parse(decodedData)
+
+    return res
   }
 }
