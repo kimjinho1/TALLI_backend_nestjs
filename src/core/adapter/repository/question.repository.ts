@@ -122,6 +122,30 @@ export class QuestionRepository {
     })
   }
 
+  /** 파트너 할당된 질문 개수 update */
+  async updatePartnerReceivedQuestion(partnerId: string, cnt: number): Promise<Partner> {
+    return await this.prisma.partner.update({
+      where: {
+        partnerId
+      },
+      data: {
+        receivedQuestions: { increment: cnt }
+      }
+    })
+  }
+
+  /** 파트너 할당된 질문 개수 +1 */
+  async updatePartnerAnsweredQuestion(partnerId: string, cnt: number): Promise<Partner> {
+    return await this.prisma.partner.update({
+      where: {
+        partnerId
+      },
+      data: {
+        answeredQuestions: { increment: cnt }
+      }
+    })
+  }
+
   /** 유저 질문 내역 조회 */
   async getUserQuestionInfos(userId: string): Promise<UserQuestionInfosDto> {
     return await this.prisma.question.findMany({

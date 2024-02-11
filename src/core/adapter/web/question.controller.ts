@@ -16,6 +16,7 @@ import { JwtAuthGuard } from 'src/auth/jwt/jwt-auth.guard'
 import { RolesGuard } from 'src/auth/role/role.guard'
 import { Roles } from 'src/auth/role/roles.decorator'
 import {
+  AllPartnerInfoResponse,
   PartnerInfoResponse,
   QuestionService,
   UserQuestionInfoResponse
@@ -47,7 +48,7 @@ export class QuestionController {
     // type: AddPartnerCommandDto[]
   })
   @Get('/partner/list')
-  async getPartners(@Query('category') category: string): Promise<Partner[]> {
+  async getPartners(@Query('category') category: string): Promise<AllPartnerInfoResponse> {
     return await this.questionService.getPartners(category)
   }
 

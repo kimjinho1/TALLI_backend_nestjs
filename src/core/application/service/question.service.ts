@@ -16,7 +16,12 @@ type LatestReviews = {
   review: string
 }
 
+export type AllPartnerInfoResponse = (Partner & {
+  responseRate: number
+})[]
+
 export type PartnerInfoResponse = Partner & {
+  responseRate: number
   latestReviews: LatestReviews[]
 }
 
@@ -48,7 +53,7 @@ export class QuestionService {
   constructor(private readonly repository: QuestionRepository) {}
 
   /** 모든 현직자 정보 보기 */
-  async getPartners(category: string): Promise<Partner[]> {
+  async getPartners(category: string): Promise<AllPartnerInfoResponse> {
     /** 카테고리가 있는 경우 올바른 카테고리인지 확인 -> 에러일 시 400 에러 코드 반환 */
     if (category && !lo.has(categories, category)) {
       throw new BadRequestException(ErrorMessages.WRONG_CATEGORY)
@@ -57,7 +62,14 @@ export class QuestionService {
     /** 카테고리가 없으면 전체를 조회해야하기에 undefined로 저장 */
     const matchedCategory = categories[category]
 
-    return await this.repository.getAllPartner(matchedCategory)
+    const partners = await this.repository.getAllPartner(matchedCategory)
+    const res = partners.map(partner => {
+      const { receivedQuestions, answeredQuestions } = partner
+      const responseRate = receivedQuestions > 0 ? (answeredQuestions / receivedQuestions) * 100 : 0
+      return { ...partner, responseRate }
+    })
+
+    return res
   }
 
   /** 현직자 상세 정보 보기 */
@@ -71,14 +83,11 @@ export class QuestionService {
       review: review.review
     }))
 
-    const partnerQuestions = await this.repository.getPartnerQuestions(partnerId)
-    const receivedQuestions = partnerQuestions.length
-    const answeredCount = lo.size(lo.filter(partnerQuestions, { isAnswered: true }))
-    const responseRate = (answeredCount / receivedQuestions) * 100
+    const { receivedQuestions, answeredQuestions } = partner
+    const responseRate = receivedQuestions > 0 ? (answeredQuestions / receivedQuestions) * 100 : 0
 
     const res = {
       ...partner,
-      receivedQuestions,
       responseRate,
       latestReviews
     }
@@ -95,6 +104,8 @@ export class QuestionService {
 
     const q1 = await this.repository.registerQuestion(userId, currentStatus, partnerId, question1)
     const q2 = await this.repository.registerQuestion(userId, currentStatus, partnerId, question2)
+
+    await this.repository.updatePartnerReceivedQuestion(partnerId, 2)
 
     return [q1, q2]
   }
@@ -173,13 +184,14 @@ export class QuestionService {
     const { answer } = dto
 
     /** 존재하는 질문인지 확인 -> 에러일 시 404 에러 코드 반환 */
-    await this.getQuestionOrThrow(questionId)
+    const { partnerId } = await this.getQuestionOrThrow(questionId)
 
     /** 이미 답변된 질문인지 확인 -> 에러일 시 400 에러 코드 반환 */
     await this.checkAlreadyAnsweredQuestion(questionId)
 
     const createdAnswer = await this.repository.addAnswer(questionId, answer)
 
+    await this.repository.updatePartnerAnsweredQuestion(partnerId, 1)
     await this.repository.setQuestionAsAnswered(questionId)
 
     return createdAnswer
