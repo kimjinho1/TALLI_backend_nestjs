@@ -17,6 +17,7 @@ import { RolesGuard } from 'src/auth/role/role.guard'
 import { Roles } from 'src/auth/role/roles.decorator'
 import {
   AllPartnerInfoResponse,
+  LatestReviews,
   PartnerInfoResponse,
   QuestionService,
   UserQuestionInfoResponse
@@ -134,6 +135,12 @@ export class QuestionController {
     summary: '전체 사용자 리뷰 조회',
     description: '전체 사용자 리뷰를 조회합니다.'
   })
+  @ApiQuery({
+    name: 'number',
+    required: false,
+    description: '조회 개수',
+    type: Number
+  })
   @ApiOkResponse({
     description: '성공 시, 200 Ok를 응답합니다.'
     // type:
@@ -142,8 +149,39 @@ export class QuestionController {
     description: '잘못된 입력 범위인 경우, 400 Bad Request를 응답합니다.'
   })
   @Get('review/list')
-  async getReviews(@Query('number') number: number): Promise<any> {
+  async getReviews(@Query('number') number: number): Promise<LatestReviews> {
     return await this.questionService.getReviews(number)
+  }
+
+  @ApiOperation({
+    summary: '전체 리뷰 조회',
+    description: '전체 리뷰를 조회합니다.'
+  })
+  @ApiParam({
+    name: 'partnerId',
+    required: true,
+    description: '조회 개수',
+    type: String
+  })
+  @ApiQuery({
+    name: 'number',
+    required: false,
+    description: '조회 개수',
+    type: Number
+  })
+  @ApiOkResponse({
+    description: '성공 시, 200 Ok를 응답합니다.'
+    // type:
+  })
+  @ApiBadRequestResponse({
+    description: '잘못된 입력 범위인 경우, 400 Bad Request를 응답합니다.'
+  })
+  @Get('review/:partnerId')
+  async getReviewsByPartnerId(
+    @Param('partnerId') partnerId: string,
+    @Query('number') number: number
+  ): Promise<LatestReviews> {
+    return await this.questionService.getReviewsByPartnerId(partnerId, number)
   }
 
   /**

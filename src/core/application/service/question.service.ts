@@ -10,19 +10,19 @@ import {
   RegisterQuestionCommandDto
 } from 'src/core/adapter/web/command/question'
 
-type LatestReviews = {
-  nickname: string
-  job: string
-  review: string
-}
-
 export type AllPartnerInfoResponse = (Partner & {
   responseRate: number
 })[]
 
+export type LatestReviews = {
+  nickname: string
+  job: string
+  review: string
+}[]
+
 export type PartnerInfoResponse = Partner & {
   responseRate: number
-  latestReviews: LatestReviews[]
+  latestReviews: LatestReviews
 }
 
 export type UserQuestionInfoResponse = {
@@ -155,12 +155,29 @@ export class QuestionService {
   }
 
   /** 전체 사용자 리뷰 조회 */
-  async getReviews(number: number): Promise<any> {
+  async getReviews(number: number): Promise<LatestReviews> {
     if (number < 0) {
       throw new BadRequestException(ErrorMessages.ALREADY_REVIEWED_QUESTION)
     }
 
     const res = (await this.repository.getReviewsIncludeUserInfo(number)).map(review => ({
+      nickname: review.user.nickname,
+      job: review.user.currentJob,
+      review: review.review
+    }))
+
+    return res
+  }
+
+  async getReviewsByPartnerId(partnerId: string, number: number): Promise<LatestReviews> {
+    /** 존재하는 파트너인지 확인 -> 에러일 시 404 에러 코드 반환 */
+    await this.getPartnerOrThrow(partnerId)
+
+    if (number < 0) {
+      throw new BadRequestException(ErrorMessages.ALREADY_REVIEWED_QUESTION)
+    }
+
+    const res = (await this.repository.getReviewsIncludeUserInfoByPartnerId(partnerId, number)).map(review => ({
       nickname: review.user.nickname,
       job: review.user.currentJob,
       review: review.review

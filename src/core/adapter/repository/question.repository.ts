@@ -83,7 +83,29 @@ export class QuestionRepository {
       orderBy: {
         createdAt: 'desc'
       },
-      take,
+      ...(take && { take }),
+      select: {
+        review: true,
+        user: {
+          select: {
+            nickname: true,
+            currentJob: true
+          }
+        }
+      }
+    })
+  }
+
+  /** 전체 사용자 리뷰 조회 */
+  async getReviewsIncludeUserInfoByPartnerId(partnerId: string, take: number | undefined): Promise<ReviewInfosDto> {
+    return await this.prisma.review.findMany({
+      where: {
+        partnerId
+      },
+      orderBy: {
+        createdAt: 'desc'
+      },
+      ...(take && { take }),
       select: {
         review: true,
         user: {
@@ -141,7 +163,7 @@ export class QuestionRepository {
         partnerId
       },
       data: {
-        answeredQuestions: { increment: cnt }
+        answeredQuestions: { increment: 1 }
       }
     })
   }
