@@ -1,12 +1,16 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { Transform, Type } from 'class-transformer'
-import { IsDate, IsInt, IsNotEmpty, IsString, Min, ValidateIf } from 'class-validator'
+import { IsDate, IsInt, IsNotEmpty, IsString, IsUUID, Min, ValidateIf } from 'class-validator'
 
 export class CreateJobNoticeCommand {
   @ApiProperty({ description: '회사 ID', example: '1' })
   @IsInt()
   @Min(0)
   companyId: number
+
+  @ApiProperty({ description: 'BigQuery ID', example: 'UUID' })
+  @IsUUID()
+  bigQueryId: string
 
   @ApiProperty({ description: '공고명', example: '탈리 신입 개발자 채용' })
   @IsString()

@@ -5,6 +5,7 @@ import { createReadStream, existsSync, mkdirSync, readFile, readdirSync, statSyn
 import { rm, writeFile } from 'fs/promises'
 import { join, relative } from 'path'
 import { promisify } from 'util'
+import { v4 as uuidv4 } from 'uuid'
 
 const prisma = new PrismaClient()
 export const imageDirPath = join(process.cwd(), 'images')
@@ -112,6 +113,7 @@ export async function checkSequenceUpdated() {
 
   const testJobNoticeData = {
     companyId: 4,
+    bigQueryId: uuidv4(),
     title: '1231231[경력] CO팀 CRA 채용 (서울본사)',
     titleImageUrl: null,
     category: '임상연구',

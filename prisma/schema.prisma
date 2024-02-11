@@ -24,6 +24,7 @@ model User {
   password   String? @db.VarChar(20)
   imageUrl   String? @map("image_url") @db.VarChar(255)
   currentJob String  @map("current_job") @db.VarChar(255)
+  career     Json?
 
   currentJobDetail     CurrentJobDetail?
   jobOfInterest        JobOfInterest[]
@@ -43,10 +44,11 @@ model Partner {
   escapedPeriod       Int     @map("escaped_period")
   activePeriod        Int     @map("active_period")
   license             String  @db.VarChar(50)
+  introductionShort   String  @map("introduction_short") @db.VarChar(255)
   introductionTitle   String  @map("introduction_title") @db.VarChar(255)
   introductionContent String  @map("introduction_content")
   receivedQuestions   Int     @default(0) @map("received_questions")
-  responseRate        Float   @default(0.0) @map("response_rate")
+  answeredQuestions   Int     @default(0) @map("answered_questions")
   recommendation      String
 
   question Question[]
@@ -61,7 +63,6 @@ model Question {
   partnerId     String    @map("partner_id") @db.Uuid
   question      String
   currentStatus String    @map("current_status")
-  // TODO isAnswered 필요?
   isAnswered    Boolean   @default(false) @map("is_answered")
   isReviewed    Boolean   @default(false) @map("is_reviewed")
   createdAt     DateTime  @default(now()) @map("created_at")
@@ -157,6 +158,7 @@ model Company {
 
 model JobNotice {
   jobNoticeId     Int       @id @default(autoincrement()) @map("job_notice_id")
+  bigQueryId      String    @map("big_query_id") @db.Uuid
   title           String    @db.VarChar(255)
   titleImageUrl   String?   @map("title_image_url") @db.VarChar(255)
   category        String    @db.VarChar(255)

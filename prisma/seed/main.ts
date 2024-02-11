@@ -6,14 +6,12 @@ import { v4 as uuidv4 } from 'uuid'
 import { SeedStorage } from './seed-storage'
 import { legacy_company, legacy_position } from './type'
 import {
-  checkSequenceUpdated,
   ensureDirectoryExists,
   getAllFilesInDirectory,
   imageDirPath,
   readCSVFile,
   readImageFileAsBuffer,
-  transformPathPattern,
-  updateCompanyAndJobNoticeIdSequence
+  transformPathPattern
 } from './utils'
 
 const prisma = new PrismaClient()
@@ -173,6 +171,7 @@ async function insertJobNoticeDataToNewDB() {
 
     const position = {
       jobNoticeId: parseInt(data.jobId),
+      bigQueryId: uuidv4(),
       companyId: parseInt(data.companyId),
       title: data.title,
       titleImageUrl: titleImageRelativePath,
@@ -304,11 +303,11 @@ async function databaseMigrationAnduploadImagesToGCP() {
   await createDefaultAdminUser()
   await createDefaultJobs()
   await insertCompanyDataToNewDB()
-  await insertJobNoticeDataToNewDB()
+  // await insertJobNoticeDataToNewDB()
 
   /** autoincrement 업데이트 & 확인 */
-  await updateCompanyAndJobNoticeIdSequence()
-  await checkSequenceUpdated()
+  // await updateCompanyAndJobNoticeIdSequence()
+  // await checkSequenceUpdated()
 
   /** 스토리지에 이미지 업로드 & 다운로드한 이미지들 삭제 */
   // await uploadAllImagesToStorageBucket()

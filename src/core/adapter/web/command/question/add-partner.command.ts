@@ -51,6 +51,11 @@ export class AddPartnerCommandDto {
   @IsNotEmpty()
   license: string
 
+  @ApiProperty({ description: '축약형 소개 제목', example: '축약형 자기 소개~' })
+  @IsString()
+  @IsNotEmpty()
+  introductionShort: string
+
   @ApiProperty({ description: '기본형 소개 제목', example: '안녕하세요. 탈임상 6년차 스텔라입니다~' })
   @IsString()
   @IsNotEmpty()

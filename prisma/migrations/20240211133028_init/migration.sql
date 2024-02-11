@@ -14,6 +14,7 @@ CREATE TABLE "user" (
     "password" VARCHAR(20),
     "image_url" VARCHAR(255),
     "current_job" VARCHAR(255) NOT NULL,
+    "career" JSONB,
 
     CONSTRAINT "user_pkey" PRIMARY KEY ("user_id")
 );
@@ -28,10 +29,11 @@ CREATE TABLE "partner" (
     "escaped_period" INTEGER NOT NULL,
     "active_period" INTEGER NOT NULL,
     "license" VARCHAR(50) NOT NULL,
+    "introduction_short" VARCHAR(255) NOT NULL,
     "introduction_title" VARCHAR(255) NOT NULL,
     "introduction_content" TEXT NOT NULL,
     "received_questions" INTEGER NOT NULL DEFAULT 0,
-    "response_rate" DOUBLE PRECISION NOT NULL DEFAULT 0.0,
+    "answered_questions" INTEGER NOT NULL DEFAULT 0,
     "recommendation" TEXT NOT NULL,
 
     CONSTRAINT "partner_pkey" PRIMARY KEY ("partner_id")
@@ -122,6 +124,7 @@ CREATE TABLE "company" (
 -- CreateTable
 CREATE TABLE "job_notice" (
     "job_notice_id" SERIAL NOT NULL,
+    "big_query_id" UUID NOT NULL,
     "title" VARCHAR(255) NOT NULL,
     "title_image_url" VARCHAR(255),
     "category" VARCHAR(255) NOT NULL,
