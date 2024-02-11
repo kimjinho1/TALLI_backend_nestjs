@@ -4,6 +4,7 @@ import { CurrentJobDetail, User } from '@prisma/client'
 import { ErrorMessages } from 'src/common/exception/error.messages'
 import { UserRepository } from 'src/core/adapter/repository/user.repository'
 import {
+  AddUserCareerInfoDto,
   AddUserInfoCommand,
   AuthenticateCodefFirstCommand,
   AuthenticateCodefSecondCommand,
@@ -11,7 +12,7 @@ import {
   UpdateUserCommand
 } from 'src/core/adapter/web/command/user'
 import { StorageService } from 'src/storage/storage.service'
-import { CodefCareerResponseDto, UserInfoDto } from './dto/user/response'
+import { CodefCareerResponseDto, UserCareerInfoResponseDto, UserInfoDto } from './dto/user/response'
 
 type codefAccessToken = {
   token: string
@@ -215,7 +216,7 @@ export class UserService {
   /** codef 1차 인증 */
   async authenticateCodefFirst(userId: string, dto: AuthenticateCodefFirstCommand): Promise<TwoWayInfo> {
     /** 존재하는 유저인지 확인 -> 에러일 시 404 에러 코드 반환 */
-    const existedUser = await this.getUser(userId)
+    await this.getUser(userId)
 
     try {
       const {
@@ -237,13 +238,13 @@ export class UserService {
     }
   }
 
-  /** codef 1차 인증 */
+  /** codef 2차 인증 */
   async authenticateCodefSecond(
     userId: string,
     dto: AuthenticateCodefSecondCommand
   ): Promise<CodefCareerResponseDto[]> {
     /** 존재하는 유저인지 확인 -> 에러일 시 404 에러 코드 반환 */
-    const existedUser = await this.getUser(userId)
+    await this.getUser(userId)
 
     try {
       const {
@@ -271,6 +272,35 @@ export class UserService {
     } catch (e) {
       throw e
     }
+  }
+
+  /** 유저의 인증된 경력 정보 저장 */
+  async getUserCareerInfo(userId: string): Promise<UserCareerInfoResponseDto[]> {
+    /** 존재하는 유저인지 확인 -> 에러일 시 404 에러 코드 반환 */
+    const { career } = await this.getUser(userId)
+
+    /** 인증된 경력 정보가 없는 경우 */
+    if (career === null) {
+      return []
+    }
+
+    /** 유저 경력 정보를 json으로 변환(str => json) */
+    const parsedCareerInfo = JSON.parse(career)
+
+    return parsedCareerInfo
+  }
+
+  /** 유저의 인증된 경력 정보 조회 */
+  async addUserCareerInfo(userId: string, dto: AddUserCareerInfoDto): Promise<User> {
+    /** 존재하는 유저인지 확인 -> 에러일 시 404 에러 코드 반환 */
+    await this.getUser(userId)
+
+    /** 유저 경력 정보를 문자열로 변환(json => str) */
+    const career = JSON.stringify(dto.data)
+
+    const updatedUser = await this.repository.updateUserCareerInfo(userId, career)
+
+    return updatedUser
   }
 
   /**

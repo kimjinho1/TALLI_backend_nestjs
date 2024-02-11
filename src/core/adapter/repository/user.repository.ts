@@ -193,6 +193,18 @@ export class UserRepository {
     })
   }
 
+  /** 회원 codef 인증 경력 내용 업데이트 */
+  async updateUserCareerInfo(userId: string, career: string): Promise<User> {
+    return await this.prisma.user.update({
+      where: {
+        userId
+      },
+      data: {
+        career
+      }
+    })
+  }
+
   async updateUserProfile(userId: string, dto: UpdateUserCommand): Promise<User> {
     return await this.prisma.user.update({
       where: {

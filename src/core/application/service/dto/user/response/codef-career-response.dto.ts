@@ -14,6 +14,5 @@ export class CodefCareerResponseDto {
 
   @ApiProperty({ description: '자격상실일', example: '20210101' })
   @IsString()
-  @IsNotEmpty()
   endDate: string
 }

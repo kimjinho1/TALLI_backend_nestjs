@@ -1,3 +1,4 @@
+export * from './add-user-career-info.command'
 export * from './add-user.command'
 export * from './authenticate-codef-first.command'
 export * from './authenticate-codef-second.command'
