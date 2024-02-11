@@ -19,5 +19,6 @@ export const ErrorMessages = {
   QUESTION_NOT_FOUND: '존재하지 않는 질문입니다.',
   ALREADY_ANSWERED_QUESTION: '이미 답변 완료된 질문입니다.',
   NOT_ANSWERED_QUESTION: '답변 완료된 질문이 아닙니다.',
-  ALREADY_REVIEWED_QUESTION: '이미 리뷰가 진행된 질문입니다.'
+  ALREADY_REVIEWED_QUESTION: '이미 리뷰가 진행된 질문입니다.',
+  FAILED_GET_CODEF_ACCESS_TOKEN: 'CODEF access token 생성을 실패했습니다.'
 }

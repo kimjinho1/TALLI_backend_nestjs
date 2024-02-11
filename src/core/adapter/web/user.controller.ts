@@ -1,19 +1,32 @@
-import { Body, Controller, Delete, Get, Patch, Req, UseGuards } from '@nestjs/common'
+import { Body, Controller, Delete, Get, Patch, Post, Req, UseGuards } from '@nestjs/common'
 import {
   ApiBadRequestResponse,
   ApiBody,
-  ApiCreatedResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
   ApiParam,
   ApiTags
 } from '@nestjs/swagger'
+import { User } from '@prisma/client'
 import { Request } from 'express'
 import { JwtAuthGuard } from 'src/auth/jwt/jwt-auth.guard'
-import { UserInfoDto } from 'src/core/application/service/dto/user/response'
+import {
+  CodefCareerResponseDto,
+  UserCareerInfoResponseDto,
+  UserInfoDto
+} from 'src/core/application/service/dto/user/response'
 import { UserService } from 'src/core/application/service/user.service'
-import { AddUserInfoCommand, DeleteUserCommand, UpdateJobOfInterestCommand, UpdateUserCommand } from './command/user'
+import {
+  AddUserCareerInfoDto,
+  AddUserInfoCommand,
+  AuthenticateCodefFirstCommand,
+  AuthenticateCodefSecondCommand,
+  DeleteUserCommand,
+  TwoWayInfo,
+  UpdateJobOfInterestCommand,
+  UpdateUserCommand
+} from './command/user'
 
 @ApiTags('User')
 @Controller('user')
@@ -54,12 +67,12 @@ export class UserController {
   }
 
   @ApiOperation({
-    summary: '회원 정보 추가',
+    summary: '회원 정보 업데이트',
     description: 'User, CurrentJobDetail, JobOfInterest을 생성합니다.'
   })
   @ApiBody({ type: AddUserInfoCommand })
-  @ApiCreatedResponse({
-    description: '성공 시, 201 Created를 응답합니다.',
+  @ApiOkResponse({
+    description: '성공 시, 200 OK를 응답합니다.',
     type: AddUserInfoCommand
   })
   @ApiBadRequestResponse({
@@ -127,5 +140,89 @@ export class UserController {
   async deleteUser(@Req() req: Request): Promise<null> {
     await this.userService.deleteUser(req.user.userId)
     return null
+  }
+
+  /**
+   * Career
+   */
+
+  @ApiOperation({
+    summary: 'codef 1차 인증',
+    description: 'codef API를 사용하여 1차 인증 시도 -> 사용자 간편 인증 진행'
+  })
+  @ApiBody({ type: AuthenticateCodefFirstCommand })
+  @ApiOkResponse({
+    description: '성공 시, 200 Ok를 응답합니다.',
+    type: TwoWayInfo
+  })
+  @ApiBadRequestResponse({
+    description: 'Codef 1차 인증 실패시 400 Bad Request 를 응답합니다.'
+  })
+  @ApiNotFoundResponse({
+    description: '존재하지 않는 유저인 경우 404 Bad Request 를 응답합니다.'
+  })
+  @Post('/career/auth/first')
+  @UseGuards(JwtAuthGuard)
+  async authenticateCodefFirst(@Req() req: Request, @Body() dto: AuthenticateCodefFirstCommand): Promise<TwoWayInfo> {
+    return await this.userService.authenticateCodefFirst(req.user.userId, dto)
+  }
+
+  @ApiOperation({
+    summary: 'codef 2차 인증',
+    description: 'codef API를 사용하여 간편 인증 완료되었는지 확인 -> 경력 정보 조회'
+  })
+  @ApiBody({ type: AuthenticateCodefSecondCommand })
+  @ApiOkResponse({
+    description: '성공 시, 200 Ok를 응답합니다.',
+    type: [CodefCareerResponseDto]
+  })
+  @ApiBadRequestResponse({
+    description: 'Codef 1차 인증이 정상적으로 완료되지 않은 경우 400 Bad Request 를 응답합니다.'
+  })
+  @ApiNotFoundResponse({
+    description: '존재하지 않는 유저인 경우 404 Bad Request 를 응답합니다.'
+  })
+  @Post('/career/auth/second')
+  @UseGuards(JwtAuthGuard)
+  async authenticateCodefSecond(
+    @Req() req: Request,
+    @Body() dto: AuthenticateCodefSecondCommand
+  ): Promise<CodefCareerResponseDto[]> {
+    return await this.userService.authenticateCodefSecond(req.user.userId, dto)
+  }
+
+  @ApiOperation({
+    summary: '유저 인증 경력 정보 조회',
+    description: '유저의 인증된 경력을 조회합니다'
+  })
+  @ApiOkResponse({
+    description: '성공 시, 200 Ok를 응답합니다.'
+    // type: []
+  })
+  @ApiNotFoundResponse({
+    description: '존재하지 않는 유저인 경우 404 Bad Request 를 응답합니다.'
+  })
+  @Get('/career')
+  @UseGuards(JwtAuthGuard)
+  async getUserCareerInfo(@Req() req: Request): Promise<UserCareerInfoResponseDto[]> {
+    return await this.userService.getUserCareerInfo(req.user.userId)
+  }
+
+  @ApiOperation({
+    summary: '유저 인증 경력 정보 저장',
+    description: 'codef API를 사용하여 유저의 인증된 경력을 저장합니다'
+  })
+  @ApiBody({ type: AddUserCareerInfoDto })
+  @ApiOkResponse({
+    description: '성공 시, 200 Ok를 응답합니다.'
+    // type: User
+  })
+  @ApiNotFoundResponse({
+    description: '존재하지 않는 유저인 경우 404 Bad Request 를 응답합니다.'
+  })
+  @Post('/career')
+  @UseGuards(JwtAuthGuard)
+  async addUserCareerInfo(@Req() req: Request, @Body() dto: AddUserCareerInfoDto): Promise<User> {
+    return await this.userService.addUserCareerInfo(req.user.userId, dto)
   }
 }
