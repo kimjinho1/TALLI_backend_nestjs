@@ -14,7 +14,7 @@ CREATE TABLE "user" (
     "password" VARCHAR(20),
     "image_url" VARCHAR(255),
     "current_job" VARCHAR(255) NOT NULL,
-    "career" JSONB,
+    "career" TEXT,
 
     CONSTRAINT "user_pkey" PRIMARY KEY ("user_id")
 );
