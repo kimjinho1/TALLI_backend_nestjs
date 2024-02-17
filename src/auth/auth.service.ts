@@ -89,22 +89,22 @@ export class AuthService {
     }
   }
 
-  // async kakaoPassportLogin(req: KakaoRequest): Promise<any> {
-  //   const email = req.user.email
-  //   // const {
-  //   //   user: { email, name, accessToken, refreshToken }
-  //   // } = req
+  async kakaoPassportLogin(req: KakaoRequest): Promise<any> {
+    const email = req.user.email
+    // const {
+    //   user: { email, name, accessToken, refreshToken }
+    // } = req
 
-  //   /** 존재하는 유저인지 확인 */
-  //   const existedUser = await this.userRepository.getUserByEmail(email)
-  //   if (!existedUser) {
-  //     throw new BadRequestException(ErrorMessages.SIGN_UP_REQUIRED)
-  //   }
+    /** 존재하는 유저인지 확인 */
+    const existedUser = await this.userRepository.getKakaoUser(email)
+    if (!existedUser) {
+      throw new BadRequestException(ErrorMessages.SIGN_UP_REQUIRED)
+    }
 
-  //   /** 카카오 가입이 되어 있는 경우 accessToken 발급 */
-  //   const existedUserPayload = { sub: existedUser.userId }
-  //   const accessToken = this.jwtService.sign(existedUserPayload)
+    /** 카카오 가입이 되어 있는 경우 accessToken 발급 */
+    const existedUserPayload = { sub: existedUser.userId }
+    const accessToken = this.jwtService.sign(existedUserPayload)
 
-  //   return accessToken
-  // }
+    return accessToken
+  }
 }
