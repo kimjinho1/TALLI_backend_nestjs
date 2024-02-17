@@ -196,8 +196,8 @@ export class UserController {
     description: '유저의 인증된 경력을 조회합니다'
   })
   @ApiOkResponse({
-    description: '성공 시, 200 Ok를 응답합니다.'
-    // type: []
+    description: '성공 시, 200 Ok를 응답합니다.',
+    type: [UserCareerInfoResponseDto]
   })
   @ApiNotFoundResponse({
     description: '존재하지 않는 유저인 경우 404 Bad Request 를 응답합니다.'

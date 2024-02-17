@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common'
 import { PrismaService } from 'prisma/prisma.service'
+import { JobMapperService } from 'src/common/mapper/job-mapper.service'
 import { StorageService } from 'src/storage/storage.service'
 import { CompanyRepository } from './adapter/repository/company.repository'
 import { JobNoticeRepository } from './adapter/repository/job-notice.repository'
@@ -26,7 +27,8 @@ import { UserService } from './application/service/user.service'
     JobNoticeRepository,
     QuestionService,
     QuestionRepository,
-    StorageService
+    StorageService,
+    JobMapperService
   ]
 })
 export class CoreModule {}

@@ -14,6 +14,7 @@ CREATE TABLE "user" (
     "password" VARCHAR(20),
     "image_url" VARCHAR(255),
     "current_job" VARCHAR(255) NOT NULL,
+    "job_of_interest" TEXT NOT NULL,
     "career" TEXT,
 
     CONSTRAINT "user_pkey" PRIMARY KEY ("user_id")
@@ -92,22 +93,6 @@ CREATE TABLE "current_job_detail" (
 );
 
 -- CreateTable
-CREATE TABLE "job" (
-    "job_id" SERIAL NOT NULL,
-    "title" VARCHAR(255) NOT NULL,
-
-    CONSTRAINT "job_pkey" PRIMARY KEY ("job_id")
-);
-
--- CreateTable
-CREATE TABLE "job_of_interest" (
-    "user_id" UUID NOT NULL,
-    "job_id" INTEGER NOT NULL,
-
-    CONSTRAINT "job_of_interest_pkey" PRIMARY KEY ("user_id","job_id")
-);
-
--- CreateTable
 CREATE TABLE "company" (
     "company_id" SERIAL NOT NULL,
     "company_name" VARCHAR(255) NOT NULL,
@@ -172,9 +157,6 @@ CREATE UNIQUE INDEX "review_question_id_key" ON "review"("question_id");
 CREATE UNIQUE INDEX "current_job_detail_user_id_key" ON "current_job_detail"("user_id");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "job_title_key" ON "job"("title");
-
--- CreateIndex
 CREATE UNIQUE INDEX "company_company_name_key" ON "company"("company_name");
 
 -- AddForeignKey
@@ -197,12 +179,6 @@ ALTER TABLE "review" ADD CONSTRAINT "review_question_id_fkey" FOREIGN KEY ("ques
 
 -- AddForeignKey
 ALTER TABLE "current_job_detail" ADD CONSTRAINT "current_job_detail_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "user"("user_id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "job_of_interest" ADD CONSTRAINT "job_of_interest_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "user"("user_id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "job_of_interest" ADD CONSTRAINT "job_of_interest_job_id_fkey" FOREIGN KEY ("job_id") REFERENCES "job"("job_id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "job_notice" ADD CONSTRAINT "job_notice_company_id_fkey" FOREIGN KEY ("company_id") REFERENCES "company"("company_id") ON DELETE CASCADE ON UPDATE CASCADE;
