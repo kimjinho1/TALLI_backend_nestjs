@@ -16,11 +16,23 @@ export class UserRepository {
     })
   }
 
-  /** id로 User 찾기 */
+  /** id로 User 조회 */
   async getUser(userId: string): Promise<User> {
     return await this.prisma.user.findFirstOrThrow({
       where: {
         userId
+      }
+    })
+  }
+
+  /** id로 유저 관심 직군 조회 */
+  async getUserJobOfInterest(userId: string): Promise<Pick<User, 'jobOfInterest'>> {
+    return await this.prisma.user.findFirstOrThrow({
+      where: {
+        userId
+      },
+      select: {
+        jobOfInterest: true
       }
     })
   }
@@ -130,7 +142,7 @@ export class UserRepository {
     })
   }
 
-  /** 회원 프로필 수정 */
+  /** 회원 정보 수정 */
   async updateUser(userId: string, dto: UserDto, jobIdsCsvString: string): Promise<User> {
     return await this.prisma.user.update({
       where: {
@@ -138,6 +150,18 @@ export class UserRepository {
       },
       data: {
         ...dto,
+        jobOfInterest: jobIdsCsvString
+      }
+    })
+  }
+
+  /** 회원 관심 직군 수정 */
+  async updateUserJobOfInterest(userId: string, jobIdsCsvString: string): Promise<User> {
+    return await this.prisma.user.update({
+      where: {
+        userId
+      },
+      data: {
         jobOfInterest: jobIdsCsvString
       }
     })

@@ -161,21 +161,14 @@ export class UserService {
   async updateJobOfInterest(userId: string, jobs: string[]): Promise<UserInfoDto> {
     /** 회원 검증과 동시에 회원 정보를 미리 가져옴 */
     let userInfo = await this.getUserInfo(userId)
-    // const interestedJobs = await this.repository.getJobOfInterestList(userId)
 
-    // const jobTitlesToRemove = interestedJobs.filter(job => !jobs.includes(job.title)).map(job => job.title)
-    // const jobTitlesToAdd = jobs
-    //   .filter(newJob => !interestedJobs.some(job => job.title === newJob))
-    //   .filter(job => !jobTitlesToRemove.includes(job))
-    // const jobsToAdd = await this.repository.getJobIdsByJobOfInterestList(jobTitlesToAdd)
-    // const jobIdsToAdd = jobsToAdd.map(job => job.jobId)
+    const jobIds = this.jobMapperService.getJobIds(jobs)
+    const jobIdsCsvString = jobIds.join(',')
+    const { jobOfInterest } = await this.repository.updateUserJobOfInterest(userId, jobIdsCsvString)
+    const newJobIds = jobOfInterest.split(',').map(Number)
+    const newJobs = this.jobMapperService.getJobNames(newJobIds)
 
-    // await this.repository.deleteJobOfInterestList(userId, jobTitlesToRemove)
-    // await this.repository.createJobOfInterestList(userId, jobIdsToAdd)
-
-    // const jobOfInterestList = await this.repository.getJobOfInterestList(userId)
-    // userInfo.jobOfInterestList = jobOfInterestList.map(job => job.title)
-    userInfo.jobOfInterestList = []
+    userInfo.jobOfInterestList = newJobs
 
     return userInfo
   }
