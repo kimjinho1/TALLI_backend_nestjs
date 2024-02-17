@@ -13,21 +13,21 @@ enum QuestionStatus {
 }
 
 model User {
-  userId     String  @id @default(uuid()) @map("user_id") @db.Uuid
-  name       String? @db.VarChar(255)
-  nickname   String  @db.VarChar(255)
-  sex        String? @db.VarChar(255)
-  age        String? @db.VarChar(255)
-  email      String  @unique @db.VarChar(255)
-  role       String  @default("USER") @db.VarChar(10)
-  provider   String  @db.VarChar(20)
-  password   String? @db.VarChar(20)
-  imageUrl   String? @map("image_url") @db.VarChar(255)
-  currentJob String  @map("current_job") @db.VarChar(255)
-  career     String?
+  userId        String  @id @default(uuid()) @map("user_id") @db.Uuid
+  name          String? @db.VarChar(255)
+  nickname      String  @db.VarChar(255)
+  sex           String? @db.VarChar(255)
+  age           String? @db.VarChar(255)
+  email         String  @unique @db.VarChar(255)
+  role          String  @default("USER") @db.VarChar(10)
+  provider      String  @db.VarChar(20)
+  password      String? @db.VarChar(20)
+  imageUrl      String? @map("image_url") @db.VarChar(255)
+  currentJob    String  @map("current_job") @db.VarChar(255)
+  jobOfInterest String  @map("job_of_interest")
+  career        String?
 
   currentJobDetail     CurrentJobDetail?
-  jobOfInterest        JobOfInterest[]
   bookmarkedJobNotices BookmarkedJobNotice[]
   question             Question[]
   review               Review[]
@@ -119,26 +119,6 @@ model CurrentJobDetail {
   user User @relation(fields: [userId], references: [userId], onDelete: Cascade)
 
   @@map("current_job_detail")
-}
-
-model Job {
-  jobId Int    @id @default(autoincrement()) @map("job_id")
-  title String @unique @db.VarChar(255)
-
-  jobOfInterest JobOfInterest[]
-
-  @@map("job")
-}
-
-model JobOfInterest {
-  userId String @map("user_id") @db.Uuid
-  jobId  Int    @map("job_id")
-
-  user User @relation(fields: [userId], references: [userId], onDelete: Cascade)
-  job  Job  @relation(fields: [jobId], references: [jobId], onDelete: Cascade)
-
-  @@id([userId, jobId])
-  @@map("job_of_interest")
 }
 
 model Company {
