@@ -58,13 +58,13 @@ export class UserService {
     const currentJobDetail = await this.getCurrentJobDetail(userId)
 
     /** 유저의 관심 직종 */
-    // const jobOfInterestList = await this.repository.getJobOfInterestList(userId)
+    const jobIds = existedUser.jobOfInterest.split(',').map(Number)
+    const jobNames = this.jobMapperService.getJobNames(jobIds)
 
     const result = {
       ...existedUser,
       currentJobDetail: currentJobDetail,
-      // jobOfInterestList: jobOfInterestList.map(job => job.title)
-      jobOfInterestList: []
+      jobOfInterestList: jobNames
     }
 
     return result
