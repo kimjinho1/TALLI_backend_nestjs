@@ -1,5 +1,7 @@
 export const ErrorMessages = {
   USER_NOT_FOUND: '존재하지 않는 유저입니다.',
+  JOB_NOT_FOUND: '존재하지 않는 직업 이름입니다.',
+  JOB_ID_NOT_FOUND: '존재하지 않는 직업 ID입니다.',
   ADMIN_USER_NOT_FOUND: '존재하지 않는 ADMIN 유저입니다.',
   PARTNER_NOT_FOUND: '존재하지 않는 현직자입니다.',
   CURRENT_JOB_DETAIL_NOT_FOUND: '존재하지 않는 유저 상제 정보입니다.',
