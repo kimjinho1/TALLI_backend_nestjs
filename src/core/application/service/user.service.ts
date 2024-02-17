@@ -2,6 +2,7 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { ConfigService } from '@nestjs/config'
 import { CurrentJobDetail, User } from '@prisma/client'
 import { ErrorMessages } from 'src/common/exception/error.messages'
+import { JobMapperService } from 'src/common/mapper/job-mapper.service'
 import { UserRepository } from 'src/core/adapter/repository/user.repository'
 import {
   AddUserCareerInfoDto,
@@ -27,7 +28,8 @@ export class UserService {
   constructor(
     private readonly repository: UserRepository,
     private readonly storageService: StorageService,
-    private readonly configService: ConfigService
+    private readonly configService: ConfigService,
+    private readonly jobMapperService: JobMapperService
   ) {
     const CODEF_ID = this.configService.get<string>('CODEF_ID')
     const CODEF_PASSWORD = this.configService.get<string>('CODEF_PASSWORD')
@@ -56,12 +58,13 @@ export class UserService {
     const currentJobDetail = await this.getCurrentJobDetail(userId)
 
     /** 유저의 관심 직종 */
-    const jobOfInterestList = await this.repository.getJobOfInterestList(userId)
+    // const jobOfInterestList = await this.repository.getJobOfInterestList(userId)
 
     const result = {
       ...existedUser,
       currentJobDetail: currentJobDetail,
-      jobOfInterestList: jobOfInterestList.map(job => job.title)
+      // jobOfInterestList: jobOfInterestList.map(job => job.title)
+      jobOfInterestList: []
     }
 
     return result
@@ -75,8 +78,12 @@ export class UserService {
     /** 닉네임 중복 처리 -> 에러일 시 400 에러 코드 반환 */
     await this.checkUserDuplicateByNicknameOrEmail(userData.nickname, userData.email)
 
+    /** 유저 관심 직군 생성 */
+    const jobIds = this.jobMapperService.getJobIds(jobOfInterestList)
+    const jobIdsCsvString = jobIds.join(',')
+
     /** 유저 정보 생성 */
-    const createdUser = await this.repository.createUser(userData)
+    const createdUser = await this.repository.createUser(userData, jobIdsCsvString)
 
     /** 유저 상세 정보 생성 */
     const createdCurrentJobDetailWithUserId = await this.repository.createCurrentJobDetail(
@@ -85,16 +92,10 @@ export class UserService {
     )
     const { currentJobDetailId, userId, ...createdCurrentJobDetail } = createdCurrentJobDetailWithUserId
 
-    /** 유저 관심 직군 생성 */
-    const jobs = await this.repository.getJobIdsByJobOfInterestList(jobOfInterestList)
-    const jobIds = jobs.map(job => job.jobId)
-    await this.repository.createJobOfInterestList(createdUser.userId, jobIds)
-    const createdJobOfInterestList = await this.repository.getJobOfInterest(createdUser.userId)
-
     const result = {
       ...createdUser,
       currentJobDetail: createdCurrentJobDetail,
-      jobOfInterestList: createdJobOfInterestList.map(job => job.title)
+      jobOfInterestList
     }
 
     return result
@@ -108,7 +109,7 @@ export class UserService {
     await this.checkUserDuplicateByNicknameOrEmail(userData.nickname, userData.email)
 
     /** admin 유저 정보 생성 */
-    return await this.repository.createUser(userData)
+    return await this.repository.createUser(userData, '')
   }
 
   /** 회원 정보 추가 */
@@ -116,11 +117,13 @@ export class UserService {
     /** request body에서 현재 직업, 관심 직군, 유저 정보를 분리 */
     const { currentJobDetail, jobOfInterestList, ...userData } = dto
 
-    /** 닉네임 중복 처리 -> 에러일 시 400 에러 코드 반환 */
-    // await this.checkUserDuplicateByNicknameOrEmail(userData.nickname, userData.email)
+    /** 유저 관심 직군 생성 */
+    const jobIds = this.jobMapperService.getJobIds(jobOfInterestList)
+    const jobIdsCsvString = jobIds.join(',')
+    console.log(jobIdsCsvString)
 
     /** 유저 정보 업데이트 */
-    const updatedUser = await this.repository.updateUser(id, userData)
+    const updatedUser = await this.repository.updateUser(id, userData, jobIdsCsvString)
 
     /** 유저 상세 정보 생성 */
     const createdCurrentJobDetailWithUserId = await this.repository.createCurrentJobDetail(
@@ -129,16 +132,10 @@ export class UserService {
     )
     const { currentJobDetailId, userId, ...createdCurrentJobDetail } = createdCurrentJobDetailWithUserId
 
-    /** 유저 관심 직군 생성 */
-    const jobs = await this.repository.getJobIdsByJobOfInterestList(jobOfInterestList)
-    const jobIds = jobs.map(job => job.jobId)
-    await this.repository.createJobOfInterestList(updatedUser.userId, jobIds)
-    const createdJobOfInterestList = await this.repository.getJobOfInterest(updatedUser.userId)
-
     const result = {
       ...updatedUser,
-      currentJobDetail: createdCurrentJobDetail,
-      jobOfInterestList: createdJobOfInterestList.map(job => job.title)
+      jobOfInterestList,
+      currentJobDetail: createdCurrentJobDetail
     }
 
     return result
@@ -164,20 +161,21 @@ export class UserService {
   async updateJobOfInterest(userId: string, jobs: string[]): Promise<UserInfoDto> {
     /** 회원 검증과 동시에 회원 정보를 미리 가져옴 */
     let userInfo = await this.getUserInfo(userId)
-    const interestedJobs = await this.repository.getJobOfInterestList(userId)
+    // const interestedJobs = await this.repository.getJobOfInterestList(userId)
 
-    const jobTitlesToRemove = interestedJobs.filter(job => !jobs.includes(job.title)).map(job => job.title)
-    const jobTitlesToAdd = jobs
-      .filter(newJob => !interestedJobs.some(job => job.title === newJob))
-      .filter(job => !jobTitlesToRemove.includes(job))
-    const jobsToAdd = await this.repository.getJobIdsByJobOfInterestList(jobTitlesToAdd)
-    const jobIdsToAdd = jobsToAdd.map(job => job.jobId)
+    // const jobTitlesToRemove = interestedJobs.filter(job => !jobs.includes(job.title)).map(job => job.title)
+    // const jobTitlesToAdd = jobs
+    //   .filter(newJob => !interestedJobs.some(job => job.title === newJob))
+    //   .filter(job => !jobTitlesToRemove.includes(job))
+    // const jobsToAdd = await this.repository.getJobIdsByJobOfInterestList(jobTitlesToAdd)
+    // const jobIdsToAdd = jobsToAdd.map(job => job.jobId)
 
-    await this.repository.deleteJobOfInterestList(userId, jobTitlesToRemove)
-    await this.repository.createJobOfInterestList(userId, jobIdsToAdd)
+    // await this.repository.deleteJobOfInterestList(userId, jobTitlesToRemove)
+    // await this.repository.createJobOfInterestList(userId, jobIdsToAdd)
 
-    const jobOfInterestList = await this.repository.getJobOfInterestList(userId)
-    userInfo.jobOfInterestList = jobOfInterestList.map(job => job.title)
+    // const jobOfInterestList = await this.repository.getJobOfInterestList(userId)
+    // userInfo.jobOfInterestList = jobOfInterestList.map(job => job.title)
+    userInfo.jobOfInterestList = []
 
     return userInfo
   }
