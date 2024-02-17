@@ -30,10 +30,11 @@ async function createDefaultAdminUser() {
   const data = {
     nickname,
     email,
-    password,
     role: 'ADMIN',
+    provider: 'NONE',
+    password,
     currentJob: 'ADMIN',
-    provider: 'NONE'
+    jobOfInterest: ''
   }
 
   await prisma.user.create({
@@ -41,32 +42,6 @@ async function createDefaultAdminUser() {
   })
 
   console.log('Finish createDefaultAdminUser')
-}
-
-/** 유저 직군 데이터 삽입 */
-async function createDefaultJobs() {
-  const titles = [
-    '보건관리자',
-    '임상연구',
-    '보험심사',
-    '기획 / 마케팅',
-    '공공기관',
-    '공무원',
-    '메디컬라이터',
-    '영업직',
-    '정신건강간호사',
-    '손해사정사'
-  ]
-
-  for (const title of titles) {
-    await prisma.job.create({
-      data: {
-        title
-      }
-    })
-  }
-
-  console.log('Finish createDefaultJobs')
 }
 
 /** Company 데이터 삽입 */
@@ -301,7 +276,6 @@ async function saveCorrectImages() {
 async function databaseMigrationAnduploadImagesToGCP() {
   /** db 데이터 삽입 & 이미지들 다운로드 */
   await createDefaultAdminUser()
-  await createDefaultJobs()
   await insertCompanyDataToNewDB()
   // await insertJobNoticeDataToNewDB()
 
