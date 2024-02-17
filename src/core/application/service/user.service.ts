@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { CurrentJobDetail, User } from '@prisma/client'
+import * as lo from 'lodash'
 import { ErrorMessages } from 'src/common/exception/error.messages'
 import { JobMapperService } from 'src/common/mapper/job-mapper.service'
 import { UserRepository } from 'src/core/adapter/repository/user.repository'
@@ -58,7 +59,8 @@ export class UserService {
     const currentJobDetail = await this.getCurrentJobDetail(userId)
 
     /** 유저의 관심 직종 */
-    const jobIds = existedUser.jobOfInterest.split(',').map(Number)
+    const jobOfInterest = existedUser.jobOfInterest
+    const jobIds = lo.isEmpty(jobOfInterest) ? [] : jobOfInterest.split(',').map(Number)
     const jobNames = this.jobMapperService.getJobNames(jobIds)
 
     const result = {
@@ -165,7 +167,7 @@ export class UserService {
     const jobIds = this.jobMapperService.getJobIds(jobs)
     const jobIdsCsvString = jobIds.join(',')
     const { jobOfInterest } = await this.repository.updateUserJobOfInterest(userId, jobIdsCsvString)
-    const newJobIds = jobOfInterest.split(',').map(Number)
+    const newJobIds = lo.isEmpty(jobOfInterest) ? [] : jobOfInterest.split(',').map(Number)
     const newJobs = this.jobMapperService.getJobNames(newJobIds)
 
     userInfo.jobOfInterestList = newJobs
