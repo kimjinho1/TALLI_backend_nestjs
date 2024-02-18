@@ -17,4 +17,5 @@ jobs:
           script: |
             cd backend
             pwd
+            ls -al
             git pull origin master
