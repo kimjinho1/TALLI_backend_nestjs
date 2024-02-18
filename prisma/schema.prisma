@@ -7,11 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum QuestionStatus {
-  ANSWERED
-  WAITING
-}
-
 model User {
   userId        String  @id @default(uuid()) @map("user_id") @db.Uuid
   name          String? @db.VarChar(255)
