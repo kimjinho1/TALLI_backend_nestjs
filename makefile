@@ -27,3 +27,7 @@ fclean:
 	sudo docker compose down -v --rmi all
 	docker network prune --force
 	docker volume prune --force
+
+re: fclean docker
+
+.PHONY: all docker dev migrate seed clean studio fclean re

@@ -9,9 +9,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-        with:
-          fetch-depth: 3
-      - run: git log --pretty=oneline
 
       - name: executing remote ssh commands using ssh key
         uses: appleboy/ssh-action@v1.0.3
@@ -23,6 +20,8 @@ jobs:
           script: |
             cd backend
             pwd
-            ls -al
-
-        # git pull origin master
+            git config --global user.name "kimjinho1"
+            git config --global user.email "rlawlsgh8113@naver.com"
+            git config --global user.password ${{ secrets.GIT_TOKEN }}
+            git pull origin master
+            make re
