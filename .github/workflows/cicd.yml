@@ -1,0 +1,29 @@
+name: CICD-SSH
+on: 
+  push:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: executing remote ssh commands using ssh key
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }} 
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          port: 22
+          script: |
+              cd backend
+              pwd
+              sh deploy-ssh.sh
+        
+        # uses: invi5H/ssh-action@v1.0.0
+        # with:
+        #   SSH_USER: ${{ secrets.USERNAME }}
+        #   SSH_HOST: ${{ secrets.HOST }}
+        #   SSH_KEY: ${{ secrets.SSH_KEY }}
+        #   script: | 
+        #       cd backend
+        #       sh deploy_ssh.sh
