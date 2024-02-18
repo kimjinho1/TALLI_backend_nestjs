@@ -20,8 +20,7 @@ export class AppController {
 
   @Get()
   getHello(): string {
-    // return 'Talli Backend'
-    return '자동 배포 테스트 용'
+    return 'Talli Backend'
   }
 
   @Post('/image/:path')
