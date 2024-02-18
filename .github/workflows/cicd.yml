@@ -1,7 +1,7 @@
 name: CICD-SSH
-on: 
+on:
   push:
-    branches: [ master ]
+    branches: [master]
 
 jobs:
   build:
@@ -11,10 +11,12 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
+      - run: git log --pretty=oneline
+
       - name: executing remote ssh commands using ssh key
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.HOST }} 
+          host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           port: 22
@@ -22,6 +24,5 @@ jobs:
             cd backend
             pwd
             ls -al
-
 
         # git pull origin master
